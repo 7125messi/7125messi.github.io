@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>(c) 2018 7125messi.</copyright>
-    <lastBuildDate>Sat, 22 Jun 2019 14:05:54 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 22 Jun 2019 14:35:17 +0800</lastBuildDate>
     
 	<atom:link href="https://7125messi.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>特征工程方法论</title>
+      <link>https://7125messi.github.io/post/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B%E6%96%B9%E6%B3%95%E8%AE%BA/</link>
+      <pubDate>Sat, 22 Jun 2019 14:35:17 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B%E6%96%B9%E6%B3%95%E8%AE%BA/</guid>
+      <description>欢迎浏览Azure
+https://notebooks.azure.com/messi7125/projects/feature-engineering  </description>
+    </item>
     
     <item>
       <title>About</title>
