@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on 7125messi的博客</title>
+    <link>https://7125messi.github.io/post/</link>
+    <description>Recent content in Posts on 7125messi的博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <copyright>(c) 2018 7125messi.</copyright>
+    <lastBuildDate>Sat, 22 Jun 2019 13:47:06 +0800</lastBuildDate>
+    
+	<atom:link href="https://7125messi.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Bert在NLP各领域应用</title>
+      <link>https://7125messi.github.io/post/bert%E5%9C%A8nlp%E5%90%84%E9%A2%86%E5%9F%9F%E5%BA%94%E7%94%A8/</link>
+      <pubDate>Sat, 22 Jun 2019 13:47:06 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/bert%E5%9C%A8nlp%E5%90%84%E9%A2%86%E5%9F%9F%E5%BA%94%E7%94%A8/</guid>
+      <description>Bert 给人们带来了大惊喜，不过转眼过去大约半年时间了，这半年来，陆续出现了与 Bert 相关的不少新工作。
+最近几个月，在主业做推荐算法之外的时间，我其实一直比较好奇下面两个问题：
+问题一：Bert 原始的论文证明了：在 GLUE 这种综合的 NLP 数据集合下，Bert 预训练对几乎所有类型的 NLP 任务（生成模型除外）都有明显促进作用。但是，毕竟 GLUE 的各种任务有一定比例的数据集合规模偏小，领域也还是相对有限，在更多领域、更大规模的数据情况下，是否真的像 Bert 原始论文里的实验展示的那样，预训练技术对于很多应用领域有了很大的促进作用？如果有，作用有多大？这种作用的大小与领域相关吗？这是我关心的第一个问题。
+问题二：Bert 作为一项新技术，肯定还有很多不成熟或者需要改进的地方，那么，Bert 目前面临的问题是什么？后面有哪些值得改进的方向？这是我关心的第二个问题。
+陆陆续续地，我收集到了截止到 19 年 5 月底为止发表的，大约 70-80 篇与 Bert 相关的工作，刚开始我是准备把关于这两个问题的答案写在一篇文章里的，写着写着发现太长，而两个主题确实也可以独立分开，所以就改成了两篇。
+这一篇是回答第一个问题的，主题集中在各个 NLP 领域的 Bert 应用，一般这种应用不涉及对 Bert 本身能力的改进，就是单纯的应用并发挥 Bert 预训练模型的能力，相对比较简单；至于对 Bert 本身能力的增强或者改进，技术性会更强些，我归纳了大约 10 个 Bert 的未来改进方向，放在第二篇文章里，过阵子会把第二篇再改改发出来，在那篇内容里，会归纳梳理 Bert 未来可能的发展方向。
+这两篇文章对读者的知识结构有一定要求，建议在看之前，先熟悉下 Bert 的工作机制，可以参考我之前介绍 Bert 的文章：
+https://zhuanlan.zhihu.com/p/49271699
+本篇文章主要回答第一个问题，除此外，从应用的角度看，Bert 比较擅长处理具备什么特性的任务？不擅长处理哪些类型的应用？哪些 NLP 应用领域是 Bert 擅长但是还未开垦的处女地？Bert 的出现对 NLP 各个领域的传统技术会造成怎样的冲击？未来会形成统一的技术方案吗？包括 Bert 时代我们应该如何创新？…….. 这些问题也会有所涉及，并给出我个人的看法。
+在回答这些问题之前，我先讲讲我对 Bert 的一些务虚的看法，原先的内容本来在本文的这个位置，因为太长，之前已经摘出单独发了，如果感兴趣的话，可以参考下文：
+https://zhuanlan.zhihu.com/p/65470719</description>
+    </item>
+    
+    <item>
+      <title>Nlp中的词向量</title>
+      <link>https://7125messi.github.io/post/nlp%E4%B8%AD%E7%9A%84%E8%AF%8D%E5%90%91%E9%87%8F/</link>
+      <pubDate>Sat, 22 Jun 2019 13:46:14 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/nlp%E4%B8%AD%E7%9A%84%E8%AF%8D%E5%90%91%E9%87%8F/</guid>
+      <description>词向量对比：word2vec/glove/fastText/elmo/GPT/bert（非常好）
+本文以QA形式对自然语言处理中的词向量进行总结：包含word2vec/glove/fastText/elmo/bert。
+目录 一、文本表示和各词向量间的对比
+ 1、文本表示哪些方法？
+ 2、怎么从语言模型理解词向量？怎么理解分布式假设？
+ 3、传统的词向量有什么问题？怎么解决？各种词向量的特点是什么？
+ 4、word2vec和NNLM对比有什么区别？（word2vec vs NNLM）
+ 5、word2vec和fastText对比有什么区别？（word2vec vs fastText）
+ 6、glove和word2vec、 LSA对比有什么区别？（word2vec vs glove vs LSA）
+ 7、elmo、GPT、bert三者之间有什么区别？（elmo vs GPT vs bert）
+  二、深入解剖word2vec
+ 1、word2vec的两种模型分别是什么？
+ 2、word2vec的两种优化方法是什么？它们的目标函数怎样确定的？训练过程又是怎样的？
+  三、深入解剖Glove详解
+ 1、GloVe构建过程是怎样的？
+ 2、GloVe的训练过程是怎样的？
+ 3、Glove损失函数是如何确定的？
+  四、深入解剖bert（与elmo和GPT比较）
+ 1、为什么bert采取的是双向Transformer Encoder，而不叫decoder？
+ 2、elmo、GPT和bert在单双向语言模型处理上的不同之处？
+ 3、bert构建双向语言模型不是很简单吗？不也可以直接像elmo拼接Transformer decoder吗？
+ 4、为什么要采取Marked LM，而不直接应用Transformer Encoder？
+ 5、bert为什么并不总是用实际的[MASK]token替换被“masked”的词汇？
+  一、文本表示和各词向量间的对比 
+1、文本表示哪些方法？ 下面对文本表示进行一个归纳，也就是对于一篇文本可以如何用数学语言表示呢？</description>
+    </item>
+    
+  </channel>
+</rss>
