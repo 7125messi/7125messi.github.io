@@ -18,7 +18,7 @@
       <pubDate>Sun, 23 Jun 2019 16:49:10 +0800</pubDate>
       
       <guid>https://7125messi.github.io/post/transformer%E6%8A%80%E6%9C%AF%E8%AF%A6%E8%A7%A3/</guid>
-      <description>10-Transformer详解 参考文章：http://jalammar.github.io/illustrated-transformer/
+      <description>参考文章：http://jalammar.github.io/illustrated-transformer/
 谷歌推出的BERT模型在11项NLP任务中夺得SOTA结果，引爆了整个NLP界。而BERT取得成功的一个关键因素是Transformer的强大作用。谷歌的Transformer模型最早是用于机器翻译任务，当时达到了SOTA效果。Transformer改进了RNN最被人诟病的训练慢的缺点，利用self-attention机制实现快速并行。并且Transformer可以增加到非常深的深度，充分发掘DNN模型的特性，提升模型准确率。在本文中，我们将研究Transformer模型，把它掰开揉碎，理解它的工作原理。
 Transformer由论文《Attention is All You Need》提出，现在是谷歌云TPU推荐的参考模型。论文相关的Tensorflow的代码可以从GitHub获取，其作为Tensor2Tensor包的一部分。哈佛的NLP团队也实现了一个基于PyTorch的版本，并注释该论文。
 在本文中，我们将试图把模型简化一点，并逐一介绍里面的核心概念，希望让普通读者也能轻易理解。
