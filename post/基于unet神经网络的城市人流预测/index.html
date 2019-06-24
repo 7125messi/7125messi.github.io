@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>基于UNet神经网络的城市人流预测  &middot; 7125messi的博客</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="">
+
+
+<meta property="og:title" content="基于UNet神经网络的城市人流预测  &middot; 7125messi的博客 ">
+<meta property="og:site_name" content="7125messi的博客"/>
+<meta property="og:url" content="https://7125messi.github.io/post/%E5%9F%BA%E4%BA%8Eunet%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%9F%8E%E5%B8%82%E4%BA%BA%E6%B5%81%E9%A2%84%E6%B5%8B/" />
+<meta property="og:locale" content="zh-cn">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2019-06-24T21:34:14&#43;08:00" />
+<meta property="og:article:modified_time" content="2019-06-24T21:34:14&#43;08:00" />
+
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="基于UNet神经网络的城市人流预测" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://7125messi.github.io/post/%E5%9F%BA%E4%BA%8Eunet%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%9F%8E%E5%B8%82%E4%BA%BA%E6%B5%81%E9%A2%84%E6%B5%8B/" />
+<meta name="twitter:domain" content="https://7125messi.github.io">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "基于UNet神经网络的城市人流预测",
+    "author": {
+      "@type": "Person",
+      "name": ""
+    },
+    "datePublished": "2019-06-24",
+    "description": "",
+    "wordCount":  442 
+  }
+</script>
+
+
+
+<link rel="canonical" href="https://7125messi.github.io/post/%E5%9F%BA%E4%BA%8Eunet%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%9F%8E%E5%B8%82%E4%BA%BA%E6%B5%81%E9%A2%84%E6%B5%8B/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://7125messi.github.io/touch-icon-144-precomposed.png">
+<link href="https://7125messi.github.io/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.55.6" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight/default.css">
+
+  
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper has-sidebar">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="https://7125messi.github.io">
+  箴言
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+  带着爱和梦想去生活
+
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+<a class="homelink" href="https://7125messi.github.io">正文</a>
+
+
+  
+<a href="https://7125messi.github.io/about">相关</a>
+
+<a href="https://7125messi.github.io/post" title="Show list of posts">目录</a>
+
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+<a id="contact-link-github" class="contact_link" rel="me" aria-label="Github" href="https://github.com/7125messi">
+  <span class="fa fa-github-square"></span></a>
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>基于UNet神经网络的城市人流预测
+</h1>
+
+  <div class="metas">
+<time datetime="2019-06-24">24 Jun, 2019</time>
+
+
+  
+  &middot; Read in about 3 min
+  &middot; (442 Words)
+  <br>
+  
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<h1 id="1-利用手机信令数据计算人口流动数据">1 利用手机信令数据计算人口流动数据</h1>
+
+<p>手机信令数据是研究人口的整体流动情况的重要数据来源。移动运营商在为手机用户提供实时通讯服务时，积累了大量的基站与设备的服务配对数据。根据配对和唤醒发生的时间以及基站的地理位置，可以很自然划定一定时间和空间范围，统计每一个时间范围内在特定空间区域内手机设备的停留，进入和离开数据，并据此估算相应的人流数据。</p>
+
+<p>传统的人口网格分析过程一般只关注单个网格内某个时间点人口流动的截面数据以及城市当中不同区域的人口分布统计情况；没有将时间和空间融合考虑，不能对城市整体的人口流动形成一个完整连续的直观描述。但是，作为城市安全运营管理者和规划人员职责是需要把握好城市人口流动规律，建立有效的时空数据分析模型，从而为城市安全运行管理做好相应的人口短时预测与应急管理服务。 </p>
+
+<h1 id="2-人口流动数据网格图像流处理">2 人口流动数据网格图像流处理</h1>
+
+<h2 id="2-1-流处理思路">2.1 流处理思路</h2>
+
+<p>原始手机信令数据，按照一定的时间间隔（例如15分钟），划分出每个时间段的信令数据情况。主要包括：时间，格网ID，格网中心点经度，格网中心点维度，时间段内格网的停留人数，进入人数，离开人数。</p>
+
+<p>根据原始数据的时空关系，将原始数据转化为4维向量空间矩阵，维度分别为时间维度、空间维度横坐标，空间维度纵坐标以及停留，进入或离开的类别：Matrix[t,i,j,k]=p意味着在t时刻，第i行第j列的空间栅格位置，k=0时则停留人数为p，k=1时则进入人数为p，k=2时则离开人数为p。</p>
+
+<p>在这样的转换关系下，可以将源数据处理为3通道的时空数据。考虑到单个人员流动的时空连续性，可以认为表示人口流通的整体统计量的时空矩阵也具备一定局部关联性，换而言之，一个栅格点的人口流动数据会与该栅格附近的人口流行数据相互关联，也会与前后时间段该栅格的人口流动数据相互关联。而具体的关联形式和影响强度，则需要我们利用卷积神经，对历史数据进行学习来发现和记录相应的关联关系。</p>
+
+<p>更进一步地，通过数据洞察注意到，不同栅格网络间人口流动的时间变化曲线往往倾向于若干种固定模式，直观上，商业区，住宅区，办公区域会呈现出不同的人流曲线变化模式。这种模式与地理位置，用地规划，交通路网信息等属性息息相关。本模型后续将进一步讨论不同用地类型的栅格人口流动模式的比较分析。</p>
+
+<table>
+<thead>
+<tr>
+<th>TIME</th>
+<th>TAZID</th>
+<th>STAY</th>
+<th>ENTER</th>
+<th>EXIT</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>2017-04-05 00:00:00</td>
+<td>1009897</td>
+<td>460</td>
+<td>460</td>
+<td>52</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="2-2-人口栅格数据矢量化">2.2 人口栅格数据矢量化</h2>
+
+<p>基于一定的空间距离间隔（例如250m），将分析的目标空间划分为若干网格(141*137)。统计T时间内，属于网格M_(p,q)的手机设备停留、进入和离开的数据。按照业务需求，将手机设备数扩样为人口数量，将停留、进入和离开的数据标准化到（0,255）的空间，并将标准化后的数据作为图像的3个颜色通道，据此将T时间的整体网格数据转化为一张三通道格式的图片数据。按照时间维度将经过上述处理的图像作为视频的每一帧图像。</p>
+
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+import h5py
+
+# 数据转换成张量类型
+data_enter_exit_sz = pd.read_csv('data/sz/data/TBL_ENTER_EXIT_SZ20170401-20170431.csv')
+time_list = data_enter_exit_sz['TIME'].unique()
+N = len(time_list)
+string_to_ix = {string:i for i,string in enumerate(time_list)}
+
+tensor_data = np.zeros([N,141,137,3])
+for _,line in data_enter_exit_sz.iterrows():
+    if int(line['TAZID']) &lt;= 1000000:
+        continue
+    x,y = divmod(int(line['TAZID'])-1000000,144)
+    x = x - 2
+    y = y - 2
+    t = string_to_ix[line['TIME']]
+    tensor_data[t][x][y][0] = line['STAY']
+    tensor_data[t][x][y][1] = line['ENTER']
+    tensor_data[t][x][y][2] = line['EXIT']
+    
+# 数据保存成h5类型
+h5 = h5py.File('model_data/tensor_data_sz.h5','w')
+h5.create_dataset('dataset_1', data = tensor_data)
+h5.close()
+
+# 数据准备:区分X和Y
+h5 = h5py.File('model_data/tensor_data_sz.h5','r')
+tensor_data = h5['dataset_1'][:]
+h5.close()
+
+M = len(tensor_data)
+X = []
+Y = []
+
+for i in range(M - 8):
+    X.append(tensor_data[i:i+8])                  # 延迟预测前8个时段预测下1时段
+    Y.append([tensor_data[i+8][20:120,20:116]])   # 取部分城区
+
+X = np.array(X)
+Y = np.array(Y)
+
+# print(X.shape)   # (2104, 8, 141, 137, 3)
+# print(Y.shape)   # (2104, 1, 100, 96, 3)
+
+h5 = h5py.File('./drive/model_data/model_data_sz.h5','w')
+h5.create_dataset('date_sz', data=X)
+h5.create_dataset('data_sz', data=Y)
+h5.close()
+</code></pre>
+
+<p>将上述处理的网格化人口流动视频流数据作为一个计算机视觉任务，通过计算机视觉算法建立预测模型。在实际运用当中，将会根据一定比例，选定相应的时间点将视频分隔为训练集与测试集。在相应的数据集当中按照一定模式选取相应的帧组合作为模型输入，例如选择T-7到T时刻的数据作为模型输入，来预测T+1时刻的人流网格数据。</p>
+
+<h1 id="3-建立三维u-net神经网络模型">3 建立三维U-Net神经网络模型</h1>
+
+<h2 id="3-1-人流变化影响因素分析">3.1 人流变化影响因素分析</h2>
+
+<p>怎样预测城市中每一个地区的人流量变化是一个困难的问题，本模型在设计方法时，考虑了以下三个方面：</p>
+
+<ul>
+<li>A.兼顾时间变化的连续性、差异性和周期性。任一地区的人流量变化从时间角度来看一般是连续的，即后一时刻的人流量与前一时刻的人流量关联性最强，而随着时间间隔的增大，两个时刻之间的人流量相关性会逐渐变小。而周期性在不同的时间尺度下还会有所差别：以天为单位观察，我们能看到每天人口从早到晚的涨落；以周为单位观察，我们能看到工作日和周末的明显差异；以年为单位观察，则又能看到四季气候与节假日对人流量的影响。</li>
+<li>B.考虑空间相关性。任何的人流集聚都具有空间相关性：一场社区联欢会能吸引本社区和附近社区的市民参加，一个跨年倒计时可能吸引周边地区乃至全城的人流，一场明星演唱会则会吸引从本市到周边城市乃至全国歌迷的涌入。</li>
+<li>C.考虑各类外部因素影响。如极端天气、节假日、演唱会、球赛、重大活动等，在人流量变化预测的三个关键点中，外部因素的影响需引起重视，这是因为准确把握外部因素对人流的作用是提前化解人口异常集聚问题的前提条件，也是人流量预测的核心价值所在。</li>
+</ul>
+
+<p>基于上述三个关键点，可以设计了如图所示的U-Net神经网络预测人流量。在这个结构图中：</p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561371117193-5851e01d-7eaf-48af-97b8-7692f0ec0d84.png#align=left&amp;display=inline&amp;height=665&amp;originHeight=834&amp;originWidth=936&amp;status=done&amp;width=746" alt="" /></p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561371691199-47371854-0e6d-4308-82b6-2b5230106a92.png#align=left&amp;display=inline&amp;height=256&amp;originHeight=256&amp;originWidth=385&amp;status=done&amp;width=385" alt="" /></p>
+
+<ul>
+<li><p>针对上述A因素，时间依赖性，设计了残差单元，例如，早上8点45分钟发生的交通拥堵会影响上午9点。</p></li>
+
+<li><p>针对上述B因素，空间依赖性，设计了U-Net层，例如，地铁系统和高速公路可以带来远距离的依赖性。</p></li>
+
+<li><p>针对上述C因素，外部因素影响，设计了全连接层，例如，天气条件和节假日可能会改变人群的流动。</p></li>
+</ul>
+
+<h2 id="3-2-模型结构框架">3.2 模型结构框架</h2>
+
+<p>U-Net神经网络，结构如图所示，使用卷积层+池化结构提取人流变化的共性模式特征，通过上采样操作将空间维度上被压缩的逐层恢复到原始输入尺寸，并通过相应层级的截取和叠加除了形成同层级的残差结构，保证网络在提取特征的同时充分运用原始图像和空间维度收缩过程中的中间层特征信息。</p>
+
+<pre><code class="language-python">from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Conv3D
+from tensorflow.keras.layers import ConvLSTM2D
+from tensorflow.keras.layers import Add
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import AveragePooling3D
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import UpSampling3D
+from tensorflow.keras.layers import Cropping3D
+from tensorflow.keras.layers import Concatenate
+from tensorflow.keras.models import Model
+from tensorflow.keras.utils import plot_model
+
+inputs = Input(shape=(8, 141, 137, 3))
+conv_1 = Conv3D(filters = 32, kernel_size = (3,3,3),activation = 'relu')(inputs)
+conv_2 = Conv3D(filters = 32, kernel_size = (1,3,3),activation = 'relu')(conv_1)
+
+pool_1 = AveragePooling3D(pool_size = (2,2,2))(conv_2)
+conv_3 = Conv3D(filters = 64,kernel_size = (3,3,3),activation = 'relu')(pool_1)
+conv_4 = Conv3D(filters = 64,kernel_size = (1,3,3),activation = 'relu')(conv_3)
+
+pool_2 = AveragePooling3D(pool_size = (1,2,2))(conv_4)
+conv_5 = Conv3D(filters = 128,kernel_size = (1,3,3),activation = 'relu')(pool_2)
+conv_6 = Conv3D(filters = 64,kernel_size = (1,3,3),activation = 'relu')(conv_5)
+
+upsample_1 = UpSampling3D(size = (1,2,2))(conv_6)
+crop_1 = Cropping3D(cropping = ((0,0),(4,4),(4,4)))(conv_4)
+concat_1 = Concatenate()([upsample_1,crop_1])
+conv_7 = Conv3D(filters = 64,kernel_size = (1,3,3),activation = 'relu')(concat_1)
+conv_8 = Conv3D(filters = 32,kernel_size = (1,3,3),activation = 'relu')(conv_7)
+
+upsample_2 = UpSampling3D(size = (1,2,2))(conv_8)
+crop_2 = Cropping3D(cropping = ((5,0),(17,16),(17,16)))(conv_2)
+concat_2 = Concatenate()([upsample_2,crop_2])
+conv_9 = Conv3D(filters = 64,kernel_size = (1,3,3),activation = 'relu')(concat_2)
+conv_10 = Conv3D(filters = 32,kernel_size = (1,3,3),activation = 'relu')(conv_9)
+outputs = Conv3D(filters = 3,kernel_size = (1,1,1),activation = 'relu')(conv_10)
+</code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561371138160-cd55aae9-da65-4ec2-9b5a-a104e5914222.png" alt="图5-4 模型网络结构.png" /></p>
+
+<h2 id="3-3-模型评估">3.3 模型评估</h2>
+
+<p>将模型输出与实际的T+1数据进行比较，通过Adam，RMSProp等优化器优化迭代神经网络权重，计算误差函数Loss和MAE，如图所示。</p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561379106646-c4a38055-f2c7-48b7-a605-3485d12ed599.png#align=left&amp;display=inline&amp;height=357&amp;name=image.png&amp;originHeight=345&amp;originWidth=479&amp;size=19996&amp;status=done&amp;width=496" alt="image.png" /></p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561379120340-c2734dbd-7607-4587-bc4a-0a3876223d12.png#align=left&amp;display=inline&amp;height=358&amp;name=image.png&amp;originHeight=345&amp;originWidth=495&amp;size=18073&amp;status=done&amp;width=514" alt="image.png" /></p>
+
+<h2 id="3-4-预测结果与实际值比较">3.4 预测结果与实际值比较</h2>
+
+<table>
+<thead>
+<tr>
+<th><strong>TIME</strong></th>
+<th><strong>TAZ_ID</strong></th>
+<th><strong>STAY_PRE</strong></th>
+<th><strong>ENTER_PRE</strong></th>
+<th><strong>EXIT_PRE</strong></th>
+<th><strong>STAY_TRUE</strong></th>
+<th><strong>ENTER_TRUE</strong></th>
+<th><strong>EXIT_TRUE</strong></th>
+<th><strong>CENTER_LNG</strong></th>
+<th><strong>CENTER_LAT</strong></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><strong>#######</strong></td>
+<td>1006550</td>
+<td>1642</td>
+<td>53</td>
+<td>109</td>
+<td>1661</td>
+<td>45</td>
+<td>83</td>
+<td>120.6351</td>
+<td>31.15021</td>
+</tr>
+
+<tr>
+<td><strong>#######</strong></td>
+<td>1010150</td>
+<td>819</td>
+<td>40</td>
+<td>47</td>
+<td>796</td>
+<td>16</td>
+<td>45</td>
+<td>120.6438</td>
+<td>31.37676</td>
+</tr>
+
+<tr>
+<td><strong>#######</strong></td>
+<td>1004550</td>
+<td>1556</td>
+<td>79</td>
+<td>106</td>
+<td>1559</td>
+<td>81</td>
+<td>87</td>
+<td>120.7985</td>
+<td>31.01852</td>
+</tr>
+
+<tr>
+<td><strong>#######</strong></td>
+<td>1010750</td>
+<td>2225</td>
+<td>65</td>
+<td>111</td>
+<td>2210</td>
+<td>68</td>
+<td>107</td>
+<td>120.8989</td>
+<td>31.40549</td>
+</tr>
+
+<tr>
+<td><strong>#######</strong></td>
+<td>1007150</td>
+<td>1763</td>
+<td>78</td>
+<td>116</td>
+<td>1773</td>
+<td>101</td>
+<td>118</td>
+<td>120.8894</td>
+<td>31.17894</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="3-5-不同用地性质地块的人口停流量预测结果与实际的比较">3.5 不同用地性质地块的人口停流量预测结果与实际的比较</h2>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561371742734-7b04acc6-b03c-40b6-9e54-150c6ac27476.png#align=left&amp;display=inline&amp;height=507&amp;originHeight=553&amp;originWidth=543&amp;status=done&amp;width=498" alt="" /></p>
+
+<h2 id="3-6-预测后2帧和后4帧">3.6 预测后2帧和后4帧</h2>
+
+<p>后2帧还行，但是后4帧就会出现不稳定的情况。从现有的数据来看，预测后1帧（15分钟）和后2帧（30分钟）可以达到满意的效果。</p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561380748777-a6770521-bddf-4d07-8ab9-0500035e927c.png#align=left&amp;display=inline&amp;height=233&amp;name=image.png&amp;originHeight=466&amp;originWidth=1383&amp;size=68877&amp;status=done&amp;width=691.5" alt="image.png" /></p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561380759004-730d0e37-e307-4a26-888c-300180a85052.png#align=left&amp;display=inline&amp;height=233&amp;name=image.png&amp;originHeight=466&amp;originWidth=1380&amp;size=29009&amp;status=done&amp;width=690" alt="image.png" /></p>
+
+<h1 id="4-短期人流预测器产品化解决方案">4 短期人流预测器产品化解决方案</h1>
+
+<p>本模型提出的三维U-Net神经网络可以预知未来一段时间内的城市某些区域人流量变化趋势，这对城市网格化运行管理部门来说无疑增加了一件强大的工具。它可以有效地提高城市的运行效率，更有力地保障城市公共安全。在这一技术的支持下，城市网格化运行管理部门可以提前预知因各类公共事件和突发事件引起的人流快速聚集，从而提前做好相应的疏导、管控和限流等应急预案，最大限度地降低由此带来的负面影响。例如在展会、演唱会和足球赛等场景下，模型的泛化能力能够帮助主办单位对会场周边一定范围内的人流汇聚趋势提前了解，并做好相应安全措施部署，从而保证活动安全有序高效开展。</p>
+
+<p>基于<strong>Echarts+Mapbox三维GIS</strong>可视化展示我们预测的人流24小时实时变化趋势Demo，给前端设计人员提供大屏可视化展示解决方案。</p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/200056/1561371226067-d0bbf7ab-f5e6-4eb8-a5cf-278d236c7f9f.jpeg#align=left&amp;display=inline&amp;height=936&amp;name=%E9%A2%84%E6%B5%8B%E7%BB%93%E6%9E%9C%E5%8F%AF%E8%A7%86%E5%8C%96.jpg&amp;originHeight=936&amp;originWidth=1677&amp;size=2299696&amp;status=done&amp;width=1677" alt="预测结果可视化.jpg" /></p>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="https://7125messi.github.io/post/transformer%E6%8A%80%E6%9C%AF%E8%AF%A6%E8%A7%A3/" title="Transformer技术详解">
+      Previous
+    </a>
+    
+
+    
+
+  
+
+
+</div>
+
+  
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+  code with <i class='fa fa-heart'></i>
+
+
+</div>
+
+
+  
+<div class="container copyright">
+  
+  &copy; 2018 7125messi.
+
+
+</div>
+
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+  </body>
+</html>
+
