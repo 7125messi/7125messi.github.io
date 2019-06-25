@@ -7,10 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>(c) 2018 7125messi.</copyright>
-    <lastBuildDate>Mon, 24 Jun 2019 21:34:14 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 25 Jun 2019 20:43:27 +0800</lastBuildDate>
     
 	<atom:link href="https://7125messi.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Transformer技术实战</title>
+      <link>https://7125messi.github.io/post/transformer%E6%8A%80%E6%9C%AF%E5%AE%9E%E6%88%98/</link>
+      <pubDate>Tue, 25 Jun 2019 20:43:27 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/transformer%E6%8A%80%E6%9C%AF%E5%AE%9E%E6%88%98/</guid>
+      <description>欢迎访问Colab链接
+https://colab.research.google.com/drive/1FH6ZpQA1HGX3GZCm0yxidq7ztoyd6KhB
+这里以京东商城评论文本goods_zh.txt,10万条，标注为0的是差评，标注为1的是好评。中文商品评论短文本分类器，可用于情感分析。</description>
+    </item>
     
     <item>
       <title>基于UNet神经网络的城市人流预测</title>
@@ -61,7 +72,9 @@ Decoder的结构如图5所示，它和encoder的不同之处在于Decoder多了�
       
       <guid>https://7125messi.github.io/post/paddle_hub%E5%92%8Cpytorch_hub%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0/</guid>
       <description>paddlehub预训练模型迁移学习
-https://colab.research.google.com/drive/1PIRRwzCcEVVQ4jAOTm7yJnlduuxM-pLc  pytorch_hub预训练模型迁移学习</description>
+https://colab.research.google.com/drive/1PIRRwzCcEVVQ4jAOTm7yJnlduuxM-pLc
+pytorch_hub预训练模型迁移学习
+https://colab.research.google.com/drive/1oCmWDakpYwLL8AVmAUxr4FLVSHQTTXey</description>
     </item>
     
     <item>
