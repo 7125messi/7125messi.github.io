@@ -51,7 +51,7 @@
     },
     "datePublished": "2019-06-24",
     "description": "",
-    "wordCount":  442 
+    "wordCount":  970 
   }
 </script>
 
@@ -161,8 +161,8 @@
 
 
   
-  &middot; Read in about 3 min
-  &middot; (442 Words)
+  &middot; Read in about 5 min
+  &middot; (970 Words)
   <br>
   
 
@@ -451,9 +451,292 @@ outputs = Conv3D(filters = 3,kernel_size = (1,1,1),activation = 'relu')(conv_10)
 
 <h1 id="4-短期人流预测器产品化解决方案">4 短期人流预测器产品化解决方案</h1>
 
-<p>本模型提出的三维U-Net神经网络可以预知未来一段时间内的城市某些区域人流量变化趋势，这对城市网格化运行管理部门来说无疑增加了一件强大的工具。它可以有效地提高城市的运行效率，更有力地保障城市公共安全。在这一技术的支持下，城市网格化运行管理部门可以提前预知因各类公共事件和突发事件引起的人流快速聚集，从而提前做好相应的疏导、管控和限流等应急预案，最大限度地降低由此带来的负面影响。例如在展会、演唱会和足球赛等场景下，模型的泛化能力能够帮助主办单位对会场周边一定范围内的人流汇聚趋势提前了解，并做好相应安全措施部署，从而保证活动安全有序高效开展。</p>
+<p>本模型提出的三维U-Net神经网络可以预知未来一段时间内的城市某些区域人流量变化趋势，这对城市网格化运行管理部门来说无疑增加了一件强大的工具。它可以有效地提高城市的运行效率，更有力地保障城市公共安全。在这一技术的支持下，城市网格化运行管理部门可以提前预知因各类公共事件和突发事件引起的人流快速聚集，从而提前做好相应的疏导、管控和限流等应急预案，最大限度地降低由此带来的负面影响。例如在展会、演唱会和足球赛等场景下，模型的泛化能力能够帮助主办单位对会场周边一定范围内的人流汇聚趋势提前了解，并做好相应安全措施部署，从而保证活动安全有序高效开展。 &lt;</p>
 
 <p>基于<strong>Echarts+Mapbox三维GIS</strong>可视化展示我们预测的人流24小时实时变化趋势Demo，给前端设计人员提供大屏可视化展示解决方案。</p>
+
+<h2 id="4-1-模型预测结果结构化处理">4.1 模型预测结果结构化处理</h2>
+
+<p>预测结果数据：</p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561563424679-fc131214-c1c5-4c1f-93f1-82d256a765f1.png#align=left&amp;display=inline&amp;height=284&amp;name=image.png&amp;originHeight=568&amp;originWidth=718&amp;size=34101&amp;status=done&amp;width=359" alt="image.png" /></p>
+
+<pre><code class="language-python"># -*- coding: utf-8 -*-
+import pandas as pd 
+import csv
+import json
+import h5py
+
+# 矢量化转结构化数据
+def make_csv_output(input_matrix,match_csv='.\苏州\data\TBL_ENTER_EXIT_SZ20170405-20170426.csv',start_location=2008,outputs='output_u_net_sz.csv'):
+    meta_data=pd.read_csv(match_csv,encoding='utf-8',engine='python')
+    [I,M,N,C]=input_matrix.shape
+    temp=['TIME','TAZID','STAY','ENTER','EXIT']
+
+    for i in range(I):
+        for m in range(M):
+            for n in range(N):
+                if input_matrix[i,m,n,0]!=0 or input_matrix[i,m,n,1]!=0 or input_matrix[i,m,n,2]!=0:
+                    time=meta_data[i+start_location]['TIME']
+                    tzid=(137-m)*117+y+1000000
+                    st=input_matrix[i,m,n,0]
+                    en=input_matrix[i,m,n,1]
+                    ex=input_matrix[i,m,n,2]
+                    temp.append(time,tzid,st,en,ex)
+
+    with open(outputs,'w') as f1:
+        writer=csv.writer(f1)
+        for line in temp:
+            writer.writerow(line)
+
+h5f = h5py.File('pre_u_net.h5', 'r')
+matrix_data = h5f['dataset_1'][:]
+h5f.close()
+
+print(matrix_data.shape)
+# make_csv_output(matrix_data)
+
+
+# 矢量化转成js展示数据格式（下面展示所需要的）
+def make_json_output(input_matrix,match_csv='.\苏州\data\TBL_ENTER_EXIT_SZ20170405-20170426.csv',outputs='aaaaaa_output_u_net_sz.json'):
+    meta_data=pd.read_csv(match_csv,encoding='utf-8',engine='python')
+    time_list=meta_data['TIME'].unique()
+    time_ix_to_string={i:string for i,string in enumerate(time_list)}
+    lat_lon_definition=pd.read_csv('.\苏州\data\苏州TBL_TAZ_DEFINITION.csv',encoding='utf-8',engine='python')
+    block_id_list=lat_lon_definition[lat_lon_definition['TYPE_ID']==0][['TAZ_ID','CENTER_LAT','CENTER_LON']]
+    del lat_lon_definition
+    block_id_list.TAZ_ID = block_id_list.TAZ_ID.astype(int)
+    block_id_list.set_index('TAZ_ID',inplace=True)
+
+    [I,_,M,N,C]=input_matrix.shape
+    aaa={'type':'FeatureCollection','features':[]}
+
+    feature_list=[]
+    for i in range(24):
+        bbb={'time':time_ix_to_string[i+8]}
+        temp=[]
+        for m in range(M):
+            for n in range(N):
+                if input_matrix[i,0,m,n,0]!=0 or input_matrix[i,0,m,n,1]!=0 or input_matrix[i,0,m,n,2]!=0:
+                    ccc={}
+                    tzid=(m+22)*144+(n+22)+1000000
+                    ccc['values']=str([int(input_matrix[i,0,m,n,0]),int(input_matrix[i,0,m,n,1]),int(input_matrix[i,0,m,n,2])])
+                    ccc['lat']=str(block_id_list.at[tzid,'CENTER_LON'])
+                    ccc['lon']=str(block_id_list.at[tzid,'CENTER_LAT'])
+                    temp.append(ccc)
+        bbb['gridChart_list']=temp
+        feature_list.append(bbb)
+    aaa['features']=feature_list
+
+    with open(outputs,'w') as f:
+        json.dump(aaa,f)
+
+h5f = h5py.File('pre_u_net.h5', 'r')
+matrix_data = h5f['dataset_1'][:]
+h5f.close()
+
+print(matrix_data.shape)
+# make_json_output(matrix_data)
+</code></pre>
+
+<h2 id="4-2-echarts-mapbox三维gis可视化">4.2 Echarts+Mapbox三维GIS可视化</h2>
+
+<p>项目结构：</p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561564137392-52860ab3-a42f-4ed1-828f-aaffb6b98068.png#align=left&amp;display=inline&amp;height=156&amp;name=image.png&amp;originHeight=312&amp;originWidth=788&amp;size=44095&amp;status=done&amp;width=394" alt="image.png" /><br /><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561564206991-43e16ec5-c7f4-4590-8345-20906117a0be.png#align=left&amp;display=inline&amp;height=200&amp;name=image.png&amp;originHeight=400&amp;originWidth=1140&amp;size=73958&amp;status=done&amp;width=570" alt="image.png" /><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1561564227782-769731e0-75fe-4330-97cf-96d482a8cb41.png#align=left&amp;display=inline&amp;height=549&amp;name=image.png&amp;originHeight=1098&amp;originWidth=992&amp;size=180391&amp;status=done&amp;width=496" alt="image.png" /></p>
+
+<p>其中maxbox.html如下所示：</p>
+
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html style=&quot;height: 100%&quot;&gt;
+
+&lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;style&gt;
+        .echartMap div {
+            position: absolute;
+            overflow: auto;
+        }
+    &lt;/style&gt;
+    &lt;script src=&quot;./lib/echarts.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;./lib/mapbox-gl.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;./lib/mapboxgl-token.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;./lib/echarts-gl.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;./lib/jquery-2.1.1.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;./lib/maptalks.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;./lib/Tween.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;./lib/echarts-gl.1.1.3.js&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body style=&quot;height: 100%; margin: 0&quot;&gt;
+    &lt;!-- 为ECharts准备一个具备大小（宽高）的Dom --&gt;
+    &lt;div id=&quot;main&quot; style=&quot;height: 100%&quot;&gt;&lt;/div&gt;
+    &lt;script type=&quot;text/javascript&quot;&gt;
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'))
+
+        var uploadedDataURL = &quot;./data/aaaaaa_output_u_net_sz.json&quot;;
+        var MapboxStyleDataURL = &quot;./data/data-1546500855305-wBxWgJRZc.json&quot;;
+
+        myChart.showLoading();
+
+        $.getJSON(MapboxStyleDataURL, function (MapboxStyle) { //读取MapboxStyle数据
+            var option = {
+                baseOption: {
+                    timeline: {
+                        axisType: 'category',
+                        orient: 'vertical',
+                        autoPlay: true,
+                        inverse: true,
+                        playInterval: 300,
+                        left: null,
+                        right: 0,
+                        top: null,
+                        bottom: 50,
+                        width: 55,
+                        height: null,
+                        label: {
+                            normal: {
+                                textStyle: {
+                                    color: '#fff'
+                                }
+                            },
+                            emphasis: {
+                                textStyle: {
+                                    color: '#aaa'
+                                }
+                            }
+                        },
+                        symbol: 'circle',
+                        lineStyle: {
+                            color: '#555'
+                        },
+                        checkpointStyle: {
+                            color: '#bbb',
+                            borderColor: '#777',
+                            borderWidth: 2
+                        },
+                        controlStyle: {
+                            normal: {
+                                color: '#666',
+                                borderColor: '#666'
+                            },
+                            emphasis: {
+                                color: '#aaa',
+                                borderColor: '#aaa'
+                            }
+                        },
+                        data: []
+                    },
+                    title: {
+                        text: &quot;苏州人口分布24小时潮汐&quot;,
+                        textStyle: {
+                            color: '#fff',
+                            fontSize: 30
+                        },
+                        right: '5%'
+                    },
+
+                    visualMap: {
+                        show: false,
+                        calculable: true,
+                        realtime: false,
+                        inRange: {
+                            color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf',
+                                '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026'
+                            ]
+                        },
+                        outOfRange: {
+                            colorAlpha: 0
+                        }
+
+                    },
+
+                    maptalks3D: {
+                        center: [120.58319, 31.29834],
+                        zoom: 10,
+                        pitch: 40,
+                        urlTemplate: 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                        // altitudeScale: 1,
+                        postEffect: {
+                            enable: true,
+                            FXAA: {
+                                enable: true
+                            }
+                        },
+                        light: {
+                            main: {
+                                intensity: 1,
+                                shadow: true,
+                                shadowQuality: 'high'
+                            },
+                            ambient: {
+                                intensity: 0.
+                            },
+                            ambientCubemap: {
+                                texture: './data/data-1491838644249-ry33I7YTe.hdr',
+                                exposure: 1,
+                                diffuseIntensity: 0.5,
+                                specularIntensity: 2
+                            }
+                        }
+                    },
+                    series: [{
+                        type: 'bar3D',
+                        shading: 'realistic',
+                        coordinateSystem: 'maptalks3D',
+                        barSize: 0.5,
+                        silent: true
+                    }]
+                },
+                options: [] //timeline所用的多个option存放处，读取数据后添加
+            }
+
+            $.getJSON(uploadedDataURL, function (linedata) { //读取24小时数据
+                myChart.hideLoading();
+                var timeline = [];
+                for (var n = 0; n &lt; linedata.features.length; n++) { //对数据中每天数据整理后添加到options中，以便timeline使用
+                    timedata = linedata.features[n].gridChart_list;
+                    var data = []
+                    var max = linedata.features[n].max;
+                    for (var i = 0; i &lt; timedata.length; i += 1) {
+                        // var _pheight = 1000;
+                        loncol = timedata[i].lon //经度
+                        latcol = timedata[i].lat //纬度
+                        var _v = JSON.parse(timedata[i].values);
+                        var value;
+                        var value = _v[0]; //数组中值相加
+                        count = value;
+                        data.push({
+                            'value': [loncol, latcol, count]
+                        })
+
+                    }
+                    timeline.push(linedata.features[n].time); //时间(0时到24时)
+
+                    option.options.push({
+                        visualMap: {
+                            max: 8000
+                        },
+                        series: [{
+                            data: data
+                        }]
+                    });
+                }
+                option.baseOption.timeline.data = timeline; //时间轴
+
+                if (option &amp;&amp; typeof option === &quot;object&quot;) {
+                    myChart.setOption(option, true);
+                }
+            });
+        });
+        // 使用刚指定的配置项和数据显示图表。
+        // myChart.setOption(option);
+    &lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
 
 <p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/200056/1561371226067-d0bbf7ab-f5e6-4eb8-a5cf-278d236c7f9f.jpeg#align=left&amp;display=inline&amp;height=936&amp;name=%E9%A2%84%E6%B5%8B%E7%BB%93%E6%9E%9C%E5%8F%AF%E8%A7%86%E5%8C%96.jpg&amp;originHeight=936&amp;originWidth=1677&amp;size=2299696&amp;status=done&amp;width=1677" alt="预测结果可视化.jpg" /></p>
 
