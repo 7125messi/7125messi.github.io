@@ -7,10 +7,29 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>(c) 2018 7125messi.</copyright>
-    <lastBuildDate>Sun, 30 Jun 2019 21:26:33 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 03 Jul 2019 22:18:02 +0800</lastBuildDate>
     
 	<atom:link href="https://7125messi.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Feature_selector实现高效的特征选择</title>
+      <link>https://7125messi.github.io/post/feature_selector%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9/</link>
+      <pubDate>Wed, 03 Jul 2019 22:18:02 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/feature_selector%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9/</guid>
+      <description>[参考整理]
+具体可以参考我的Azure Notebook：
+https://notebooks.azure.com/messi7125/projects/feature-engineering
+下面简要介绍一下功能介绍
+Introduction: Feature Selector Usage 在这个笔记本中，我们将使用FeatureSelector类来选择要从数据集中删除的要素。 此类有五种方法可用于查找要删除的功能：
+ 具有高missing-values百分比的特征 具有高相关性的特征 对模型预测结果无贡献的特征（即zero importance） 对模型预测结果只有很小贡献的特征（即low importance） 具有单个值的特征（即数据集中该特征取值的集合只有一个元素）  requirements：
+lightgbm==2.1.1 matplotlib==2.1.2 seaborn==0.8.1 numpy==1.14.5 pandas==0.23.1 scikit-learn==0.19.1  from feature_selector.selector import FeatureSelector import pandas as pd  Example Dataset 该数据集被用作[Kaggle的[Home Credit Default Risk Competition]竞赛的一部分（https://www.kaggle.com/c/home-credit-default-risk/）。 它适用于受监督的机器学习分类任务，其目标是预测客户是否违约贷款。 整个数据集可以[这里]下载，我们将使用10,000行的小样本。
+特征选择器设计用于机器学习任务，但可以应用于任何数据集。基于特征重要性的方法确实需要受监督的机器学习问题。
+train = pd.read_csv(&#39;../data/credit_example.csv&#39;) train_labels = train[&#39;TARGET&#39;] train.head()  数据集中有几个分类列。 使用基于特征重要性的方法时，FeatureSelector使用独热编码处理这些。
+train = train.drop(columns = [&#39;TARGET&#39;]) train.head()  Implementation FeatureSelector有五个函数用于识别要删除的列：
+ identify_missing identify_single_unique identify_collinear identify_zero_importance identify_low_importance  这些方法根据指定的标准查找要删除的功能。 标识的特征存储在FeatureSelector的ops属性（Python字典）中。 我们可以手动删除已识别的功能，或使用FeatureSelector中的remove功能来实际删除功能。</description>
+    </item>
     
     <item>
       <title>UER Py高质量中文BERT预训练模型</title>
@@ -18,7 +37,10 @@
       <pubDate>Sun, 30 Jun 2019 21:26:33 +0800</pubDate>
       
       <guid>https://7125messi.github.io/post/uer-py%E9%AB%98%E8%B4%A8%E9%87%8F%E4%B8%AD%E6%96%87bert%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B/</guid>
-      <description>最近在github看到了一个项目，貌似是腾讯出品，良心之作，特地去Colab撸了一下，确实可以，封装了很多模块，后续估计还要迭代，直至打成包就更好了。
+      <description>[原创]
+最近在github看到了一个项目:
+https://github.com/dbiir/UER-py
+貌似是腾讯出品，良心之作，特地去Colab撸了一下，确实可以，封装了很多模块，后续估计还要迭代，直至打成包就更好了。
 有兴趣的同学可以去我的Colab上，玩一下。
 https://colab.research.google.com/drive/1N81AYxPolDWPMdbZpYO1NnfV4T403Bxz</description>
     </item>

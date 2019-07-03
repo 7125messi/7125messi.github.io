@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Feature_selector实现高效的特征选择  &middot; 7125messi的博客</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="">
+
+
+<meta property="og:title" content="Feature_selector实现高效的特征选择  &middot; 7125messi的博客 ">
+<meta property="og:site_name" content="7125messi的博客"/>
+<meta property="og:url" content="https://7125messi.github.io/post/feature_selector%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9/" />
+<meta property="og:locale" content="zh-cn">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2019-07-03T22:18:02&#43;08:00" />
+<meta property="og:article:modified_time" content="2019-07-03T22:18:02&#43;08:00" />
+
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="Feature_selector实现高效的特征选择" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://7125messi.github.io/post/feature_selector%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9/" />
+<meta name="twitter:domain" content="https://7125messi.github.io">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Feature_selector实现高效的特征选择",
+    "author": {
+      "@type": "Person",
+      "name": ""
+    },
+    "datePublished": "2019-07-03",
+    "description": "",
+    "wordCount":  527 
+  }
+</script>
+
+
+
+<link rel="canonical" href="https://7125messi.github.io/post/feature_selector%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://7125messi.github.io/touch-icon-144-precomposed.png">
+<link href="https://7125messi.github.io/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.55.6" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight/default.css">
+
+  
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper has-sidebar">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="https://7125messi.github.io">
+  箴言
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+  带着爱和梦想去生活
+
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+<a class="homelink" href="https://7125messi.github.io">正文</a>
+
+
+  
+<a href="https://7125messi.github.io/about">相关</a>
+
+<a href="https://7125messi.github.io/post" title="Show list of posts">目录</a>
+
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+<a id="contact-link-github" class="contact_link" rel="me" aria-label="Github" href="https://github.com/7125messi">
+  <span class="fa fa-github-square"></span></a>
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>Feature_selector实现高效的特征选择
+</h1>
+
+  <div class="metas">
+<time datetime="2019-07-03">3 Jul, 2019</time>
+
+
+  
+  &middot; Read in about 3 min
+  &middot; (527 Words)
+  <br>
+  
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<p>[参考整理]</p>
+
+<p>具体可以参考我的Azure Notebook：</p>
+
+<p><a href="https://notebooks.azure.com/messi7125/projects/feature-engineering">https://notebooks.azure.com/messi7125/projects/feature-engineering</a></p>
+
+<p>下面简要介绍一下功能介绍</p>
+
+<h1 id="introduction-feature-selector-usage">Introduction: Feature Selector Usage</h1>
+
+<p>在这个笔记本中，我们将使用<code>FeatureSelector</code>类来选择要从数据集中删除的要素。 此类有五种方法可用于查找要删除的功能：</p>
+
+<ul>
+<li>具有高missing-values百分比的特征</li>
+<li>具有高相关性的特征</li>
+<li>对模型预测结果无贡献的特征（即zero importance）</li>
+<li>对模型预测结果只有很小贡献的特征（即low importance）</li>
+<li>具有单个值的特征（即数据集中该特征取值的集合只有一个元素）</li>
+</ul>
+
+<p><strong>requirements</strong>：</p>
+
+<pre><code>lightgbm==2.1.1
+matplotlib==2.1.2
+seaborn==0.8.1
+numpy==1.14.5
+pandas==0.23.1
+scikit-learn==0.19.1
+</code></pre>
+
+<pre><code class="language-python">from feature_selector.selector import FeatureSelector
+import pandas as pd
+</code></pre>
+
+<h2 id="example-dataset">Example Dataset</h2>
+
+<p>该数据集被用作[Kaggle的[Home Credit Default Risk Competition]竞赛的一部分（<a href="https://www.kaggle.com/c/home-credit-default-risk/）。">https://www.kaggle.com/c/home-credit-default-risk/）。</a> 它适用于受监督的机器学习分类任务，其目标是预测客户是否违约贷款。 整个数据集可以[这里]下载，我们将使用10,000行的小样本。</p>
+
+<p>特征选择器设计用于机器学习任务，但可以应用于任何数据集。基于特征重要性的方法确实需要受监督的机器学习问题。</p>
+
+<pre><code class="language-python">train = pd.read_csv('../data/credit_example.csv')
+train_labels = train['TARGET']
+train.head()
+</code></pre>
+
+<p>数据集中有几个分类列。 使用基于特征重要性的方法时，<code>FeatureSelector</code>使用独热编码处理这些。</p>
+
+<pre><code class="language-python">train = train.drop(columns = ['TARGET'])
+train.head()
+</code></pre>
+
+<h1 id="implementation">Implementation</h1>
+
+<p><code>FeatureSelector</code>有五个函数用于识别要删除的列：</p>
+
+<ul>
+<li><code>identify_missing</code></li>
+<li><code>identify_single_unique</code></li>
+<li><code>identify_collinear</code></li>
+<li><code>identify_zero_importance</code></li>
+<li><code>identify_low_importance</code></li>
+</ul>
+
+<p>这些方法根据指定的标准查找要删除的功能。 标识的特征存储在<code>FeatureSelector</code>的<code>ops</code>属性（Python字典）中。 我们可以手动删除已识别的功能，或使用<code>FeatureSelector</code>中的<code>remove</code>功能来实际删除功能。</p>
+
+<h2 id="create-the-instance">Create the Instance</h2>
+
+<p>“FeatureSelector”只需要一个数据集，其中包含行中的观察值和列中的特征（标准结构化数据）。 我们正在处理分类机器学习问题，因此我们也传递了训练标签。</p>
+
+<pre><code class="language-python"># 创建 feature-selector 实例，并传入features 和labels
+fs = FeatureSelector(data = train, labels = train_labels)
+fs
+</code></pre>
+
+<h1 id="1-missing-values">1. Missing Values</h1>
+
+<p>该方法用于选择missing value 百分比大于指定值(通过missing_threshold指定百分比)的feature。该方法能应用于监督学习和非监督学习的特征选择。</p>
+
+<pre><code class="language-python"># 选择出missing value 百分比大于60%的特征
+fs.identify_missing(missing_threshold=0.6)
+</code></pre>
+
+<pre><code class="language-python"># 查看选择出的特征(可以通过ops字典访问missing)
+missing_features = fs.ops['missing']
+missing_features
+</code></pre>
+
+<pre><code class="language-python"># 绘制所有特征missing value百分比的直方图
+# 该方法内部使用pandas 统计数据集中所有feature的missing value 的百分比，然后选择出百分比大于阈值的特征
+fs.plot_missing()
+</code></pre>
+
+<pre><code class="language-python"># 有关缺失值的详细信息，我们可以访问`missing_stats`属性，这是所有要素缺失分数的数据框。
+fs.missing_stats.head(17)
+</code></pre>
+
+<h1 id="2-single-unique-value">2. Single Unique Value</h1>
+
+<p>该方法用于选择只有单个取值的feature，单个值的feature的方差为0，对于模型的训练不会有任何作用（从信息熵的角度看，该feature的熵为0）。该方法可应用于监督学习和非监督学习。</p>
+
+<pre><code class="language-python"># 选择出只有单个值的feature
+fs.identify_single_unique()
+</code></pre>
+
+<pre><code class="language-python"># 查看选择出的feature
+single_unique = fs.ops['single_unique']
+single_unique
+</code></pre>
+
+<pre><code class="language-python">#绘制所有feature unique value的直方图
+fs.plot_unique()
+</code></pre>
+
+<pre><code class="language-python"># 该方法内部的内部实现很简单，只是通过DataFrame.nunique方法统计了每个feature取值的个数，然后选择出nunique==1的feature。
+fs.unique_stats.head()
+</code></pre>
+
+<h1 id="3-collinear-highly-correlated-features">3. Collinear (highly correlated) Features</h1>
+
+<p>该方法基于Pearson相关系数找到共线特征对。 对于高于指定阈值的每对（以绝对值表示），它标识要删除的变量之一。 我们需要传入一个<code>correlation_threshold</code>。</p>
+
+<p>该方法用于选择相关性大于指定值(通过correlation_threshold指定值)的feature。该方法同样适用于监督学习和非监督学习。</p>
+
+<pre><code class="language-python">fs.identify_collinear(correlation_threshold=0.975,one_hot='True')
+</code></pre>
+
+<pre><code class="language-python"># 不对feature进行one-hot encoding（默认为False）, 然后选择出相关性大于97.5%的feature, 
+fs.identify_collinear(correlation_threshold=0.975)
+</code></pre>
+
+<pre><code class="language-python"># 查看选择的feature
+correlated_features = fs.ops['collinear']
+correlated_features[:5]
+</code></pre>
+
+<pre><code class="language-python"># 绘制选择的特征的相关性heatmap
+fs.plot_collinear()
+</code></pre>
+
+<pre><code class="language-python"># 绘制所有特征的相关性heatmap
+fs.plot_collinear(plot_all=True)
+</code></pre>
+
+<pre><code class="language-python">fs.identify_collinear(correlation_threshold=0.98)
+fs.plot_collinear()
+</code></pre>
+
+<p>该方法内部主要执行步骤如下：</p>
+
+<ul>
+<li><p>根据参数&rsquo;one_hot&rsquo;对数据集特征进行one-hot encoding（调用pd.get_dummies方法）。如果&rsquo;one_hot=True&rsquo;则对特征将进行one-hot encoding，并将编码的特征与原数据集整合起来组成新的数据集，如果&rsquo;one_hot=False&rsquo;则什么不做，进入下一步；</p></li>
+
+<li><p>计算步骤1得出数据集的相关矩阵 C (通过DataFrame.corr()，注意 C 也为一个DateFrame)，并取相关矩阵的上三角部分得到 C_{upper} ；</p></li>
+
+<li><p>遍历 C_{upper} 的每一列(即每一个特征)，如果该列的任何一个相关值大于correlation_threshold，则取出该列，并放到一个列表中（该列表中的feature，即具有high 相关性的特征，之后会从数据集去除）；</p></li>
+</ul>
+
+<p>要查看阈值以上的核心化的详细信息，我们访问<code>record_collinear</code>属性，该属性是一个数据框。
+将删除<code>drop_feature</code>，对于将要删除的每个要素，可能存在与<code>corr_feature</code>之间的几个相关性，它们位于<code>correlation_threshold</code>之上。</p>
+
+<pre><code class="language-python">fs.record_collinear
+</code></pre>
+
+<h1 id="4-zero-importance-features">4. Zero Importance Features</h1>
+
+<p>此方法依赖于机器学习模型来识别要删除的要素。因此，它需要有标签的监督学习问题。该方法通过使用[LightGBM库]（<a href="http://lightgbm.readthedocs.io/en/latest/Quick-Start.html）中实现的梯度增强机来查找特征重要性。">http://lightgbm.readthedocs.io/en/latest/Quick-Start.html）中实现的梯度增强机来查找特征重要性。</a></p>
+
+<p>要减少计算出的特征重要性的方差，模型将默认训练10次。默认情况下，该模型还使用验证集（15％的训练数据）进行早期停止训练，以确定要训练的最佳估计量。以下参数可以传递给<code>identify_zero_importance</code>方法：</p>
+
+<ul>
+<li><code>task</code>：“分类”或“回归”。度量标准和标签必须与任务匹配</li>
+<li><code>eval_metric</code>：用于提前停止的度量（例如<code>auc</code>用于分类或<code>l2</code>用于回归）。要查看可用指标列表，请参阅[LightGBM docs]（<a href="http://testlightgbm.readthedocs.io/en/latest/Parameters.html#metric-parameters）">http://testlightgbm.readthedocs.io/en/latest/Parameters.html#metric-parameters）</a></li>
+<li><code>n_iterations</code>：训练次数。功能重要性在训练运行中取平均值（默认值= 10）</li>
+<li><code>early_stopping</code>：训练模型时是否使用提前停止（默认= True）。 [提前停止]（<a href="https://en.wikipedia.org/wiki/Early_stopping）停止训练估算器（决策树），当验证集上的性能不再降低指定数量的估算器时（默认情况下，此实现中为100）">https://en.wikipedia.org/wiki/Early_stopping）停止训练估算器（决策树），当验证集上的性能不再降低指定数量的估算器时（默认情况下，此实现中为100）</a> 。早期停止是一种正规化形式，用于防止过度拟合训练数据</li>
+</ul>
+
+<p>首先对数据进行单热编码，以便在模型中使用。这意味着可以从一热编码创建一些零重要性特征。要查看单热编码列，我们可以访问<code>FeatureSelector</code>的<code>one_hot_features</code>。</p>
+
+<p><strong>注意事项</strong>_：与其他方法相比，模型的特征不确定性是非确定性的（具有一点随机性）。运行此方法的结果可以在每次运行时更改。</p>
+
+<hr />
+
+<hr />
+
+<hr />
+
+<p>该方法用于选择对模型预测结果毫无贡献的<code>feature</code>(即<code>zero importance</code>，从数据集中去除或者保留该<code>feature</code>对模型的结果不会有任何影响)。</p>
+
+<p>该方法以及之后的<code>identify_low_importance</code>都只适用于监督学习(即需要<code>label</code>,这也是为什么实例化<code>feature-selector</code>时需要传入<code>labels</code>参数的原因）。<code>feature-selector</code>通过用数据集训练一个梯度提升机(<code>Gradient Boosting machine, GBM</code>)，然后由<code>GBM</code>得到每一个<code>feature</code>的重要性分数，对所有特征的重要性分数进行归一化处理，选择出重要性分数等于零的<code>feature</code>。</p>
+
+<ul>
+<li><p>为了使计算得到的<code>feature</code>重要性分数具有很小的方差，<code>identify_zero_importance</code>内部会对<code>GBM</code>训练多次，取<strong>多次训练的平均值</strong>，得到最终的<code>feature</code>重要性分数。</p></li>
+
+<li><p>为了防止过拟合，<code>identify_zero_importance</code>内部从数据集中抽取一部分作为验证集，在训练<code>GBM</code>的时候，计算<code>GBM</code>在验证集上的某一<code>metric</code>，当<code>metric</code>满足一定条件时，停止<code>GBM</code>的训练。</p></li>
+</ul>
+
+<p>需要注意<code>GBM</code>训练过程是随机的，所以每次运行<code>identify_zero_importance</code>得到<code>feature importance</code>分数都会发生变化，但按照<code>importance</code>排序之后，至少前几个最重要的<code>feature</code>顺序不会变化。</p>
+
+<p>该方法内部主要执行了以下步骤：
+* 对各个feature进行one-hot encoding，然后将one-hot encoding的feature和原数据集合并成新的数据集(使用pd.get_dummies完成)；
+* 根据task的取值，实例化lightgbm.LGBMClassifier或者lightgbm.LGBMRegressor model；
+* 根据early_stopping的取值选择是否需要提前停止训练，并向model.fit传入相应的参数，然后开始训练model；
+* 根据model得到该次训练的feature importance；
+* 执行n_iterations次步骤1-4；
+* 取多次训练的feature importance的平均值，得到最终的feature importance；
+* 选择出feature importance等于0的feature；</p>
+
+<pre><code class="language-python"># 选择zero importance的feature,
+# 
+# 参数说明：
+#          task: 'classification' / 'regression', 如果数据的模型是分类模型选择'classificaiton',
+#                否则选择'regression'
+#          eval_metric: 判断提前停止的metric. for example, 'auc' for classification, and 'l2' for regression problem
+#          n_iteration: 训练的次数
+#          early_stopping: True/False, 是否需要提前停止
+
+fs.identify_zero_importance(task = 'classification', 
+                            eval_metric = 'auc', 
+                            n_iterations = 10, 
+                            early_stopping = True)
+</code></pre>
+
+<p>运行GBM需要对这些功能进行one-hot。 这些功能保存在<code>FeatureSelector</code>的<code>one_hot_features</code>属性中。 原始功能保存在<code>base_features</code>中。</p>
+
+<pre><code class="language-python">one_hot_features = fs.one_hot_features
+base_features = fs.base_features
+print('There are %d original features' % len(base_features))
+print('There are %d one-hot features' % len(one_hot_features))
+</code></pre>
+
+<p><code>FeatureSelector</code>的<code>data</code>属性保存原始数据框。 在一次独热编码之后，<code>data_all</code>属性保存原始数据加上一独热编码特征。</p>
+
+<pre><code class="language-python">fs.data_all.head(10)
+</code></pre>
+
+<pre><code class="language-python">zero_importance_features = fs.ops['zero_importance']
+zero_importance_features[10:15]
+</code></pre>
+
+<h2 id="plot-feature-importances">Plot Feature Importances</h2>
+
+<p>使用<code>plot_feature_importances'的特征重要性图将向我们显示</code>plot_n`最重要的特征（在标准化的尺度上，特征总和为1）。 它还向我们展示了累积特征重要性与特征数量的关系。</p>
+
+<p>当我们绘制要素重要性时，我们可以传入一个“阈值”，用于标识达到指定累积要素重要性所需的要素数。 例如，<code>threshold = 0.99</code>将告诉我们占总重要性99％所需的功能数量。</p>
+
+<pre><code class="language-python"># 查看选择出的zero importance feature
+# 前12个最重要的feature归一化后的importance分数的条形图
+# feature 个数与feature importance累积和的关系图
+fs.plot_feature_importances(threshold = 0.99, plot_n = 12)
+</code></pre>
+
+<pre><code class="language-python"># 可以在FeatureSelector的feature_importances属性中访问所有要素重要性
+fs.feature_importances.head(10)
+</code></pre>
+
+<pre><code class="language-python"># 我们可以使用这些结果来仅选择'n'最重要的特征。 例如，如果我们想要前100名最重要，我们可以做以下事情
+one_hundred_features = list(fs.feature_importances.loc[:99, 'feature'])
+print(len(one_hundred_features))
+one_hundred_features[:10]
+</code></pre>
+
+<h1 id="5-low-importance-features">5. Low Importance Features</h1>
+
+<p>该方法是使用identify_zero_importance计算的结果，选择出对importance累积和达到指定阈值没有贡献的feature（这样说有点拗口），即图5中蓝色虚线之后的feature。该方法只适用于监督学习。identify_low_importance有点类似于PCA中留下主要分量去除不重要的分量。</p>
+
+<pre><code class="language-python"># 选择出对importance累积和达到99%没有贡献的feature
+fs.identify_low_importance(cumulative_importance = 0.99)
+</code></pre>
+
+<pre><code class="language-python"># 查看选择出的feature(该方法选择出的feature其实包含了zero importance的feature)
+len(fs.ops['low_importance'])
+</code></pre>
+
+<pre><code class="language-python"># 要删除的低重要性功能是那些对指定的累积重要性没有贡献的功能。 这些也可以在`ops`字典中找到。
+low_importance_features = fs.ops['low_importance']
+low_importance_features[:5]
+</code></pre>
+
+<h1 id="6-removing-features">6 Removing Features</h1>
+
+<p>一旦我们确定要删除的功能，我们就可以通过多种方式删除这些功能。 我们可以访问<code>removal_ops</code>字典中的任何功能列表并手动删除列。 我们也可以使用<code>remove</code>方法，传入识别我们想要删除的特征的方法。</p>
+
+<p>此方法返回结果数据，然后我们可以将其用于机器学习。 仍然可以在功能选择器的“data”属性中访问原始数据。</p>
+
+<p>小心用于删除功能的方法！ 在使用<code>remove</code>函数之前检查将要删除的功能是个好主意。</p>
+
+<p>feature-selector中提供了remove方法将选择的特征从数据集中去除，并返回去除特征之后的数据集。</p>
+
+<pre><code class="language-python">train_no_missing = fs.remove(methods = ['missing'])
+train_no_missing_zero = fs.remove(methods = ['missing', 'zero_importance'])
+</code></pre>
+
+<pre><code class="language-python"># 要从所有方法中删除要素，请传入method ='all'。 
+# 在我们执行此操作之前，我们可以使用check_removal检查要删除的功能数量。 这将返回已识别要删除的所有功能的列表。
+all_to_remove = fs.check_removal()
+all_to_remove[10:25]
+</code></pre>
+
+<pre><code class="language-python"># 去除所有类型的特征
+#    参数说明：
+#       methods: 
+#               desc:  需要去除哪些类型的特征
+#               type:  string / list-like object
+#             values:  'all' 或者是 ['missing', 'single_unique', 'collinear', 'zero_importance', 'low_importance']
+#                      中多个方法名的组合
+#      keep_one_hot: 
+#              desc: 是否需要保留one-hot encoding的特征
+#              type: boolean
+#              values: True/False
+#              default: True
+
+train_removed = fs.remove(methods = 'all')
+</code></pre>
+
+<pre><code class="language-python">### Handling One-Hot Features
+
+# 如果我们查看返回的数据框，我们可能会注意到原始数据中没有的几个新列。 
+# 这些是在对机器学习进行独热编码时创建的。 要删除所有独热编码特征值，我们可以将`keep_one_hot = False`传递给`remove`方法。
+
+train_removed_all = fs.remove(methods = 'all', keep_one_hot=False)
+</code></pre>
+
+<pre><code class="language-python">print('Original Number of Features', train.shape[1])
+print('Final Number of Features: ', train_removed_all.shape[1])
+</code></pre>
+
+<h1 id="7-alternative-option-for-using-all-methods">7 Alternative Option for Using all Methods</h1>
+
+<p>如果我们不想一次运行一个识别方法，我们可以使用<code>identify_all</code>在一次调用中运行所有方法。</p>
+
+<p>对于此函数，我们需要传入参数字典以用于每个单独的识别方法。</p>
+
+<p>以下代码在一次调用中完成上述步骤。</p>
+
+<pre><code class="language-python">fs = FeatureSelector(data = train, labels = train_labels)
+
+# 少了下面任何一个参数都会报错，raise ValueError
+fs.identify_all(selection_params = {'missing_threshold': 0.6, 
+                                    'correlation_threshold': 0.98, 
+                                    'task': 'classification', 
+                                    'eval_metric': 'auc', 
+                                    'cumulative_importance': 0.99})
+</code></pre>
+
+<pre><code class="language-python">train_removed_all_once = fs.remove(methods = 'all', keep_one_hot = True)
+fs.feature_importances.head()
+</code></pre>
+
+<p>由于要素重要性已更改，删除的要素数量之间存在轻微差异。 由<code>missing</code>，<code>single_unique</code>和<code>collinear</code>确定要删除的特征数量将保持不变，因为它们是确定性的，但是<code>zero_importance</code>和<code>low_importance</code>的特征数量可能因训练模型而有所不同 多次。</p>
+
+<h1 id="8-conclusions">8 Conclusions</h1>
+
+<p>这个笔记本展示了如何使用<code>FeatureSelector</code>类从数据集中删除功能。 这个实现有一些重要的注意事项：</p>
+
+<ul>
+<li>功能重要性将在机器学习模型的多次运行中发生变化</li>
+<li>决定是否保留通过独热编码创建的额外功能</li>
+<li>尝试各种参数的几个不同值，以确定哪些参数最适合机器学习任务</li>
+<li>对于相同的参数，缺失，单一唯一和共线的输出将保持相同</li>
+<li>特征选择是机器学习工作流程的关键步骤，可能需要多次迭代才能进行优化</li>
+</ul>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="https://7125messi.github.io/post/uer-py%E9%AB%98%E8%B4%A8%E9%87%8F%E4%B8%AD%E6%96%87bert%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B/" title="UER Py高质量中文BERT预训练模型">
+      Previous
+    </a>
+    
+
+    
+
+  
+
+
+</div>
+
+  
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+  code with <i class='fa fa-heart'></i>
+
+
+</div>
+
+
+  
+<div class="container copyright">
+  
+  &copy; 2018 7125messi.
+
+
+</div>
+
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+  </body>
+</html>
+
