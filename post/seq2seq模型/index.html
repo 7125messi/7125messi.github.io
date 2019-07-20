@@ -51,7 +51,7 @@
     },
     "datePublished": "2019-07-20",
     "description": "",
-    "wordCount":  231 
+    "wordCount":  243 
   }
 </script>
 
@@ -162,7 +162,7 @@
 
   
   &middot; Read in about 2 min
-  &middot; (231 Words)
+  &middot; (243 Words)
   <br>
   
 
@@ -290,6 +290,10 @@
 
 <h1 id="3-attention模型-加入attention机制的seq2seq模型足够强大">3 Attention模型：加入Attention机制的seq2seq模型足够强大</h1>
 
+<p>Attention Is All You Need:</p>
+
+<p><a href="https://arxiv.org/pdf/1706.03762.pdf">https://arxiv.org/pdf/1706.03762.pdf</a></p>
+
 <p>encoder-decoder模型虽然非常经典，但是局限性也非常大。最大的局限性就在于<strong>编码和解码之间的唯一联系就是一个固定长度的语义向量C。</strong>也就是说，<strong>编码器要将整个序列的信息压缩进一个固定长度的向量中去</strong>。</p>
 
 <p>但是这样做有两个弊端：<br /><strong>一是语义向量无法完全表示整个序列的信息；</strong><br /><strong>二是先输入的内容携带的信息会被后输入的信息稀释掉。</strong><br /><strong>输入序列越长，这个现象就越严重</strong>。<br />这就使得在<strong>解码的时候一开始就没有获得输入序列足够的信息， 那么解码时准确率就要打一定折扣。</strong></p>
@@ -316,6 +320,10 @@
 <h1 id="4-cnn的seq2seq">4 CNN的seq2seq</h1>
 
 <p>现在大多数场景下使用的Seq2Seq模型是基于RNN构成的，虽然取得了不错的效果，但也有一些学者发现<strong>使用CNN来替换Seq2Seq中的encoder或decoder可以达到更好的效果</strong>。最近，FaceBook发布了一篇论文：<strong>《Convolutional Sequence to Sequence Learning》，提出了完全使用CNN来构成Seq2Seq模型，用于机器翻译，超越了谷歌创造的基于LSTM机器翻译的效果。</strong>此网络获得暂时性胜利的重要原因在于采用了很多的窍门，这些技巧值得学习：<br /></p>
+
+<p>Convolutional Sequence to Sequence Learning：</p>
+
+<p><a href="https://arxiv.org/pdf/1705.03122.pdf">https://arxiv.org/pdf/1705.03122.pdf</a></p>
 
 <p><a name="enMeN"></a></p>
 
