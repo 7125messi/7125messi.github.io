@@ -128,11 +128,57 @@
     <h1>7125messi的博客
 </h1>
 
-    <span>last update: <time datetime="2019-07-10T22:30:51&#43;08:00">10 July at 10:30pm</time>
+    <span>last update: <time datetime="2019-07-20T08:48:44&#43;08:00">20 July at 8:48am</time>
 </span>
 
   </header>
   
+  
+    <article class="container content summary">
+  <div class="container hat">
+  <h2><a href="https://7125messi.github.io/post/seq2seq%E6%A8%A1%E5%9E%8B/">Seq2Seq模型
+</a>
+</h2>
+
+  <time datetime="2019-07-20">20 Jul, 2019</time>
+
+</div>
+
+  <p class="container content">
+  
+  
+    前 言 Seq2Seq，全称Sequence to Sequence。它是一种通用的编码器——解码器框架，可用于机器翻译、文本摘要、会话建模、图像字幕等场景中。Seq2Seq并不是GNMT（Google Neural Machine Translation）系统的官方开源实现。框架的目的是去完成更广泛的任务，而神经机器翻译只是其中之一。在循环神经网络中我们了解到如何将一个序列转化成定长输出。在本文中，我们将探究如何将一个序列转化成一个不定长的序列输出（如机器翻译中，源语言和目标语言的句子往往并没有相同的长度）。
+
+1 简单入门 
+设计目标  通用 这个框架最初是为了机器翻译构建的，但是后来使用它完成了各种其他任务，包括文本摘要、会话建模和图像字幕。只要我们的任务，可以将输入数据以一种格式编码并将其以另一种格式解码，我们就可以使用或者扩展这个框架。
+ 可用性 支持多种类型的输入数据，包括标准的原始文本。
+ 重现性 用YAML文件来配置我们的pipelines和models，容易复现。
+ 可扩展性 代码以模块化的方式构建，添加一种新的attention机制或编码器体系结构只需要最小的代码更改。
+ 文档化:所有的代码都使用标准的Python文档字符串来记录，并且编写了使用指南来帮助我们着手执行常见的任务。
+ 良好的性能:为了代码的简单性，开发团队并没有试图去尽力压榨每一处可能被拓展的性能，但是对于几乎所有的生产和研究项目，当前的实现已经足够快了。此外，tf-seq2seq还支持分布式训练。
+  
+主要概念 Configuration 许多objects都是使用键值对来配置的。这些参数通常以YAML的形式通过配置文件传递，或者直接通过命令行传递。配置通常是嵌套的，如下例所示:
+model_params: attention.class: seq2seq.decoders.attention.AttentionLayerBahdanau attention.params: num_units: 512 embedding.dim: 1024 encoder.class: seq2seq.encoders.BidirectionalRNNEncoder encoder.params: rnn_cell: cell_class: LSTMCell cell_params: num_units: 512   Input Pipeline
+  InputPipeline定义了如何读取、解析数据并将数据分隔成特征和标签。如果您想要读取新的数据格式，我们需要实现自己的输入管道。
+ Encoder(编码)
+ Decoder（解码）
+ Model（Attention）
+  
+2 Encoder-Decoder 整个过程可以用下面这张图来诠释：
+  
+
+
+</p>
+
+
+  <div class="container readlink">
+  <a href="https://7125messi.github.io/post/seq2seq%E6%A8%A1%E5%9E%8B/">Read more &rarr;</a>
+
+</div>
+
+
+</article>
+
   
     <article class="container content summary">
   <div class="container hat">
@@ -563,42 +609,6 @@ https://colab.research.google.com/drive/1FH6ZpQA1HGX3GZCm0yxidq7ztoyd6KhB
 
   <div class="container readlink">
   <a href="https://7125messi.github.io/post/transformer%E6%8A%80%E6%9C%AF%E5%AE%9E%E6%88%98/">Read more &rarr;</a>
-
-</div>
-
-
-</article>
-
-  
-    <article class="container content summary">
-  <div class="container hat">
-  <h2><a href="https://7125messi.github.io/post/%E5%9F%BA%E4%BA%8Eunet%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%9F%8E%E5%B8%82%E4%BA%BA%E6%B5%81%E9%A2%84%E6%B5%8B/">基于UNet神经网络的城市人流预测
-</a>
-</h2>
-
-  <time datetime="2019-06-24">24 Jun, 2019</time>
-
-</div>
-
-  <p class="container content">
-  
-  
-    [原创]
-1 利用手机信令数据计算人口流动数据 手机信令数据是研究人口的整体流动情况的重要数据来源。移动运营商在为手机用户提供实时通讯服务时，积累了大量的基站与设备的服务配对数据。根据配对和唤醒发生的时间以及基站的地理位置，可以很自然划定一定时间和空间范围，统计每一个时间范围内在特定空间区域内手机设备的停留，进入和离开数据，并据此估算相应的人流数据。
-传统的人口网格分析过程一般只关注单个网格内某个时间点人口流动的截面数据以及城市当中不同区域的人口分布统计情况；没有将时间和空间融合考虑，不能对城市整体的人口流动形成一个完整连续的直观描述。但是，作为城市安全运营管理者和规划人员职责是需要把握好城市人口流动规律，建立有效的时空数据分析模型，从而为城市安全运行管理做好相应的人口短时预测与应急管理服务。 2 人口流动数据网格图像流处理 2.1 流处理思路 原始手机信令数据，按照一定的时间间隔（例如15分钟），划分出每个时间段的信令数据情况。主要包括：时间，格网ID，格网中心点经度，格网中心点维度，时间段内格网的停留人数，进入人数，离开人数。
-根据原始数据的时空关系，将原始数据转化为4维向量空间矩阵，维度分别为时间维度、空间维度横坐标，空间维度纵坐标以及停留，进入或离开的类别：Matrix[t,i,j,k]=p意味着在t时刻，第i行第j列的空间栅格位置，k=0时则停留人数为p，k=1时则进入人数为p，k=2时则离开人数为p。
-在这样的转换关系下，可以将源数据处理为3通道的时空数据。考虑到单个人员流动的时空连续性，可以认为表示人口流通的整体统计量的时空矩阵也具备一定局部关联性，换而言之，一个栅格点的人口流动数据会与该栅格附近的人口流行数据相互关联，也会与前后时间段该栅格的人口流动数据相互关联。而具体的关联形式和影响强度，则需要我们利用卷积神经，对历史数据进行学习来发现和记录相应的关联关系。
-更进一步地，通过数据洞察注意到，不同栅格网络间人口流动的时间变化曲线往往倾向于若干种固定模式，直观上，商业区，住宅区，办公区域会呈现出不同的人流曲线变化模式。这种模式与地理位置，用地规划，交通路网信息等属性息息相关。本模型后续将进一步讨论不同用地类型的栅格人口流动模式的比较分析。
-   TIME TAZID STAY ENTER EXIT     2017-04-05 00:00:00 1009897 460 460 52    2.2 人口栅格数据矢量化 基于一定的空间距离间隔（例如250m），将分析的目标空间划分为若干网格(141*137)。统计T时间内，属于网格M_(p,q)的手机设备停留、进入和离开的数据。按照业务需求，将手机设备数扩样为人口数量，将停留、进入和离开的数据标准化到（0,255）的空间，并将标准化后的数据作为图像的3个颜色通道，据此将T时间的整体网格数据转化为一张三通道格式的图片数据。按照时间维度将经过上述处理的图像作为视频的每一帧图像。
-import pandas as pd import numpy as np import h5py # 数据转换成张量类型 data_enter_exit_sz = pd.read_csv('data/sz/data/TBL_ENTER_EXIT_SZ20170401-20170431.csv') time_list = data_enter_exit_sz['TIME'].unique() N = len(time_list) string_to_ix = {string:i for i,string in enumerate(time_list)} tensor_data = np.zeros([N,141,137,3]) for _,line in data_enter_exit_sz.
-  
-
-
-</p>
-
-
-  <div class="container readlink">
-  <a href="https://7125messi.github.io/post/%E5%9F%BA%E4%BA%8Eunet%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%9F%8E%E5%B8%82%E4%BA%BA%E6%B5%81%E9%A2%84%E6%B5%8B/">Read more &rarr;</a>
 
 </div>
 

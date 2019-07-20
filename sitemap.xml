@@ -4,19 +4,24 @@
   
   <url>
     <loc>https://7125messi.github.io/</loc>
-    <lastmod>2019-07-10T22:30:51+08:00</lastmod>
+    <lastmod>2019-07-20T08:48:44+08:00</lastmod>
     <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://7125messi.github.io/post/</loc>
+    <lastmod>2019-07-20T08:48:44+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://7125messi.github.io/post/seq2seq%E6%A8%A1%E5%9E%8B/</loc>
+    <lastmod>2019-07-20T08:48:44+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://7125messi.github.io/post/attention%E9%82%A3%E4%BA%9B%E4%BA%8B%E5%84%BF/</loc>
     <lastmod>2019-07-10T22:30:51+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://7125messi.github.io/post/</loc>
-    <lastmod>2019-07-10T22:30:51+08:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Seq2Seq模型  &middot; 7125messi的博客</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="">
+
+
+<meta property="og:title" content="Seq2Seq模型  &middot; 7125messi的博客 ">
+<meta property="og:site_name" content="7125messi的博客"/>
+<meta property="og:url" content="https://7125messi.github.io/post/seq2seq%E6%A8%A1%E5%9E%8B/" />
+<meta property="og:locale" content="zh-cn">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2019-07-20T08:48:44&#43;08:00" />
+<meta property="og:article:modified_time" content="2019-07-20T08:48:44&#43;08:00" />
+
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="Seq2Seq模型" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://7125messi.github.io/post/seq2seq%E6%A8%A1%E5%9E%8B/" />
+<meta name="twitter:domain" content="https://7125messi.github.io">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Seq2Seq模型",
+    "author": {
+      "@type": "Person",
+      "name": ""
+    },
+    "datePublished": "2019-07-20",
+    "description": "",
+    "wordCount":  231 
+  }
+</script>
+
+
+
+<link rel="canonical" href="https://7125messi.github.io/post/seq2seq%E6%A8%A1%E5%9E%8B/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://7125messi.github.io/touch-icon-144-precomposed.png">
+<link href="https://7125messi.github.io/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.55.6" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight/default.css">
+
+  
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper has-sidebar">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="https://7125messi.github.io">
+  箴言
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+  带着爱和梦想去生活
+
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+<a class="homelink" href="https://7125messi.github.io">正文</a>
+
+
+  
+<a href="https://7125messi.github.io/about">相关</a>
+
+<a href="https://7125messi.github.io/post" title="Show list of posts">目录</a>
+
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+<a id="contact-link-github" class="contact_link" rel="me" aria-label="Github" href="https://github.com/7125messi">
+  <span class="fa fa-github-square"></span></a>
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>Seq2Seq模型
+</h1>
+
+  <div class="metas">
+<time datetime="2019-07-20">20 Jul, 2019</time>
+
+
+  
+  &middot; Read in about 2 min
+  &middot; (231 Words)
+  <br>
+  
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<h1 id="前-言">前  言</h1>
+
+<p>Seq2Seq，全称Sequence to Sequence。它是一种通用的编码器——解码器框架，可用于机器翻译、文本摘要、会话建模、图像字幕等场景中。Seq2Seq并不是GNMT（Google Neural Machine Translation）系统的官方开源实现。框架的目的是去完成更广泛的任务，而神经机器翻译只是其中之一。在循环神经网络中我们了解到如何将一个序列转化成定长输出。<strong>在本文中，我们将探究如何将一个序列转化成一个不定长的序列输出（如机器翻译中，源语言和目标语言的句子往往并没有相同的长度）。</strong></p>
+
+<p><a name="pasdy"></a></p>
+
+<h1 id="1-简单入门">1 简单入门</h1>
+
+<p><a name="YQDuD"></a></p>
+
+<h2 id="设计目标">设计目标</h2>
+
+<ul>
+<li><p>通用 <br />这个框架最初是为了机器翻译构建的，但是后来使用它完成了各种其他任务，包括文本摘要、会话建模和图像字幕。<strong>只要我们的任务，可以将输入数据以一种格式编码并将其以另一种格式解码，我们就可以使用或者扩展这个框架。</strong></p></li>
+
+<li><p>可用性 <br />支持多种类型的输入数据，包括标准的原始文本。</p></li>
+
+<li><p>重现性 <br /><strong>用YAML文件来配置我们的pipelines和models，容易复现。</strong></p></li>
+
+<li><p>可扩展性 <br /><strong>代码以模块化的方式构建，添加一种新的attention机制或编码器体系结构只需要最小的代码更改。</strong></p></li>
+
+<li><p>文档化:<strong>所有的代码都使用标准的Python文档字符串来记录，并且编写了使用指南来帮助我们着手执行常见的任务。</strong></p></li>
+
+<li><p>良好的性能:<strong>为了代码的简单性，开发团队并没有试图去尽力压榨每一处可能被拓展的性能，但是对于几乎所有的生产和研究项目，当前的实现已经足够快了。此外，tf-seq2seq还支持分布式训练。</strong><br /></p></li>
+</ul>
+
+<p><a name="FlB36"></a></p>
+
+<h2 id="主要概念">主要概念</h2>
+
+<h3 id="configuration">Configuration</h3>
+
+<p>许多objects都是使用键值对来配置的。这些参数通常<strong>以YAML的形式通过配置文件传递</strong>，或者直接通过命令行传递。配置通常是嵌套的，如下例所示:</p>
+
+<pre><code class="language-yaml">model_params:
+    attention.class:
+    	seq2seq.decoders.attention.AttentionLayerBahdanau
+    attention.params:
+        num_units: 512
+        embedding.dim: 1024
+        encoder.class: seq2seq.encoders.BidirectionalRNNEncoder
+    encoder.params:
+        rnn_cell:
+        cell_class: LSTMCell
+    cell_params:
+        num_units: 512
+</code></pre>
+
+<ul>
+<li>Input Pipeline<br /></li>
+</ul>
+
+<p><strong>InputPipeline</strong>定义了<strong>如何读取、解析数据并将数据分隔成特征和标签。</strong><strong>如果您想要读取新的数据格式，我们需要实现自己的输入管道。</strong></p>
+
+<ul>
+<li>Encoder(编码)<br /></li>
+<li>Decoder（解码）<br /></li>
+<li>Model（Attention）<br /></li>
+</ul>
+
+<p><a name="hvoyQ"></a></p>
+
+<h1 id="2-encoder-decoder">2 Encoder-Decoder</h1>
+
+<p>整个过程可以用下面这张图来诠释：</p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326499-27e8ac0d-6d5b-4751-8e4c-43bab473afef.webp#align=left&amp;display=inline&amp;height=233&amp;originHeight=233&amp;originWidth=720&amp;size=0&amp;status=done&amp;width=720" alt="" /><br />图 1：最简单的Encoder-Decoder模型<br />
+<br />
+<br />其中，X、Y均由各自的单词序列组成（X,Y可以是同一种语言，也可以是两种不同的语言）：<br />X = (x1,x2,&hellip;,xm)<br />Y = (y1,y2,&hellip;,yn)</p>
+
+<p><strong>Encoder</strong>：<strong>是将输入序列通过非线性变换编码成一个指定长度的向量C（中间语义表示），得到c有多种方式，最简单的方法就是</strong><strong>把Encoder的最后一个隐状态赋值给c，还可以对</strong><strong>最后的隐状态做一个变换得到c，也可以对所有的隐状态做变换。C = F(x1,x2,&hellip;,xm)</strong></p>
+
+<p><strong>Decoder</strong>：<strong>是根据向量C（encoder的输出结果）和之前生成的历史信息y1,y2,&hellip;,yn来生成i时刻要生成的单词yi。</strong><br /><strong>yi = G( C , y1,y2,&hellip;,yn-1)</strong></p>
+
+<p>下图是一个生成对联的示意图。 </p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326459-2f16b514-5b03-47a3-901c-9b58a1f8cc2e.webp#align=left&amp;display=inline&amp;height=211&amp;originHeight=211&amp;originWidth=720&amp;size=0&amp;status=done&amp;width=720" alt="" /><br />图 2：生活中的小栗子</p>
+
+<p><a name="X8OPt"></a></p>
+
+<h2 id="编码阶段">编码阶段</h2>
+
+<p><strong>在RNN中，当前时间的隐藏状态由上一时间的状态和当前时间输入决定的</strong>，即： </p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326493-081956b7-1f5a-455f-8d14-475567c2b64c.webp#align=left&amp;display=inline&amp;height=45&amp;originHeight=45&amp;originWidth=192&amp;size=0&amp;status=done&amp;width=192" alt="" /> <br /></p>
+
+<p><strong>获得了各个时间段的隐藏层以后，再将隐藏层的信息汇总，生成最后的语义向量</strong></p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326514-dc973f51-0191-4013-af51-3038b5a2b456.webp#align=left&amp;display=inline&amp;height=41&amp;originHeight=41&amp;originWidth=255&amp;size=0&amp;status=done&amp;width=255" alt="" /> <br /></p>
+
+<p>当然，有一种<strong>最简单的方法</strong>是将<strong>最后的隐藏层作为语义向量C</strong>，即 </p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326507-3b634ce0-ab26-4aa8-8101-e07ba041b2fa.webp#align=left&amp;display=inline&amp;height=38&amp;originHeight=38&amp;originWidth=304&amp;size=0&amp;status=done&amp;width=304" alt="" /></p>
+
+<p><a name="1o4I4"></a></p>
+
+<h2 id="解码阶段">解码阶段</h2>
+
+<p>可以看做编码的逆过程。这个阶段，我们根据<strong>给定的语义向量C和之前已经生成的输出序列y1,y2,&hellip;,yt-1来预测下一个输出的单词yt，即</strong></p>
+
+<p> <img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326487-e7bdbed4-64fc-4acb-b990-27c5a181b4b5.webp#align=left&amp;display=inline&amp;height=63&amp;originHeight=63&amp;originWidth=428&amp;size=0&amp;status=done&amp;width=428" alt="" /> <br /></p>
+
+<p>也可以写作 </p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326490-49617bc8-d150-4360-92b1-5792f9309606.webp#align=left&amp;display=inline&amp;height=38&amp;originHeight=38&amp;originWidth=237&amp;size=0&amp;status=done&amp;width=237" alt="" /> </p>
+
+<p>在RNN中，也可以简化成 </p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326535-fd00f92f-28be-48f6-b8d0-e67591941723.webp#align=left&amp;display=inline&amp;height=39&amp;originHeight=39&amp;originWidth=173&amp;size=0&amp;status=done&amp;width=173" alt="" /></p>
+
+<p><strong>其中s是输出RNN（即RNN解码器）中的隐藏层，C代表之前编码器得到的语义向量，yt-1表示上个时间段的输出，反过来作为这个时间段的输入。g可以是一个非线性的多层神经网络，产生词典中各个词语属于yt的概率。</strong></p>
+
+<p><a name="MZJ2d"></a></p>
+
+<h1 id="3-attention模型-加入attention机制的seq2seq模型足够强大">3 Attention模型：加入Attention机制的seq2seq模型足够强大</h1>
+
+<p>encoder-decoder模型虽然非常经典，但是局限性也非常大。最大的局限性就在于<strong>编码和解码之间的唯一联系就是一个固定长度的语义向量C。</strong>也就是说，<strong>编码器要将整个序列的信息压缩进一个固定长度的向量中去</strong>。</p>
+
+<p>但是这样做有两个弊端：<br /><strong>一是语义向量无法完全表示整个序列的信息；</strong><br /><strong>二是先输入的内容携带的信息会被后输入的信息稀释掉。</strong><br /><strong>输入序列越长，这个现象就越严重</strong>。<br />这就使得在<strong>解码的时候一开始就没有获得输入序列足够的信息， 那么解码时准确率就要打一定折扣。</strong></p>
+
+<p>为了解决上述问题，在 Seq2Seq出现一年之后，Attention模型被提出了。<strong>该模型在产生输出的时候，会产生一个注意力范围来表示接下来输出的时候要重点关注输入序列的哪些部分，然后根据关注的区域来产生下一个输出，如此反复。</strong></p>
+
+<p>attention 和人的一些行为特征有一定相似之处，人在看一段话的时候，通常只会重点注意具有<strong>信息量的词</strong>，而非全部词，<strong>即人会赋予每个词的注意力权重不同</strong>。</p>
+
+<p><strong>attention 模型虽然增加了模型的训练难度，但提升了文本生成的效果。</strong></p>
+
+<p>模型的大概示意图如下。<br /><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326483-526c1b07-cfc5-44f9-95eb-493cb0d856d6.webp#align=left&amp;display=inline&amp;height=396&amp;originHeight=396&amp;originWidth=720&amp;size=0&amp;status=done&amp;width=720" alt="" /><br />图 3：经典的attention模型</p>
+
+<p><strong>每一个c会自动去选取与当前所要输出的y最合适的上下文信息。</strong>具体来说，<strong>我们用 aij 衡量编码中第j阶段的hj和解码时第i阶段的相关性，最终Decoder中第i阶段的输入的上下文信息 ci 就来自于所有 hj对 aij的加权和。</strong></p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326498-d1b4a071-af26-4a9a-923c-c184d756acdd.webp#align=left&amp;display=inline&amp;height=281&amp;originHeight=281&amp;originWidth=720&amp;size=0&amp;status=done&amp;width=720" alt="" /><br />图 4：不同关注度示意图</p>
+
+<p>输入的序列是“我爱中国”，因此，Encoder中的h1、h2、h3、h4就可以分别看做是“我”、“爱”、“中”、“国”所代表的信息。在翻译成英语时，第一个上下文c1应该和“我”这个字最相关，因此对应的 a11就比较大，而相应的 a12 、a13 、 a14 就比较小。c2应该和“爱”最相关，因此对应的 a22 就比较大。最后的c3和h3、h4最相关，因此 a33 、 a34的值就比较大。<br />
+<br /><strong>具体模型权重 aij 是如何计算出来的呢？</strong></p>
+
+<p>比如： <br />输入的是英文句子：Tom chase Jerry，生成：“汤姆”，“追逐”，“杰瑞”。 <br /><strong>注意力分配</strong><strong>概率分布值的通用计算过程： </strong><br /><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326545-fbe4c20d-deb3-440f-8512-542a6f9f48bd.webp#align=left&amp;display=inline&amp;height=563&amp;originHeight=483&amp;originWidth=640&amp;size=0&amp;status=done&amp;width=746" alt="" /><br />图 5：权重计算示意图<br />
+<br /><strong>当前输出词Yi针对某一个输入词j的注意力权重由当前的隐层Hi，以及输入词j的隐层状态（hj）共同决定；然后再接一个sofrmax得到0-1的概率值。即通过函数F（hj,Hi）来获得目标单词Yi和每个输入单词对应的对齐可能性。</strong>
+<a name="JGadD"></a></p>
+
+<h1 id="4-cnn的seq2seq">4 CNN的seq2seq</h1>
+
+<p>现在大多数场景下使用的Seq2Seq模型是基于RNN构成的，虽然取得了不错的效果，但也有一些学者发现<strong>使用CNN来替换Seq2Seq中的encoder或decoder可以达到更好的效果</strong>。最近，FaceBook发布了一篇论文：<strong>《Convolutional Sequence to Sequence Learning》，提出了完全使用CNN来构成Seq2Seq模型，用于机器翻译，超越了谷歌创造的基于LSTM机器翻译的效果。</strong>此网络获得暂时性胜利的重要原因在于采用了很多的窍门，这些技巧值得学习：<br /></p>
+
+<p><a name="enMeN"></a></p>
+
+<h2 id="捕获long-distance依赖关系">捕获long-distance依赖关系</h2>
+
+<p><strong>底层的CNN捕捉相聚较近的词之间的依赖关系，高层CNN捕捉较远词之间的依赖关系。</strong>通过层次化的结构，实现了类似<strong>RNN（LSTM）捕捉长度在20个词以上的Sequence的依赖关系的功能</strong>。</p>
+
+<p><a name="Hwd9q"></a></p>
+
+<h2 id="效率高">效率高</h2>
+
+<p><strong>假设一个sequence序列长度为n，采用RNN（LSTM）对其进行建模需要进行n次操作，时间复杂度O（n）。相比，采用层叠CNN只需要进行n/k次操作，时间复杂度O（n/k）,k为卷积窗口大小。</strong></p>
+
+<p><a name="H0rgY"></a></p>
+
+<h2 id="并行化实现">并行化实现</h2>
+
+<p><strong>RNN对sequence的建模依赖于序列的历史信息，因此不能并行实现。相比，层叠CNN对整个sequence进行卷积，不依赖序列历史信息，可以并行实现</strong>，特别是在<strong>工业生产，面临处理大数据量和实时要求比较高的情况下，模型训练更快。</strong></p>
+
+<p><a name="gw3Se"></a></p>
+
+<h2 id="融合多层attention">融合多层attention</h2>
+
+<p><strong>融合了Residual connection、liner mapping的多层attention。</strong>通过attention决定输入的哪些信息是重要的，并逐步往下传递。<strong>把encoder的输出和decoder的输出做点乘（dot products），再归一化，再乘以encoder的输入X之后做为权重化后的结果加入到decoder中预测目标语言序列。</strong></p>
+
+<p><a name="mn01f"></a></p>
+
+<h2 id="gate-mechanism">gate mechanism</h2>
+
+<p><strong>采用GLU做为gate mechanism。</strong>GLU单元激活方式如下公式所示： </p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326547-cf0d7b02-4445-46c6-a7e4-2b082b5b2266.webp#align=left&amp;display=inline&amp;height=56&amp;originHeight=30&amp;originWidth=256&amp;size=0&amp;status=done&amp;width=481" alt="" /><br /></p>
+
+<p><a name="fMTCy"></a></p>
+
+<h2 id="进行了梯度裁剪和精细的权重初始化-加速模型训练和收敛">进行了梯度裁剪和精细的权重初始化，加速模型训练和收敛</h2>
+
+<p>基于CNN的seq2seq模型和基于LSTM的Seq2Seq模型孰好孰坏，我们不能妄加评判。采用CNN的Seq2Seq最大的优点在于速度快，效率高，缺点就是需要调整的参数太多。在CNN和RNN用于NLP问题时，CNN也是可行的，且网络结构搭建更加灵活，效率高，由于RNN训练时往往需要前一时刻的状态，很难并行，特别是在大数据集上，CNN-Seq2Seq往往能取得比RNN-Seq2Seq更好的效果。</p>
+
+<p><a name="KhabG"></a></p>
+
+<h1 id="5-应用领域">5 应用领域</h1>
+
+<ul>
+<li><strong>机器翻译 </strong><br /></li>
+</ul>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326511-ea44e502-1768-4b7b-8136-9120fb148ac9.webp#align=left&amp;display=inline&amp;height=265&amp;originHeight=265&amp;originWidth=700&amp;size=0&amp;status=done&amp;width=700" alt="" /><br />图 6：采用Seq2Seq效果对比</p>
+
+<p>从图像可以看出，模型中的语境向量很明显的包涵了输入序列的语言意义，能够将由不同次序所产生的不同意思的语句划分开来，这对于提升机器翻译的准确率很有帮助。当前，主流的在线翻译系统都是基于深度学习模型来构建的，包括 Google、百度等。 </p>
+
+<ul>
+<li><p><strong>语音识别 </strong><br />输入是语音信号序列，输出是文字序列。</p></li>
+
+<li><p><strong>文本摘要 </strong><br />输入是一段文本序列，输出是这段文本序列的摘要序列。通常将文本摘要方法分为两类，extractive 抽取式摘要和 abstractive 生成式摘要。前者是从一篇文档或者多篇文档中通过排序找出最有信息量的句子，组合成摘要；后者类似人类编辑一样，通过理解全文的内容，然后用简练的话将全文概括出来。在应用中，extractive摘要方法更加实用一些，也被广泛使用，但在连贯性、一致性上存在一定的问题，需要进行一些后处理；abstractive 摘要方法可以很好地解决这些问题，但研究起来非常困难。</p></li>
+
+<li><p><strong>对话生成 </strong><br />Seq2Seq 模型提出之后，就有很多的工作将其应用在 Chatbot 任务上，希望可以通过海量的数据来训练模型，做出一个智能体，可以回答任何开放性的问题；而另外一拨人，研究如何将 Seq2Seq 模型配合当前的知识库来做面向具体任务的 Chatbot，在一个非常垂直的领域（比如：购买电影票等）也取得了一定的进展。 <img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326551-cf1e7c5e-8978-47c0-8918-4a70560e45fd.webp#align=left&amp;display=inline&amp;height=328&amp;originHeight=328&amp;originWidth=863&amp;size=0&amp;status=done&amp;width=863" alt="" /><br /></p></li>
+</ul>
+
+<p>图 7：对话生成Chatbot</p>
+
+<ul>
+<li><p><strong>诗词生成 </strong>让机器为你写诗并不是一个遥远的梦，Seq2Seq 模型一个非常有趣的应用正是诗词生成，即给定诗词的上一句来生成下一句。</p></li>
+
+<li><p><strong>生成代码补全 </strong></p></li>
+</ul>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/webp/200056/1563580326522-80c13ff6-bbd3-4068-8263-c74e15943c3a.webp#align=left&amp;display=inline&amp;height=377&amp;originHeight=377&amp;originWidth=720&amp;size=0&amp;status=done&amp;width=720" alt="" /></p>
+
+<p>图 8：代码补全示意图</p>
+
+<ul>
+<li><p><strong>预训练 </strong>2015年，Google提出了将Seq2Seq的自动编码器作为LSTM文本分类的一个预训练步骤，从而提高了分类的稳定性。这使得Seq2Seq技术的目的不再局限于得到序列本身，为其应用领域翻开了崭新的一页。</p></li>
+
+<li><p><strong>阅读理解</strong><br />将输入的文章和问题分别编码，再对其进行解码得到问题的答案。<br /></p></li>
+</ul>
+
+<p><a name="a6XQN"></a></p>
+
+<h1 id="6-小结">6 小结</h1>
+
+<p>           <br />Seq-to-Seq模型从一开始在机器翻译领域被提出，到后来被广泛应用到NLP各个领域，原因就在于其对序列数据的完美使用，而且解决了以前RNN模型输出维度固定的难题，所以很快得到了推广。但Seq-to-Seq不是万能药，只有在合适的场景，它才能发挥它最大的作用。</p>
+
+<p><a name="LJbEr"></a></p>
+
+<h1 id="7-参考资料">7 参考资料</h1>
+
+<ol>
+<li>源码地址：<a href="https://github.com/google/seq2seq">https://github.com/google/seq2seq</a><br /></li>
+<li>《Convolutional Sequence to Sequence Learning》： <br /><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1705.03122 ">https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1705.03122 </a><br /></li>
+<li>《Language modeling with gated linear units》： <br /><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1612.08083 ">https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1612.08083 </a><br /></li>
+<li>《A Convolutional Encoder Model for Neural Machine Translation》： <br /><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1611.02344 ">https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1611.02344 </a><br /></li>
+<li>Google Neural Machine Translation： <br /><a href="https://research.googleblog.com/2016/09/a-neural-network-for-machine.html ">https://research.googleblog.com/2016/09/a-neural-network-for-machine.html </a><br /></li>
+<li>简书：Datartisan<br /><a href="https://www.jianshu.com/p/124b777e0c55 ">https://www.jianshu.com/p/124b777e0c55 </a><br /></li>
+<li>知乎作者：李宁 <br /><a href="https://zhuanlan.zhihu.com/p/30516984 ">https://zhuanlan.zhihu.com/p/30516984 </a><br /></li>
+<li>知乎作者：何之源 <br /><a href="https://zhuanlan.zhihu.com/p/28054589 ">https://zhuanlan.zhihu.com/p/28054589 </a><br /></li>
+<li>PaperWeekly：张俊 <br /><a href="https://zhuanlan.zhihu.com/p/26753131">https://zhuanlan.zhihu.com/p/26753131</a><br /></li>
+</ol>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="https://7125messi.github.io/post/attention%E9%82%A3%E4%BA%9B%E4%BA%8B%E5%84%BF/" title="Attention那些事儿">
+      Previous
+    </a>
+    
+
+    
+
+  
+
+
+</div>
+
+  
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+  code with <i class='fa fa-heart'></i>
+
+
+</div>
+
+
+  
+<div class="container copyright">
+  
+  &copy; 2018 7125messi.
+
+
+</div>
+
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+  </body>
+</html>
+
