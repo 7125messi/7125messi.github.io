@@ -128,11 +128,50 @@
     <h1>7125messi的博客
 </h1>
 
-    <span>last update: <time datetime="2019-07-24T23:42:37&#43;08:00">24 July at 11:42pm</time>
+    <span>last update: <time datetime="2019-07-26T07:04:25&#43;08:00">26 July at 7:04am</time>
 </span>
 
   </header>
   
+  
+    <article class="container content summary">
+  <div class="container hat">
+  <h2><a href="https://7125messi.github.io/post/%E8%AF%AD%E8%A8%80%E8%A1%A8%E5%BE%81%E5%AD%A6%E4%B9%A0%E7%9A%84%E6%80%9D%E6%83%B3%E6%BC%94%E8%BF%9B/">语言表征学习的思想演进
+</a>
+</h2>
+
+  <time datetime="2019-06-30">30 Jun, 2019</time>
+
+</div>
+
+  <p class="container content">
+  
+  
+    [参考整理]
+参考文章：https://www.jiqizhixin.com/articles/2019-06-29-3
+**在预训练语言模型 BERT 对自然语言处理的冲击还未平息时，CMU 和 Google 的研究员又放出了一个猛料：在 20 多项任务上全线碾压 BERT 的 XLNet。：由于在公众号中插入方式不方便，对于一个符号 &ldquo;a{b}^{c}&ldquo;，&rdquo;{b}&rdquo; 代表下标，&rdquo;{c}&rdquo; 代表上标。
+
+1. 语言表征学习 深度学习的基本单元是向量。我们将建模对象对应到各自的向量 x (或者一组向量 x{1}, x{2}, &hellip;, x{n})，然后通过变换、整合得到新的向量 h，再基于向量 h 得到输出的判断 y。这里的 h 就是我们说的表征 (Representation)，它是一个向量，描述了我们的建模对象。而语言表征学习就是解决怎么样将一个词、一句话、一篇文章通过变换 (Transformation) 和整合 (Aggregation) 转化成对应的向量 h 的问题。
+深度学习解决这个问题的办法是人工设计一个带有可调参数的模型，通过指定一系列的 (输入→输出) 对 (x → y)，让模型学习得到最优的参数。当参数确定之后，模型除了可以完成从 x 预测 y 的任务之外，其中间把 x 变换成 h 的方法也是可以用到其他任务的。这也是我们为什么要做表征学习。（就是说我们在做预测任务同时，顺便把表征学习这件事情给做了）
+所以我们要解决的问题便是：
+ 怎么确定 (输入→输出) 对，即模型的预测任务
+ 这个模型怎么设计
+  
+2. 分布式语义假设 任何任务都可以用来做表征学习：情感分析 (输入句子，判断句子是正向情感还是负向情感)，机器翻译 (输入中文，输出英文)。但是这些任务的缺点是需要大量的人工标注，这些标注耗时耗力。当标注量不够时，模型很容易学出&rdquo;三长一短选最短&rdquo;的取巧方案 &ndash; 但我们想要的是真正的语言理解。
+  
+
+
+</p>
+
+
+  <div class="container readlink">
+  <a href="https://7125messi.github.io/post/%E8%AF%AD%E8%A8%80%E8%A1%A8%E5%BE%81%E5%AD%A6%E4%B9%A0%E7%9A%84%E6%80%9D%E6%83%B3%E6%BC%94%E8%BF%9B/">Read more &rarr;</a>
+
+</div>
+
+
+</article>
+
   
     <article class="container content summary">
   <div class="container hat">

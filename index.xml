@@ -7,10 +7,38 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>(c) 2018 7125messi.</copyright>
-    <lastBuildDate>Wed, 24 Jul 2019 23:42:37 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 26 Jul 2019 07:04:25 +0800</lastBuildDate>
     
 	<atom:link href="https://7125messi.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>XGBoost调参指南</title>
+      <link>https://7125messi.github.io/post/xgboost%E8%B0%83%E5%8F%82%E6%8C%87%E5%8D%97/</link>
+      <pubDate>Fri, 26 Jul 2019 07:04:25 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/xgboost%E8%B0%83%E5%8F%82%E6%8C%87%E5%8D%97/</guid>
+      <description>原文地址：Complete Guide to Parameter Tuning in XGBoost by Aarshay Jain
+
+1. 简介 如果你的预测模型表现得有些不尽如人意，那就用XGBoost吧。XGBoost算法现在已经成为很多数据工程师的重要武器。它是一种十分精致的算法，可以处理各种不规则的数据。
+构造一个使用XGBoost的模型十分简单。但是，提高这个模型的表现就有些困难(至少我觉得十分纠结)。这个算法使用了好几个参数。所以为了提高模型的表现，参数的调整十分必要。在解决实际问题的时候，有些问题是很难回答的——你需要调整哪些参数？这些参数要调到什么值，才能达到理想的输出？
+这篇文章最适合刚刚接触XGBoost的人阅读。在这篇文章中，我们会学到参数调优的技巧，以及XGboost相关的一些有用的知识。以及，我们会用Python在一个数据集上实践一下这个算法。
+
+2. 你需要知道的 XGBoost(eXtreme Gradient Boosting)是Gradient Boosting算法的一个优化的版本。在前文章中，基于Python的Gradient Boosting算法参数调整完全指南，里面已经涵盖了Gradient Boosting算法的很多细节了。我强烈建议大家在读本篇文章之前，把那篇文章好好读一遍。它会帮助你对Boosting算法有一个宏观的理解，同时也会对GBM的参数调整有更好的体会。
+
+3. 内容列表 1、XGBoost的优势 2、理解XGBoost的参数 3、调参示例
+
+4. XGBoost的优势 XGBoost算法可以给预测模型带来能力的提升。当我对它的表现有更多了解的时候，当我对它的高准确率背后的原理有更多了解的时候，我发现它具有很多优势：
+
+4.1 正则化  标准GBM的实现没有像XGBoost这样的正则化步骤。正则化对减少过拟合也是有帮助的。
+   实际上，XGBoost以正则化提升(regularized boosting)技术而闻名。  
+4.2 并行处理  XGBoost可以实现并行处理，相比GBM有了速度的飞跃。
+ 不过，众所周知，Boosting算法是顺序处理的，它怎么可能并行呢?每一课树的构造都依赖于前一棵树，那具体是什么让我们能用多核处理器去构造一个树呢？我希望你理解了这句话的意思。如果你希望了解更多，点击这个链接。
+  (构造决策树的结构时，样本分割点位置，可以使用并行计算)
+ XGBoost 也支持Hadoop实现。  
+4.3 高度的灵活性  XGBoost 允许用户定义自定义优化目标函数和评价标准
+ 它对模型增加了一个全新的维度，所以我们的处理不会受到任何限制。</description>
+    </item>
     
     <item>
       <title>半参数回归模型</title>
