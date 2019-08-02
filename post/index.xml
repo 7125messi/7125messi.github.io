@@ -7,10 +7,93 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>(c) 2018 7125messi.</copyright>
-    <lastBuildDate>Fri, 02 Aug 2019 20:57:29 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 02 Aug 2019 21:14:54 +0800</lastBuildDate>
     
 	<atom:link href="https://7125messi.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>RandomForest调优详解</title>
+      <link>https://7125messi.github.io/post/randomforest%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/</link>
+      <pubDate>Fri, 02 Aug 2019 21:14:54 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/randomforest%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/</guid>
+      <description>原文来自：http://www.analyticsvidhya.com/blog/2015/06/tuning-random-forest-model/
+
+为什么要调整机器学习算法？ 一个月以前，我在kaggle上参加了一个名为TFI的比赛。 我第一次提交的结果在50%。 我不懈努力在特征工程上花了超过2周的时间，勉强达到20%。 出乎我意料的事是，在调整机器学习算法参数之后，我能够达到前10%。
+这就是机器学习算法参数调优的重要性。 随机森林是在工业界中使用的最简单的机器学习工具之一。 在我们以前的文章中，我们已经向您介绍了随机森林和和CART模型进行了对比 。 机器学习工具包正由于这些算法的表现而被人所熟知。
+随机森林是什么？ 随机森林是一个集成工具，它使用观测数据的子集（BootStraping）和特征变量的子集（随机选择特征变量）来建立一个决策树。 它建立多个这样的决策树，然后将他们合并在一起以获得更准确和稳定的预测。 这样做最直接的事实是，在这一组独立的预测结果中，用投票方式得到一个最高投票结果，这个比单独使用最好模型预测的结果要好。
+我们通常将随机森林作为一个黑盒子，输入数据然后给出了预测结果，无需担心模型是如何计算的。这个黑盒子本身有几个我们可以摆弄的杠杆。 每个杠杆都能在一定程度上影响模型的性能或资源时间平衡。 在这篇文章中，我们将更多地讨论我们可以调整的杠杆，同时建立一个随机森林模型。
+调整随机森林的参数杠杆 随机森林的参数即可以增加模型的预测能力，又可以使训练模型更加容易。 以下我们将更详细地谈论各个参数（请注意，这些参数，我使用的是Python常规的命名法）：
+1.使模型预测更好的特征 主要有3类特征可以被调整，以改善该模型的预测能力
+
+A. max_features： 随机森林允许单个决策树使用特征的最大数量。 Python为最大特征数提供了多个可选项。 下面是其中的几个：
+ Auto/None ：简单地选取所有特征，每颗树都可以利用他们。这种情况下，每颗树都没有任何的限制。
+ sqrt ：此选项是每颗子树可以利用总特征数的平方根个。 例如，如果变量（特征）的总数是100，所以每颗子树只能取其中的10个。“log2”是另一种相似类型的选项。
+ 0.2：此选项允许每个随机森林的子树可以利用变量（特征）数的20％。如果想考察的特征x％的作用， 我们可以使用“0.X”的格式。
+   If &amp;ldquo;auto&amp;rdquo;, then max_features=sqrt(n_features).
+ If &amp;ldquo;sqrt&amp;rdquo;, then max_features=sqrt(n_features) (same as &amp;ldquo;auto&amp;rdquo;).
+ If &amp;ldquo;log2&amp;rdquo;, then max_features=log2(n_features).
+ If None, then max_features=n_features.
+  max_features如何影响性能和速度？
+增加max_features一般能提高模型的性能，因为在每个节点上，我们有更多的选择可以考虑。 然而，这未必完全是对的，因为它 同时也降低了单个树的多样性 ，而这正是随机森林独特的优点。 但是，可以肯定，你通过增加max_features会降低算法的速度。 因此，你需要适当的平衡和选择最佳max_features。</description>
+    </item>
+    
+    <item>
+      <title>GBDT调优详解</title>
+      <link>https://7125messi.github.io/post/gbdt%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/</link>
+      <pubDate>Fri, 02 Aug 2019 21:08:50 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/gbdt%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/</guid>
+      <description>原文地址：Complete Guide to Parameter Tuning in Gradient Boosting (GBM) in Python by Aarshay Jain
+1.前言 如果一直以来你只把GBM当作黑匣子，只知调用却不明就里，是时候来打开这个黑匣子一探究竟了！
+不像bagging算法只能改善模型高方差（high variance）情况，Boosting算法对同时控制偏差（bias）和方差（variance）都有非常好的效果，而且更加高效。
+如果你需要同时处理模型中的方差和偏差，认真理解这篇文章一定会对你大有帮助，
+本文会用Python阐明GBM算法，更重要的是会介绍如何对GBM调参，而恰当的参数往往能令结果大不相同。
+
+2.目录  Boosing是怎么工作的？
+ 理解GBM模型中的参数
+ 学会调参（附详例）
+  
+3.Boosting是如何工作的？ Boosting可以将一系列弱学习因子（weak learners）相结合来提升总体模型的预测准确度。在任意时间t，根据t-1时刻得到的结果我们给当前结果赋予一个权重。之前正确预测的结果获得较小权重，错误分类的结果得到较大权重。回归问题的处理方法也是相似的。
+让我们用图像帮助理解：
+ 图一： 第一个弱学习因子的预测结果（从左至右）
+ 一开始所有的点具有相同的权重（以点的尺寸表示）。
+ 分类线正确地分类了两个正极和五个负极的点。
+  图二： 第二个弱学习因子的预测结果
+ 在图一中被正确预测的点有较小的权重（尺寸较小），而被预测错误的点则有较大的权重。
+ 这时候模型就会更加注重具有大权重的点的预测结果，即上一轮分类错误的点，现在这些点被正确归类了，但其他点中的一些点却归类错误。
+   对图3的输出结果的理解也是类似的。这个算法一直如此持续进行直到所有的学习模型根据它们的预测结果都被赋予了一个权重，这样我们就得到了一个总体上更为准确的预测模型。
+现在你是否对Boosting更感兴趣了？不妨看看下面这些文章（主要讨论GBM）：
+ Learn Gradient Boosting Algorithm for better predictions (with codes in R)
+ Quick Introduction to Boosting Algorithms in Machine Learning</description>
+    </item>
+    
+    <item>
+      <title>XGBoost调优指南</title>
+      <link>https://7125messi.github.io/post/xgboost%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/</link>
+      <pubDate>Fri, 02 Aug 2019 21:05:56 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/xgboost%E8%B0%83%E4%BC%98%E6%8C%87%E5%8D%97/</guid>
+      <description>原文地址：Complete Guide to Parameter Tuning in XGBoost by Aarshay Jain
+
+1. 简介 如果你的预测模型表现得有些不尽如人意，那就用XGBoost吧。XGBoost算法现在已经成为很多数据工程师的重要武器。它是一种十分精致的算法，可以处理各种不规则的数据。
+构造一个使用XGBoost的模型十分简单。但是，提高这个模型的表现就有些困难(至少我觉得十分纠结)。这个算法使用了好几个参数。所以为了提高模型的表现，参数的调整十分必要。在解决实际问题的时候，有些问题是很难回答的——你需要调整哪些参数？这些参数要调到什么值，才能达到理想的输出？
+这篇文章最适合刚刚接触XGBoost的人阅读。在这篇文章中，我们会学到参数调优的技巧，以及XGboost相关的一些有用的知识。以及，我们会用Python在一个数据集上实践一下这个算法。
+
+2. 你需要知道的 XGBoost(eXtreme Gradient Boosting)是Gradient Boosting算法的一个优化的版本。在前文章中，基于Python的Gradient Boosting算法参数调整完全指南，里面已经涵盖了Gradient Boosting算法的很多细节了。我强烈建议大家在读本篇文章之前，把那篇文章好好读一遍。它会帮助你对Boosting算法有一个宏观的理解，同时也会对GBM的参数调整有更好的体会。
+
+3. 内容列表 1、XGBoost的优势 2、理解XGBoost的参数 3、调参示例
+
+4. XGBoost的优势 XGBoost算法可以给预测模型带来能力的提升。当我对它的表现有更多了解的时候，当我对它的高准确率背后的原理有更多了解的时候，我发现它具有很多优势：
+
+4.1 正则化  标准GBM的实现没有像XGBoost这样的正则化步骤。正则化对减少过拟合也是有帮助的。
+ 实际上，XGBoost以正则化提升(regularized boosting)技术而闻名。  
+4.2 并行处理  XGBoost可以实现并行处理，相比GBM有了速度的飞跃。 不过，众所周知，Boosting算法是顺序处理的，它怎么可能并行呢?每一课树的构造都依赖于前一棵树，那具体是什么让我们能用多核处理器去构造一个树呢？我希望你理解了这句话的意思。如果你希望了解更多，点击这个链接。(构造决策树的结构时，样本分割点位置，可以使用并行计算)
+ XGBoost 也支持Hadoop实现。  
+4.3 高度的灵活性  XGBoost 允许用户定义自定义优化目标函数和评价标准 它对模型增加了一个全新的维度，所以我们的处理不会受到任何限制。  
+4.4 缺失值处理  XGBoost内置处理缺失值的规则。 用户需要提供一个和其它样本不同的值，然后把它作为一个参数传进去，以此来作为缺失值的取值。XGBoost在不同节点遇到缺失值时采用不同的处理方法，并且会学习未来遇到缺失值时的处理方法。</description>
+    </item>
     
     <item>
       <title>LightGBM学习</title>
@@ -469,32 +552,6 @@ https://notebooks.azure.com/messi7125/projects/feature-engineering</description>
  4、为什么要采取Marked LM，而不直接应用Transformer Encoder？
  5、bert为什么并不总是用实际的[MASK]token替换被“masked”的词汇？
   一、文本表示和各词向量间的对比</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://7125messi.github.io/post/xgboost%E8%B0%83%E5%8F%82%E6%8C%87%E5%8D%97/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://7125messi.github.io/post/xgboost%E8%B0%83%E5%8F%82%E6%8C%87%E5%8D%97/</guid>
-      <description>11-XGBoost参数调优完全指南 原文地址：Complete Guide to Parameter Tuning in XGBoost by Aarshay Jain
-
-1. 简介 如果你的预测模型表现得有些不尽如人意，那就用XGBoost吧。XGBoost算法现在已经成为很多数据工程师的重要武器。它是一种十分精致的算法，可以处理各种不规则的数据。
-构造一个使用XGBoost的模型十分简单。但是，提高这个模型的表现就有些困难(至少我觉得十分纠结)。这个算法使用了好几个参数。所以为了提高模型的表现，参数的调整十分必要。在解决实际问题的时候，有些问题是很难回答的——你需要调整哪些参数？这些参数要调到什么值，才能达到理想的输出？
-这篇文章最适合刚刚接触XGBoost的人阅读。在这篇文章中，我们会学到参数调优的技巧，以及XGboost相关的一些有用的知识。以及，我们会用Python在一个数据集上实践一下这个算法。
-
-2. 你需要知道的 XGBoost(eXtreme Gradient Boosting)是Gradient Boosting算法的一个优化的版本。在前文章中，基于Python的Gradient Boosting算法参数调整完全指南，里面已经涵盖了Gradient Boosting算法的很多细节了。我强烈建议大家在读本篇文章之前，把那篇文章好好读一遍。它会帮助你对Boosting算法有一个宏观的理解，同时也会对GBM的参数调整有更好的体会。
-
-3. 内容列表 1、XGBoost的优势 2、理解XGBoost的参数 3、调参示例
-
-4. XGBoost的优势 XGBoost算法可以给预测模型带来能力的提升。当我对它的表现有更多了解的时候，当我对它的高准确率背后的原理有更多了解的时候，我发现它具有很多优势：
-
-4.1 正则化  标准GBM的实现没有像XGBoost这样的正则化步骤。正则化对减少过拟合也是有帮助的。
- 实际上，XGBoost以正则化提升(regularized boosting)技术而闻名。  
-4.2 并行处理  XGBoost可以实现并行处理，相比GBM有了速度的飞跃。 不过，众所周知，Boosting算法是顺序处理的，它怎么可能并行呢?每一课树的构造都依赖于前一棵树，那具体是什么让我们能用多核处理器去构造一个树呢？我希望你理解了这句话的意思。如果你希望了解更多，点击这个链接。(构造决策树的结构时，样本分割点位置，可以使用并行计算)
- XGBoost 也支持Hadoop实现。  
-4.3 高度的灵活性  XGBoost 允许用户定义自定义优化目标函数和评价标准 它对模型增加了一个全新的维度，所以我们的处理不会受到任何限制。  
-4.4 缺失值处理  XGBoost内置处理缺失值的规则。 用户需要提供一个和其它样本不同的值，然后把它作为一个参数传进去，以此来作为缺失值的取值。XGBoost在不同节点遇到缺失值时采用不同的处理方法，并且会学习未来遇到缺失值时的处理方法。</description>
     </item>
     
   </channel>

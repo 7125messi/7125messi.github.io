@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>7125messi的博客 </title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="">
+
+
+<meta property="og:title" content="7125messi的博客 ">
+<meta property="og:site_name" content="7125messi的博客"/>
+<meta property="og:url" content="https://7125messi.github.io/" />
+<meta property="og:locale" content="zh-cn">
+
+
+<meta property="og:type" content="website" />
+
+
+
+<link href="https://7125messi.github.io/index.xml" rel="alternate" type="application/rss+xml" title="7125messi的博客" />
+
+<link rel="canonical" href="https://7125messi.github.io/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://7125messi.github.io/touch-icon-144-precomposed.png">
+<link href="https://7125messi.github.io/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.55.6" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight/default.css">
+
+  
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper has-sidebar">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="https://7125messi.github.io">
+  箴言
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+  带着爱和梦想去生活
+
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+<a class="homelink" href="https://7125messi.github.io">正文</a>
+
+
+  
+<a href="https://7125messi.github.io/about">相关</a>
+
+<a href="https://7125messi.github.io/post" title="Show list of posts">目录</a>
+
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+<a id="contact-link-github" class="contact_link" rel="me" aria-label="Github" href="https://github.com/7125messi">
+  <span class="fa fa-github-square"></span></a>
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<section id="main-content" class="container main_content homepage">
+  <header class="container header">
+    <h1>7125messi的博客
+</h1>
+
+    <span>last update: <time datetime="2019-08-02T21:14:54&#43;08:00">2 August at 9:14pm</time>
+</span>
+
+  </header>
+  
+  
+    <article class="container content summary">
+  <div class="container hat">
+  <h2><a href="https://7125messi.github.io/post/nlp%E4%B8%AD%E5%90%84%E7%A7%8D%E8%AF%8D%E5%90%91%E9%87%8F%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/">Nlp中的词向量
+</a>
+</h2>
+
+  <time datetime="2019-06-22">22 Jun, 2019</time>
+
+</div>
+
+  <p class="container content">
+  
+  
+    [参考整理]
+词向量对比：word2vec/glove/fastText/elmo/GPT/bert（非常好）
+本文以QA形式对自然语言处理中的词向量进行总结：包含word2vec/glove/fastText/elmo/bert。
+目录 一、文本表示和各词向量间的对比
+ 1、文本表示哪些方法？
+ 2、怎么从语言模型理解词向量？怎么理解分布式假设？
+ 3、传统的词向量有什么问题？怎么解决？各种词向量的特点是什么？
+ 4、word2vec和NNLM对比有什么区别？（word2vec vs NNLM）
+ 5、word2vec和fastText对比有什么区别？（word2vec vs fastText）
+ 6、glove和word2vec、 LSA对比有什么区别？（word2vec vs glove vs LSA）
+ 7、elmo、GPT、bert三者之间有什么区别？（elmo vs GPT vs bert）
+  二、深入解剖word2vec
+ 1、word2vec的两种模型分别是什么？
+ 2、word2vec的两种优化方法是什么？它们的目标函数怎样确定的？训练过程又是怎样的？
+  三、深入解剖Glove详解
+ 1、GloVe构建过程是怎样的？
+ 2、GloVe的训练过程是怎样的？
+ 3、Glove损失函数是如何确定的？
+  四、深入解剖bert（与elmo和GPT比较）
+ 1、为什么bert采取的是双向Transformer Encoder，而不叫decoder？
+ 2、elmo、GPT和bert在单双向语言模型处理上的不同之处？
+ 3、bert构建双向语言模型不是很简单吗？不也可以直接像elmo拼接Transformer decoder吗？
+ 4、为什么要采取Marked LM，而不直接应用Transformer Encoder？
+ 5、bert为什么并不总是用实际的[MASK]token替换被“masked”的词汇？
+  一、文本表示和各词向量间的对比
+  
+
+
+</p>
+
+
+  <div class="container readlink">
+  <a href="https://7125messi.github.io/post/nlp%E4%B8%AD%E5%90%84%E7%A7%8D%E8%AF%8D%E5%90%91%E9%87%8F%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/">Read more &rarr;</a>
+
+</div>
+
+
+</article>
+
+  
+  
+<div class="container pagination">
+  
+
+
+<a aria-label="First" href="https://7125messi.github.io/">
+  <span aria-hidden="true">««</span>
+</a>
+
+<a aria-label="Previous" href="https://7125messi.github.io/page/2/">
+  <span aria-hidden="true">«</span>
+</a>
+
+
+<a href="https://7125messi.github.io/">
+  1
+</a>
+
+<a href="https://7125messi.github.io/page/2/">
+  2
+</a>
+
+<a class="active" href="https://7125messi.github.io/page/3/">
+  3
+</a>
+
+
+<a class="disabled" aria-label="Next" href="#">
+  <span aria-hidden="true">»</span>
+</a>
+
+<a aria-label="Last" href="https://7125messi.github.io/page/3/">
+  <span aria-hidden="true">»»</span>
+</a>
+
+
+</div>
+
+
+</section>
+
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+  code with <i class='fa fa-heart'></i>
+
+
+</div>
+
+
+  
+<div class="container copyright">
+  
+  &copy; 2018 7125messi.
+
+
+</div>
+
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+  </body>
+</html>
+
