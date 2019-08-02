@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>SVM调优详解  &middot; 7125messi的博客</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="">
+
+
+<meta property="og:title" content="SVM调优详解  &middot; 7125messi的博客 ">
+<meta property="og:site_name" content="7125messi的博客"/>
+<meta property="og:url" content="https://7125messi.github.io/post/svm%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/" />
+<meta property="og:locale" content="zh-cn">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2019-08-02T21:21:35&#43;08:00" />
+<meta property="og:article:modified_time" content="2019-08-02T21:21:35&#43;08:00" />
+
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="SVM调优详解" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://7125messi.github.io/post/svm%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/" />
+<meta name="twitter:domain" content="https://7125messi.github.io">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "SVM调优详解",
+    "author": {
+      "@type": "Person",
+      "name": ""
+    },
+    "datePublished": "2019-08-02",
+    "description": "",
+    "wordCount":  1489 
+  }
+</script>
+
+
+
+<link rel="canonical" href="https://7125messi.github.io/post/svm%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://7125messi.github.io/touch-icon-144-precomposed.png">
+<link href="https://7125messi.github.io/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.55.6" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight/default.css">
+
+  
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper has-sidebar">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="https://7125messi.github.io">
+  箴言
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+  带着爱和梦想去生活
+
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+<a class="homelink" href="https://7125messi.github.io">正文</a>
+
+
+  
+<a href="https://7125messi.github.io/about">相关</a>
+
+<a href="https://7125messi.github.io/post" title="Show list of posts">目录</a>
+
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+<a id="contact-link-github" class="contact_link" rel="me" aria-label="Github" href="https://github.com/7125messi">
+  <span class="fa fa-github-square"></span></a>
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>SVM调优详解
+</h1>
+
+  <div class="metas">
+<time datetime="2019-08-02">2 Aug, 2019</time>
+
+
+  
+  &middot; Read in about 7 min
+  &middot; (1489 Words)
+  <br>
+  
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<p>在支持向量机(以下简称<code>SVM</code>)的核函数中，高斯核(以下简称<code>RBF</code>)是最常用的，从理论上讲，<strong><code>RBF一定不比线性核函数差</code></strong>，但是在实际应用中，却面临着几个重要的超参数的调优问题。如果调的不好，可能比线性核函数还要差。所以我们实际应用中，能用线性核函数得到较好效果的都会选择线性核函数。如果线性核不好，我们就需要使用RBF，在享受RBF对非线性数据的良好分类效果前，我们需要对主要的超参数进行选取。本文我们就对<code>scikit-learn</code>中 <code>SVM RBF</code>的调参做一个小结。</p>
+
+<p><a name="ce4fc27e"></a></p>
+
+<h1 id="1-svm-rbf-主要超参数概述">1 SVM RBF 主要超参数概述</h1>
+
+<p>如果是<code>SVM</code>分类模型，这两个超参数分别是<strong><code>惩罚系数和RBF核函数的系数</code></strong>。<strong>当然如果是<code>nu-SVC</code>的话，惩罚系数<code>C</code>代替为</strong>分类错误率上限<code>nu</code><strong>, 由于惩罚系数<code>C</code>和分类错误率上限<code>nu</code>起的作用等价，因此</strong>本文只讨论带惩罚系数<code>C</code>的分类<code>SVM</code>**</p>
+
+<p><a name="49634890"></a></p>
+
+<h2 id="1-1-svm分类模型">1.1 SVM分类模型</h2>
+
+<p>###（1） 惩罚系数</p>
+
+<ul>
+<li><p><strong>惩罚系数C</strong>即上一篇里讲到的<strong>松弛变量<code>ξ</code>的系数</strong>。它在优化函数里主要是<strong><code>平衡支持向量的复杂度和误分类率这两者之间的关系，可以理解为正则化系数</code></strong>。</p></li>
+
+<li><p>当<strong>惩罚系数C</strong>比较大时，我们的<strong><code>损失函数也会越大</code></strong>，这意味着我们<strong><code>不愿意放弃比较远的离群点</code></strong>。这样我们会<strong><code>有更加多的支持向量</code></strong>，也就是说<strong><code>支持向量和超平面的模型也会变得越复杂，也容易过拟合</code></strong>。</p></li>
+
+<li><p>当<strong>惩罚系数C</strong>比较小时，意味我们<strong><code>不想理那些离群点</code></strong>，会选择<strong><code>较少的样本来做支持向量</code></strong>，最终的支持向量和超平面的模型也会简单。<code>scikit-learn</code>中默认值是1。</p></li>
+</ul>
+
+<p><a name="07d3860a"></a></p>
+
+<h3 id="2-rbf核函数的系数">（2）RBF核函数的系数</h3>
+
+<p>另一个超参数是RBF核函数的参数。回忆下RBF 核函数<br /><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1564098572308-c316e2cc-57f5-4d14-9c0e-e7fc0a448f34.png#align=left&amp;display=inline&amp;height=19&amp;originHeight=19&amp;originWidth=159&amp;size=0&amp;status=done&amp;width=159" alt="" /><br /></p>
+
+<p><code>γ</code>主要定义了<strong><code>单个样本对整个分类超平面的影响</code></strong>。</p>
+
+<ul>
+<li><p>当<code>γ</code>比较小时，<strong><code>单个样本对整个分类超平面的影响比较小，不容易被选择为支持向量</code></strong></p></li>
+
+<li><p>当<code>γ</code>比较大时，<strong><code>单个样本对整个分类超平面的影响比较大，更容易被选择为支持向量**</code>，或者说整个模型的支持向量也会多。</strong><code>scikit-learn</code>中默认值是<code>1/n_features</code>**</p></li>
+</ul>
+
+<p><a name="6a0f29b3"></a></p>
+
+<h3 id="3-惩罚系数和rbf核函数的系数">（3）惩罚系数和RBF核函数的系数</h3>
+
+<p>如果把惩罚系数和RBF核函数的系数一起看：</p>
+
+<ul>
+<li>当<code>C</code>比较大、 <code>γ</code>比较大时，<strong><code>会有更多的支持向量，模型会比较复杂，较容易过拟合</code></strong></li>
+<li>当<code>C</code>比较小、<code>γ</code>比较小时，<strong><code>模型会变得简单，支持向量的个数会少</code></strong></li>
+</ul>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1564098572556-be4b3ac8-ab47-48d6-bcf4-65d3557baf91.png#align=left&amp;display=inline&amp;height=791&amp;originHeight=791&amp;originWidth=1172&amp;size=0&amp;status=done&amp;width=1172" alt="" /></p>
+
+<p><a name="1b5102ad"></a></p>
+
+<h2 id="1-2-svm回归模型">1.2 SVM回归模型</h2>
+
+<p>SVM回归模型的RBF核比分类模型要复杂一点，因为此时除了<strong>惩罚系数C和RBF核函数的系数γ</strong>之外，还多了一个<strong>损失距离度量ϵ</strong>。如果是nu-SVR的话，<strong>损失距离度量ϵ</strong>代替为<strong>分类错误率上限nu</strong>，由于<strong>损失距离度量ϵ</strong>和<strong>分类错误率上限nu</strong>起的作用等价，因此本文只讨论<strong><code>带距离度量ϵ的回归SVM</code></strong>。</p>
+
+<ul>
+<li><p>对于惩罚系数C和RBF核函数的系数γ，回归模型和分类模型的作用基本相同。</p></li>
+
+<li><p>对于<strong>损失距离度量ϵ</strong>，它决定了<strong><code>样本点到超平面的距离损失</code></strong>.<strong>当</strong><code>ϵ比较大时，损失较小，更多的点在损失距离范围之内，模型较简单</code><strong>;</strong>当<strong><code>ϵ比较小时，损失函数会较大，模型也会变得复杂</code></strong>；<strong>scikit-learn中默认值是0.1</strong></p></li>
+</ul>
+
+<p><strong>惩罚系数C、RBF核函数的系数γ和损失距离度量ϵ一起看</strong></p>
+
+<ul>
+<li><p>当<strong><code>C比较大、 γ比较大、ϵ比较小</code></strong>时，会有更多的支持向量，模型会比较复杂，容易过拟合一些;</p></li>
+
+<li><p><strong>当</strong><code>C比较小、γ比较小、ϵ比较大时</code>**，模型会变得简单，支持向量的个数会少</p></li>
+</ul>
+
+<p><a name="e450c6d1"></a></p>
+
+<h1 id="2-svm-rbf-主要调参方法">2 SVM RBF 主要调参方法</h1>
+
+<p>对于SVM的RBF核，主要的调参方法都是<strong><code>交叉验证</code></strong>。<strong>具体在<code>scikit-learn</code>中，主要是使用</strong><code>网格搜索</code><strong>，即</strong><code>GridSearchCV</code>类<strong>。<br />当然也可以使用</strong><code>cross_val_score</code>类<strong>来调参，但是个人觉得</strong>没有<code>GridSearchCV</code>方便<strong>。本文只讨论用</strong><code>GridSearchCV</code>**来进行SVM的RBF核的调参。</p>
+
+<p><strong>将<code>GridSearchCV</code>类用于<code>SVM RBF</code>调参时要注意的参数有：</strong></p>
+
+<ul>
+<li>1. <code>estimator</code> :即模型，此处就是带高斯核的<code>SVC</code>或者<code>SVR</code></li>
+<li>2. <code>param_grid</code>：即要调参的参数列表。 比如用<code>SVC</code>分类模型的话，那么<code>param_grid</code>可以定义为<code>{&quot;C&quot;:[0.1, 1, 10], &quot;gamma&quot;: [0.1, 0.2, 0.3]}</code>，这样就会有<code>9</code>种超参数的组合来进行网格搜索，<strong>选择一个拟合分数最好的超平面系数</strong>。</li>
+<li>3. <code>cv</code>: <strong><code>S</code>折交叉验证的折数</strong>，即将<strong><code>训练集分成多少份来进行交叉验证</code></strong>。默认是<code>3</code>。<strong>如果样本较多的话，可以适度增大<code>cv</code>的值。</strong></li>
+</ul>
+
+<p>网格搜索结束后，可以得到<strong>最好的模型<code>estimator</code>、<code>param_grid</code>中最好的参数组合、最好的模型分数</strong>。</p>
+
+<p>下面用一个具体的分类例子来观察<code>SVM RBF</code>调参的过程。</p>
+
+<p><a name="7ea5d807"></a></p>
+
+<h1 id="3-svm-rbf分类调参的例子">3 SVM RBF分类调参的例子</h1>
+
+<pre><code class="language-python">import numpy as np  
+import matplotlib.pyplot as plt  
+from sklearn import datasets, svm  
+from sklearn.svm import SVC  
+from sklearn.datasets import make_moons, make_circles, make_classification
+</code></pre>
+
+<p>接着生成一些随机数据来分类，为了数据难一点，加入了一些噪音，生成数据的同时把<strong><code>数据归一化</code>。</strong></p>
+
+<pre><code class="language-python">X, y = make_circles(noise=0.2, factor=0.5, random_state=1)  
+from sklearn.preprocessing import StandardScaler  
+X = StandardScaler().fit_transform(X)
+</code></pre>
+
+<p>数据可视化如下：</p>
+
+<pre><code class="language-python">from matplotlib.colors import ListedColormap  
+cm = plt.cm.RdBu  
+cm_bright = ListedColormap(['#FF0000', '#0000FF'])  
+ax = plt.subplot()  
+ax.set_title(&quot;Input data&quot;)  
+ax.scatter(X[:, 0], X[:, 1], c=y, cmap=cm_bright)  
+ax.set_xticks(())  
+ax.set_yticks(())  
+plt.tight_layout()  
+plt.show()
+</code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1564098572329-785a3e84-71ba-4de7-9774-0578b6df50d0.png#align=left&amp;display=inline&amp;height=480&amp;originHeight=480&amp;originWidth=640&amp;size=0&amp;status=done&amp;width=640" alt="" /><br />现在要对这个数据集进行<code>SVM RBF</code>分类了，分类时使用了<code>网格搜索</code>，在<strong><code>C=(0.1,1,10)</code>和<code>gamma=(1, 0.1, 0.01)</code></strong>形成的<code>9</code>种情况中选择最好的超参数，使用<strong><code>4折交叉验证</code></strong>。这里只是一个例子，实际运用中，可能需要更多的参数组合来进行调参。</p>
+
+<pre><code class="language-python">from sklearn.model_selection import GridSearchCV  
+grid = GridSearchCV(SVC(), param_grid={&quot;C&quot;:[0.1, 1, 10], &quot;gamma&quot;:[1, 0.1, 0.01]}, cv=4)  
+grid.fit(X, y)  
+print(&quot;The best parameters are %s with a score of %0.2f&quot; %(grid.best_params_, grid.best_score_))
+</code></pre>
+
+<p>最终的输出如下：</p>
+
+<pre><code class="language-python">The best parameters are {'C': 10, 'gamma': 0.1} with a score of 0.91
+</code></pre>
+
+<p>也就是说，通过网格搜索，在给定的<code>9</code>组超参数中，<code>C=10</code>， <code>Gamma=0.1</code> 分数最高，这就是最终的参数候选。<br />到这里，调参举例就结束了。不过可以看看普通<code>SVM</code>分类后的可视化。这里把这<code>9</code>种组合分别训练后，通过对网格里的点预测来标色，观察分类的效果图。代码如下：</p>
+
+<pre><code class="language-python">x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1  
+y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1  
+xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02), np.arange(y_min, y_max, 0.02))  
+  
+for i, C in enumerate((0.1, 1, 10)):  
+    for j, gamma in enumerate((1, 0.1, 0.01)):  
+        plt.subplot()  
+        clf = SVC(C=C, gamma=gamma)  
+        clf.fit(X, y)  
+        Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])  
+        Z = Z.reshape(xx.shape)  
+        plt.contourf(xx, yy, Z, cmap=plt.cm.coolwarm, alpha=0.8)  
+        plt.scatter(X[:,0], X[:, 1], c=y, cmap=plt.cm.coolwarm)  
+        plt.xlim(xx.min(), xx.max())  
+        plt.ylim(yy.min(), yy.max())  
+        plt.xticks(())  
+        plt.yticks(())  
+        plt.xlabel(&quot;gamma=&quot;+str(gamma)+&quot; C=&quot;+str(C))  
+        plt.show()
+</code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1564098572262-e5104112-6386-4937-9ee2-7e62404d4949.png#align=left&amp;display=inline&amp;height=350&amp;originHeight=350&amp;originWidth=484&amp;size=0&amp;status=done&amp;width=484" alt="" /></p>
+
+<p><a name="855464cb"></a></p>
+
+<h1 id="4-svm算法库其他调参要点">4 SVM算法库其他调参要点</h1>
+
+<p>上面已经对<code>Scikit-Learn</code>中类库的参数做了总结，这里对其他的调参要点做一个小结。</p>
+
+<p>1）一般推荐在做训练之前对<strong><code>数据进行归一化</code></strong>，当然<strong><code>测试集中的数据</code></strong>也需要<strong><code>归一化</code>。</strong></p>
+
+<p>2）在<strong><code>特征数非常多</code></strong>的情况下，或者<strong><code>样本数远小于特征数</code></strong>的时候，使用<code>线性核，效果已经很好</code>，并且<strong><code>只需要选择惩罚系数C</code></strong>即可。</p>
+
+<p>3）在选择核函数时，如果线性拟合不好，一般<strong><code>推荐使用默认的高斯核'rbf'</code></strong>。这时我们主要需要<strong><code>对惩罚系数C和核函数参数γ进行艰苦的调参，通过多轮的交叉验证选择合适的惩罚系数C和核函数参数γ</code></strong>。</p>
+
+<p>4）理论上<strong><code>高斯核不会比线性核差</code></strong>，但是这个理论却<strong><code>建立在要花费更多的时间来调参上</code></strong>。所以实际上<strong><code>能用线性核解决问题我们尽量使用线性核</code></strong>。</p>
+
+<p><a name="77e48f15"></a></p>
+
+<h1 id="5-附录-官方文档">5 附录：官方文档</h1>
+
+<pre><code class="language-python">In [1]: from sklearn.svm import SVC
+
+In [2]: SVC?
+Init signature: SVC(C=1.0, kernel='rbf', degree=3, gamma='auto', coef0=0.0, shrinking=True, probability=False, tol=0.001, cache_size=200, class_weight=None, verbose=False, max_iter=-1, decision_function_shape='ovr', random_state=None)
+Docstring:
+C-Support Vector Classification.
+
+The implementation is based on libsvm. The fit time complexity
+is more than quadratic with the number of samples which makes it hard
+to scale to dataset with more than a couple of 10000 samples.
+
+The multiclass support is handled according to a one-vs-one scheme.
+
+For details on the precise mathematical formulation of the provided
+kernel functions and how `gamma`, `coef0` and `degree` affect each
+other, see the corresponding section in the narrative documentation:
+:ref:`svm_kernels`.
+
+Read more in the :ref:`User Guide &lt;svm_classification&gt;`.
+
+Parameters
+----------
+C : float, optional (default=1.0)
+    Penalty parameter C of the error term.
+
+kernel : string, optional (default='rbf')
+     Specifies the kernel type to be used in the algorithm.
+     It must be one of 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' or
+     a callable.
+     If none is given, 'rbf' will be used. If a callable is given it is
+     used to pre-compute the kernel matrix from data matrices; that matrix
+     should be an array of shape ``(n_samples, n_samples)``.
+
+degree : int, optional (default=3)
+    Degree of the polynomial kernel function ('poly').
+    Ignored by all other kernels.
+
+gamma : float, optional (default='auto')
+    Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.
+    If gamma is 'auto' then 1/n_features will be used instead.
+
+coef0 : float, optional (default=0.0)
+    Independent term in kernel function.
+    It is only significant in 'poly' and 'sigmoid'.
+
+probability : boolean, optional (default=False)
+    Whether to enable probability estimates. This must be enabled prior
+    to calling `fit`, and will slow down that method.
+
+shrinking : boolean, optional (default=True)
+    Whether to use the shrinking heuristic.
+
+tol : float, optional (default=1e-3)
+    Tolerance for stopping criterion.
+
+cache_size : float, optional
+    Specify the size of the kernel cache (in MB).
+
+class_weight : {dict, 'balanced'}, optional
+    Set the parameter C of class i to class_weight[i]*C for
+    SVC. If not given, all classes are supposed to have
+    weight one.
+    The &quot;balanced&quot; mode uses the values of y to automatically adjust
+    weights inversely proportional to class frequencies in the input data
+    as ``n_samples / (n_classes * np.bincount(y))``
+
+verbose : bool, default: False
+    Enable verbose output. Note that this setting takes advantage of a
+    per-process runtime setting in libsvm that, if enabled, may not work
+    properly in a multithreaded context.
+
+max_iter : int, optional (default=-1)
+    Hard limit on iterations within solver, or -1 for no limit.
+
+decision_function_shape : 'ovo', 'ovr', default='ovr'
+    Whether to return a one-vs-rest ('ovr') decision function of shape
+    (n_samples, n_classes) as all other classifiers, or the original
+    one-vs-one ('ovo') decision function of libsvm which has shape
+    (n_samples, n_classes * (n_classes - 1) / 2).
+
+    .. versionchanged:: 0.19
+        decision_function_shape is 'ovr' by default.
+
+    .. versionadded:: 0.17
+       *decision_function_shape='ovr'* is recommended.
+
+    .. versionchanged:: 0.17
+       Deprecated *decision_function_shape='ovo' and None*.
+
+random_state : int, RandomState instance or None, optional (default=None)
+    The seed of the pseudo random number generator to use when shuffling
+    the data.  If int, random_state is the seed used by the random number
+    generator; If RandomState instance, random_state is the random number
+    generator; If None, the random number generator is the RandomState
+    instance used by `np.random`.
+
+Attributes
+----------
+support_ : array-like, shape = [n_SV]
+    Indices of support vectors.
+
+support_vectors_ : array-like, shape = [n_SV, n_features]
+    Support vectors.
+
+n_support_ : array-like, dtype=int32, shape = [n_class]
+    Number of support vectors for each class.
+
+dual_coef_ : array, shape = [n_class-1, n_SV]
+    Coefficients of the support vector in the decision function.
+    For multiclass, coefficient for all 1-vs-1 classifiers.
+    The layout of the coefficients in the multiclass case is somewhat
+    non-trivial. See the section about multi-class classification in the
+    SVM section of the User Guide for details.
+
+coef_ : array, shape = [n_class-1, n_features]
+    Weights assigned to the features (coefficients in the primal
+    problem). This is only available in the case of a linear kernel.
+
+    `coef_` is a readonly property derived from `dual_coef_` and
+    `support_vectors_`.
+
+intercept_ : array, shape = [n_class * (n_class-1) / 2]
+    Constants in decision function.
+
+Examples
+--------
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; X = np.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
+&gt;&gt;&gt; y = np.array([1, 1, 2, 2])
+&gt;&gt;&gt; from sklearn.svm import SVC
+&gt;&gt;&gt; clf = SVC()
+&gt;&gt;&gt; clf.fit(X, y) #doctest: +NORMALIZE_WHITESPACE
+SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
+    decision_function_shape='ovr', degree=3, gamma='auto', kernel='rbf',
+    max_iter=-1, probability=False, random_state=None, shrinking=True,
+    tol=0.001, verbose=False)
+&gt;&gt;&gt; print(clf.predict([[-0.8, -1]]))
+[1]
+
+See also
+--------
+SVR
+    Support Vector Machine for Regression implemented using libsvm.
+
+LinearSVC
+    Scalable Linear Support Vector Machine for classification
+    implemented using liblinear. Check the See also section of
+    LinearSVC for more comparison element.
+File:           c:\anaconda3\lib\site-packages\sklearn\svm\classes.py
+Type:           ABCMeta
+</code></pre>
+
+<pre><code>In [4]: from sklearn.svm import SVR
+
+In [5]: SVR?
+Init signature: SVR(kernel='rbf', degree=3, gamma='auto', coef0=0.0, tol=0.001, C=1.0, epsilon=0.1, shrinking=True, cache_size=200, verbose=False, max_iter=-1)
+Docstring:
+Epsilon-Support Vector Regression.
+
+The free parameters in the model are C and epsilon.
+
+The implementation is based on libsvm.
+
+Read more in the :ref:`User Guide &lt;svm_regression&gt;`.
+
+Parameters
+----------
+C : float, optional (default=1.0)
+    Penalty parameter C of the error term.
+
+epsilon : float, optional (default=0.1)
+     Epsilon in the epsilon-SVR model. It specifies the epsilon-tube
+     within which no penalty is associated in the training loss function
+     with points predicted within a distance epsilon from the actual
+     value.
+
+kernel : string, optional (default='rbf')
+     Specifies the kernel type to be used in the algorithm.
+     It must be one of 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' or
+     a callable.
+     If none is given, 'rbf' will be used. If a callable is given it is
+     used to precompute the kernel matrix.
+
+degree : int, optional (default=3)
+    Degree of the polynomial kernel function ('poly').
+    Ignored by all other kernels.
+
+gamma : float, optional (default='auto')
+    Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.
+    If gamma is 'auto' then 1/n_features will be used instead.
+
+coef0 : float, optional (default=0.0)
+    Independent term in kernel function.
+    It is only significant in 'poly' and 'sigmoid'.
+
+shrinking : boolean, optional (default=True)
+    Whether to use the shrinking heuristic.
+
+tol : float, optional (default=1e-3)
+    Tolerance for stopping criterion.
+
+cache_size : float, optional
+    Specify the size of the kernel cache (in MB).
+verbose : bool, default: False
+    Enable verbose output. Note that this setting takes advantage of a
+    per-process runtime setting in libsvm that, if enabled, may not work
+    properly in a multithreaded context.
+
+max_iter : int, optional (default=-1)
+    Hard limit on iterations within solver, or -1 for no limit.
+
+Attributes
+----------
+support_ : array-like, shape = [n_SV]
+    Indices of support vectors.
+
+support_vectors_ : array-like, shape = [nSV, n_features]
+    Support vectors.
+
+dual_coef_ : array, shape = [1, n_SV]
+    Coefficients of the support vector in the decision function.
+
+coef_ : array, shape = [1, n_features]
+    Weights assigned to the features (coefficients in the primal
+    problem). This is only available in the case of a linear kernel.
+
+    `coef_` is readonly property derived from `dual_coef_` and
+    `support_vectors_`.
+
+intercept_ : array, shape = [1]
+    Constants in decision function.
+
+sample_weight : array-like, shape = [n_samples]
+        Individual weights for each sample
+
+Examples
+--------
+&gt;&gt;&gt; from sklearn.svm import SVR
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; n_samples, n_features = 10, 5
+&gt;&gt;&gt; np.random.seed(0)
+&gt;&gt;&gt; y = np.random.randn(n_samples)
+&gt;&gt;&gt; X = np.random.randn(n_samples, n_features)
+&gt;&gt;&gt; clf = SVR(C=1.0, epsilon=0.2)
+&gt;&gt;&gt; clf.fit(X, y) #doctest: +NORMALIZE_WHITESPACE
+SVR(C=1.0, cache_size=200, coef0=0.0, degree=3, epsilon=0.2, gamma='auto',
+    kernel='rbf', max_iter=-1, shrinking=True, tol=0.001, verbose=False)
+
+See also
+--------
+uSVR
+    Support Vector Machine for regression implemented using libsvm
+    using a parameter to control the number of support vectors.
+
+LinearSVR
+    Scalable Linear Support Vector Machine for regression
+    implemented using liblinear.
+File:           c:\anaconda3\lib\site-packages\sklearn\svm\classes.py
+Type:           ABCMeta
+</code></pre>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="https://7125messi.github.io/post/randomforest%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/" title="RandomForest调优详解">
+      Previous
+    </a>
+    
+
+    
+
+  
+
+
+</div>
+
+  
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+  code with <i class='fa fa-heart'></i>
+
+
+</div>
+
+
+  
+<div class="container copyright">
+  
+  &copy; 2018 7125messi.
+
+
+</div>
+
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+  </body>
+</html>
+
