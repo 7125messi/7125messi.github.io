@@ -51,7 +51,7 @@
     },
     "datePublished": "2019-08-02",
     "description": "",
-    "wordCount":  2648 
+    "wordCount":  2645 
   }
 </script>
 
@@ -162,7 +162,7 @@
 
   
   &middot; Read in about 13 min
-  &middot; (2648 Words)
+  &middot; (2645 Words)
   <br>
   
 
@@ -285,12 +285,8 @@
 
 <ul>
 <li>从算法时间复杂度来看，Histogram 算法和 pre-sorted 算法在“寻找分割点”的代价是一样的，都是O(#feature*#data)。</li>
-<li>而在“数据分割”时，pre-sorted 算法需要O(#feature*#data)，而 histogram 算法是O(#data)。因为 pre-sorted 算法的每一列特征的顺序都不一样，分割的时候需要对每个特征单独进行一次分割。<strong>Histogram算法不需要排序，所有特征共享同一个索引表，分割的时候仅需对这个索引表操作一次就可以</strong>。（更新: 这一点不完全正确，pre-sorted 与 level-wise 结合的时候，其实可以共用一个索引表(row_idx_to_tree_node_idx)。然后在寻找分割点的时候，同时操作同一层的节点，省去分割的步骤。但这样做的问题是会有非常多随机访问，有很大的chche miss，速度依然很慢）。</li>
-</ul>
-
-<p>另一个计算上的优势则是<strong>大幅减少了计算分割点增益的次数</strong>。</p>
-
-<ul>
+<li>而在“数据分割”时，pre-sorted 算法需要O(#feature*#data)，而 histogram 算法是O(#data)。因为 pre-sorted 算法的每一列特征的顺序都不一样，分割的时候需要对每个特征单独进行一次分割。<strong>Histogram算法不需要排序，所有特征共享同一个索引表，分割的时候仅需对这个索引表操作一次就可以</strong>。（更新: 这一点不完全正确，pre-sorted 与 level-wise 结合的时候，其实可以共用一个索引表(row_idx_to_tree_node_idx)。然后在寻找分割点的时候，同时操作同一层的节点，省去分割的步骤。但这样做的问题是会有非常多随机访问，有很大的chche miss，速度依然很慢）。
+另一个计算上的优势则是<strong>大幅减少了计算分割点增益的次数</strong>。</li>
 <li>对于一个特征，<strong>pre-sorted 需要对每一个不同特征值都计算一次分割增益</strong>;</li>
 <li>而 <strong>histogram 只需要计算 #bin (histogram 的横轴的数量) 次。</strong><br />
 最后，<strong>在数据并行的时候，用 histgoram 可以大幅降低通信代价。用 pre-sorted 算法的话，通信代价是非常大的（几乎是没办法用的）。所以 xgoobst 在并行的时候也使用 histogram 进行通信</strong>。<br /></li>
@@ -302,37 +298,21 @@
 
 <p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1553137735714-c82baf97-d820-4f83-8ea1-3a4112505be0.png#align=left&amp;display=inline&amp;height=253&amp;originHeight=253&amp;originWidth=557&amp;size=0&amp;status=done&amp;width=557" alt="" /></p>
 
-<p>使用直方图算法有很多优点。** 首先，最明显就是内存消耗的降低，直方图算法不仅不需要额外存储预排序的结果，而且可以只保存特征离散化后的值，而这个值一般用 8 位整型存储就足够了，内存消耗可以降低为原来的1/8**。</p>
-
-<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1553137735686-3bc562fb-0f9c-42b2-bd5b-aeb5cce84250.png#align=left&amp;display=inline&amp;height=232&amp;originHeight=311&amp;originWidth=1000&amp;size=0&amp;status=done&amp;width=746" alt="" /></p>
-
-<p>然后在计算上的代价也大幅降低，预排序算法每遍历一个特征值就需要计算一次分裂的增益，而直方图算法只需要计算k次（k可以认为是常数），时间复杂度从O(#data<em>#feature)优化到O(k</em>#features)。</p>
-
-<p>当然，Histogram 算法并不是完美的。由于特征被离散化后，找到的并不是很精确的分割点，所以会对结果产生影响。但在不同的数据集上的结果表明，离散化的分割点对最终的精度影响并不是很大，甚至有时候会更好一点。</p>
-
-<blockquote>
-<p>原因是决策树本来就是弱模型，分割点是不是精确并不是太重要；较粗的分割点也有正则化的效果，可以有效地防止过拟合；即使单棵树的训练误差比精确分割的算法稍大，但在梯度提升（Gradient Boosting）的框架下没有太大的影响。</p>
-</blockquote>
-
-<p><a name="d4d950c2"></a></p>
+<p>使用直方图算法有很多优点。** 首先，最明显就是内存消耗的降低，直方图算法不仅不需要额外存储预排序的结果，而且可以只保存特征离散化后的值，而这个值一般用 8 位整型存储就足够了，内存消耗可以降低为原来的1/8**。
+<img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1553137735686-3bc562fb-0f9c-42b2-bd5b-aeb5cce84250.png#align=left&amp;display=inline&amp;height=232&amp;originHeight=311&amp;originWidth=1000&amp;size=0&amp;status=done&amp;width=746" alt="" />
+然后在计算上的代价也大幅降低，预排序算法每遍历一个特征值就需要计算一次分裂的增益，而直方图算法只需要计算k次（k可以认为是常数），时间复杂度从O(#data<em>#feature)优化到O(k</em>#features)。
+当然，Histogram 算法并不是完美的。由于特征被离散化后，找到的并不是很精确的分割点，所以会对结果产生影响。但在不同的数据集上的结果表明，离散化的分割点对最终的精度影响并不是很大，甚至有时候会更好一点。
+&gt; 原因是决策树本来就是弱模型，分割点是不是精确并不是太重要；较粗的分割点也有正则化的效果，可以有效地防止过拟合；即使单棵树的训练误差比精确分割的算法稍大，但在梯度提升（Gradient Boosting）的框架下没有太大的影响。</p>
 
 <h3 id="1-4-2-带深度限制的-leaf-wise-的叶子生长策略">1.4.2 带深度限制的 Leaf-wise 的叶子生长策略</h3>
 
 <p>在 Histogram 算法之上，LightGBM 进行进一步的优化。首先它抛弃了大多数 GBDT 工具使用的按层生长 (level-wise) 的决策树生长策略，而使用了带有深度限制的按叶子生长 (leaf-wise) 算法。Level-wise 过一次数据可以同时分裂同一层的叶子，容易进行多线程优化，也好控制模型复杂度，不容易过拟合。但实际上 Level-wise 是一种低效的算法，因为它不加区分的对待同一层的叶子，带来了很多没必要的开销，因为实际上很多叶子的分裂增益较低，没必要进行搜索和分裂。</p>
 
-<pre><code>    ![](https://cdn.nlark.com/yuque/0/2019/png/200056/1564710919791-ffb53669-ed67-4998-9572-8108fa135cc3.png#align=left&amp;display=inline&amp;height=253&amp;originHeight=253&amp;originWidth=640&amp;size=0&amp;status=done&amp;width=640)
-</code></pre>
-
-<p><br /></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1564710919791-ffb53669-ed67-4998-9572-8108fa135cc3.png#align=left&amp;display=inline&amp;height=253&amp;originHeight=253&amp;originWidth=640&amp;size=0&amp;status=done&amp;width=640" alt="" /></p>
 
 <p>Leaf-wise 则是一种更为高效的策略，每次从当前所有叶子中，找到分裂增益最大的一个叶子，然后分裂，如此循环。因此同 Level-wise 相比，在分裂次数相同的情况下，Leaf-wise 可以降低更多的误差，得到更好的精度。Leaf-wise 的缺点是可能会长出比较深的决策树，产生过拟合。因此 LightGBM 在 Leaf-wise 之上增加了一个最大深度的限制，在保证高效率的同时防止过拟合。</p>
 
-<pre><code>    ![](https://cdn.nlark.com/yuque/0/2019/png/200056/1564710919814-995b586c-bf4c-476b-8711-9bae8d2bee8e.png#align=left&amp;display=inline&amp;height=223&amp;originHeight=223&amp;originWidth=640&amp;size=0&amp;status=done&amp;width=640)
-</code></pre>
-
-<p><br /></p>
-
-<p><a name="37bf2f09"></a></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1564710919814-995b586c-bf4c-476b-8711-9bae8d2bee8e.png#align=left&amp;display=inline&amp;height=223&amp;originHeight=223&amp;originWidth=640&amp;size=0&amp;status=done&amp;width=640" alt="" /></p>
 
 <h3 id="1-4-3-直方图加速">1.4.3 直方图加速</h3>
 
@@ -429,12 +409,13 @@ LightGBM 中采用以下方法较少数据并行中的通讯开销：
 
 <h4 id="投票并行">投票并行</h4>
 
-<p>投票并行未来将致力于将 <strong>“数据并行”中的通讯开销减少至常数级别，其将会通过两阶段的投票过程较少特征直方图的通讯开销。</strong><br /><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/200056/1553137736551-16480dfe-20e9-4539-a050-35b8602c19ca.jpeg#align=left&amp;display=inline&amp;height=509&amp;originHeight=640&amp;originWidth=938&amp;size=0&amp;status=done&amp;width=746" alt="" /></p>
+<p>投票并行未来将致力于将 <strong>“数据并行”中的通讯开销减少至常数级别，其将会通过两阶段的投票过程较少特征直方图的通讯开销。</strong>&lt;</p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/200056/1553137736551-16480dfe-20e9-4539-a050-35b8602c19ca.jpeg#align=left&amp;display=inline&amp;height=509&amp;originHeight=640&amp;originWidth=938&amp;size=0&amp;status=done&amp;width=746" alt="" /></p>
 
 <p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/200056/1553137736645-950afbbc-744b-4261-8370-952e00a4e827.jpeg#align=left&amp;display=inline&amp;height=303&amp;originHeight=438&amp;originWidth=1080&amp;size=0&amp;status=done&amp;width=746" alt="" /></p>
 
-<p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/200056/1553137736944-2d775098-484c-42f8-b478-374841cf7524.jpeg#align=left&amp;display=inline&amp;height=389&amp;originHeight=563&amp;originWidth=1080&amp;size=0&amp;status=done&amp;width=746" alt="" />
-<a name="iYs8Z"></a></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/200056/1553137736944-2d775098-484c-42f8-b478-374841cf7524.jpeg#align=left&amp;display=inline&amp;height=389&amp;originHeight=563&amp;originWidth=1080&amp;size=0&amp;status=done&amp;width=746" alt="" /></p>
 
 <h3 id="1-4-6-网络通信优化">1.4.6 网络通信优化</h3>
 
@@ -796,40 +777,33 @@ comparison_df
 
 <p>LightGBM 垂直地生长树，即 leaf-wise，它会选择最大 delta loss 的叶子来增长。</p>
 
-<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1564710919791-ffb53669-ed67-4998-9572-8108fa135cc3.png#align=left&amp;display=inline&amp;height=253&amp;originHeight=253&amp;originWidth=640&amp;size=0&amp;status=done&amp;width=640#align=left&amp;display=inline&amp;height=253&amp;originHeight=253&amp;originWidth=640&amp;status=done&amp;width=640" alt="" /><br />而以往其它基于树的算法是水平地生长，即 level-wise，</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1564710919791-ffb53669-ed67-4998-9572-8108fa135cc3.png#align=left&amp;display=inline&amp;height=253&amp;originHeight=253&amp;originWidth=640&amp;size=0&amp;status=done&amp;width=640#align=left&amp;display=inline&amp;height=253&amp;originHeight=253&amp;originWidth=640&amp;status=done&amp;width=640" alt="" /></p>
 
-<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1564710919814-995b586c-bf4c-476b-8711-9bae8d2bee8e.png#align=left&amp;display=inline&amp;height=223&amp;originHeight=223&amp;originWidth=640&amp;size=0&amp;status=done&amp;width=640#align=left&amp;display=inline&amp;height=223&amp;originHeight=223&amp;originWidth=640&amp;status=done&amp;width=640" alt="" /><br />当生长相同的叶子时，<strong>Leaf-wise 比 level-wise 减少更多的损失。</strong><br />高速，高效处理大数据，运行时需要更低的内存，支持 GPU<br /><strong>不要在少量数据上使用，会过拟合，建议 10,000+ 行记录时使用。</strong></p>
+<p>而以往其它基于树的算法是水平地生长，即 level-wise，</p>
 
-<p><a name="a03cfec9"></a></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1564710919814-995b586c-bf4c-476b-8711-9bae8d2bee8e.png#align=left&amp;display=inline&amp;height=223&amp;originHeight=223&amp;originWidth=640&amp;size=0&amp;status=done&amp;width=640#align=left&amp;display=inline&amp;height=223&amp;originHeight=223&amp;originWidth=640&amp;status=done&amp;width=640" alt="" /></p>
+
+<p>当生长相同的叶子时，<strong>Leaf-wise 比 level-wise 减少更多的损失。</strong>高速，高效处理大数据，运行时需要更低的内存，支持 GPU&lt;<strong>不要在少量数据上使用，会过拟合，建议 10,000+ 行记录时使用。</strong></p>
 
 <h2 id="3-1-参数">3.1 参数</h2>
 
-<p><a name="8fb52dc6"></a></p>
-
 <h3 id="3-3-1-控制参数">3.3.1 控制参数</h3>
 
-<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1553137914447-a17e7176-bf98-430b-b739-fcd3b3bea538.png#align=left&amp;display=inline&amp;height=423&amp;name=image.png&amp;originHeight=423&amp;originWidth=962&amp;size=68429&amp;status=done&amp;width=962" alt="image.png" /><br />
-<a name="d41d8cd9"></a></p>
-
-<p><a name="86c38c8e"></a></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1553137914447-a17e7176-bf98-430b-b739-fcd3b3bea538.png#align=left&amp;display=inline&amp;height=423&amp;name=image.png&amp;originHeight=423&amp;originWidth=962&amp;size=68429&amp;status=done&amp;width=962" alt="image.png" /></p>
 
 <h3 id="3-3-2-核心参数">3.3.2 核心参数</h3>
 
 <p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1553137930660-8de7333c-9d66-47ed-a9eb-f79a21f42223.png#align=left&amp;display=inline&amp;height=462&amp;name=image.png&amp;originHeight=462&amp;originWidth=964&amp;size=60718&amp;status=done&amp;width=964" alt="image.png" /></p>
 
-<p><a name="91184cdd"></a></p>
-
 <h3 id="3-3-3-io参数">3.3.3 IO参数</h3>
 
-<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1553137958967-3d279653-22f6-4a32-826d-26fba04302da.png#align=left&amp;display=inline&amp;height=195&amp;name=image.png&amp;originHeight=195&amp;originWidth=961&amp;size=31698&amp;status=done&amp;width=961" alt="image.png" /><br /></p>
-
-<p><a name="HszYO"></a></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1553137958967-3d279653-22f6-4a32-826d-26fba04302da.png#align=left&amp;display=inline&amp;height=195&amp;name=image.png&amp;originHeight=195&amp;originWidth=961&amp;size=31698&amp;status=done&amp;width=961" alt="image.png" /></p>
 
 <h2 id="3-2-调参">3.2 调参</h2>
 
-<p><strong>num_leaves取值应 <code>&lt;= 2 ^（max_depth）</code>， 超过此值会导致过拟合 一般不超过128（max_depth=7）</strong><br /><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1553138042545-5e2d4603-21c8-432d-8026-aebbf4c6efa8.png#align=left&amp;display=inline&amp;height=689&amp;name=image.png&amp;originHeight=689&amp;originWidth=965&amp;size=89429&amp;status=done&amp;width=965" alt="image.png" /></p>
+<p><strong>num_leaves取值应 <code>&lt;= 2 ^（max_depth）</code>， 超过此值会导致过拟合 一般不超过128（max_depth=7）</strong></p>
 
-<p><a name="pvVlw"></a></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1553138042545-5e2d4603-21c8-432d-8026-aebbf4c6efa8.png#align=left&amp;display=inline&amp;height=689&amp;name=image.png&amp;originHeight=689&amp;originWidth=965&amp;size=89429&amp;status=done&amp;width=965" alt="image.png" /></p>
 
 <h2 id="3-3-lightgbm参数优化">3.3 LightGBM参数优化</h2>
 
@@ -1100,13 +1074,9 @@ comparison_df
 
 <p><img src="https://cdn.nlark.com/yuque/0/2019/png/200056/1564736209655-d2d215dc-b8d9-4671-bbde-00ae514e845e.png#align=left&amp;display=inline&amp;height=88&amp;name=image.png&amp;originHeight=88&amp;originWidth=280&amp;size=5740&amp;status=done&amp;width=280" alt="image.png" /></p>
 
-<p><a name="0797f470"></a></p>
-
 <h2 id="4-1-回归案例">4.1 回归案例</h2>
 
 <p>data来源：LightGBM包自带<a href="https://github.com/Microsoft/LightGBM/tree/master/examples">data</a></p>
-
-<p><a name="28f329e4"></a></p>
 
 <h3 id="4-1-1-代码">4.1.1 代码</h3>
 
