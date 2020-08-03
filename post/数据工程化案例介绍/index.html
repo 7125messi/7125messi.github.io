@@ -324,122 +324,125 @@ command=bash         ${JOB_BASE_DIR}/df_model_output/01_shop_op_bol.sh
 <ul>
 <li>split-by 根据不同的参数类型有不同的切分方法，如int型，Sqoop会取最大和最小split-by字段值，然后根据传入的num-mappers来 确定划分几个区域。比如select max(split_by),min(split-by) from得到的max(split-by)和min(split-by)分别为1000和1，而num-mappers（-m）为2的话，则会分成两个区域 (1,500)和(501-1000),同时也会分成2个sql给2个map去进行导入操作，分别为select XXX from table where split-by&gt;=1 and split-by<500和select XXX from table where split-by>=501 and split-by&lt;=1000.最后每个map各自获取各自SQL中的数据进行导入工作。</li>
 <li>当split-by不是int型时出现如上场景中的问题。目前想到的解决办法是：将-m 设置称1，split-by不设置，即只有一个map运行，缺点是不能并行map录入数据。（注意，当-m 设置的值大于1时，split-by必须设置字段） 。</li>
-<li>split-by即便是int型，若不是连续有规律递增的话，各个map分配的数据是不均衡的，可能会有些map很忙，有些map几乎没有数据处理的情况。
-```sh
-#!/usr/bin/bash</li>
+<li>split-by即便是int型，若不是连续有规律递增的话，各个map分配的数据是不均衡的，可能会有些map很忙，有些map几乎没有数据处理的情况。</li>
 </ul></li>
 </ul>
 
-<h1 id="参数配置">参数配置</h1>
+<pre><code class="language-sh">#!/usr/bin/bash
 
-<p>exe_hive=&ldquo;/usr/bin/hive&rdquo;</p>
+#参数配置
+exe_hive=&quot;/usr/bin/hive&quot;
 
-<h1 id="抽取表名">抽取表名</h1>
+#抽取表名
+table_name='xxx'
 
-<p>table_name=&lsquo;xxx&rsquo;</p>
+#分区字段信息
+master_org_id='xxx'
 
-<h1 id="分区字段信息">分区字段信息</h1>
-
-<p>master_org_id=&lsquo;xxx&rsquo;</p>
-
-<p>if [[ $# -eq 1 ]]; then
+if [[ $# -eq 1 ]]; then
     update_day=$1
 else
-    update_day=$(date -d &ldquo;1 day ago&rdquo; +&ldquo;%Y-%m-%d&rdquo;)
+    update_day=$(date -d &quot;1 day ago&quot; +&quot;%Y-%m-%d&quot;)
 fi
-echo &ldquo;default_date:${update_day}&rdquo;</p>
+echo &quot;default_date:${update_day}&quot;
 
-<p>sqoop import -D org.apache.sqoop.splitter.allow_text<em>splitter=true <br />
--m 4 <br />
-&ndash;hive-drop-import-delims <br />
-&ndash;fields-terminated-by &lsquo;\001&rsquo; <br />
-&ndash;connect &ldquo;jdbc:oracle:thin:@xxx.xx.xx.x:1521:xxxx&rdquo; <br />
-&ndash;username &ldquo;xx&rdquo; <br />
-&ndash;password &ldquo;xx&rdquo; <br />
-&ndash;mapreduce-job-name sqoop</em>${table_name} <br />
-&ndash;delete-target-dir <br />
-&ndash;split-by &lsquo;etl_id&rsquo; <br />
-&ndash;query &ldquo;
-select
+sqoop import -D org.apache.sqoop.splitter.allow_text_splitter=true \
+-m 4 \
+--hive-drop-import-delims \
+--fields-terminated-by '\001' \
+--connect &quot;jdbc:oracle:thin:@xxx.xx.xx.x:1521:xxxx&quot; \
+--username &quot;xx&quot; \
+--password &quot;xx&quot; \
+--mapreduce-job-name sqoop_${table_name} \
+--delete-target-dir \
+--split-by 'etl_id' \
+--query &quot;
+select 
     etl_id                 ,
     DJLX                   ,
-    to_char(sysdate,&lsquo;yyyy-mm-dd hh24:mm:ss&rsquo;) as update_date,
-    to_char(sysdate,&lsquo;yyyy-mm-dd&rsquo;) as dt
-from (select
+    to_char(sysdate,'yyyy-mm-dd hh24:mm:ss') as update_date,
+    to_char(sysdate,'yyyy-mm-dd') as dt
+from (select 
 				row_number() OVER(order by T.SL) AS etl_id,
-        T.*
-      from dbo.${table_name} T
+        T.* 
+      from dbo.${table_name} T 
       where T.receivestatus = 0
-) a  where \$CONDITIONS&rdquo; <br />
-&ndash;target-dir /user/hive/warehouse/src.db/${table_name}/master_org_id=${master_org_id}/dt=${update_day} <br />
-&ndash;null-string &lsquo;\N&rsquo; <br />
-&ndash;null-non-string &lsquo;\N&rsquo; <br />
--z</p>
+) a  where \$CONDITIONS&quot; \
+--target-dir /user/hive/warehouse/src.db/${table_name}/master_org_id=${master_org_id}/dt=${update_day} \
+--null-string '\\N' \
+--null-non-string '\\N' \
+-z
 
-<p>HQL=&rdquo;
-alter table src.${table_name} add partition(master_org_id=&lsquo;${master_org_id}&lsquo;,dt=&rsquo;${update_day}&lsquo;)
-location &lsquo;/user/hive/warehouse/src.db/${table_name}/master_org_id=${master_org_id}/dt=${update_day}&lsquo;;
-&ldquo;</p>
 
-<h1 id="执行hql">执行HQL</h1>
+HQL=&quot;
+alter table src.${table_name} add partition(master_org_id='${master_org_id}',dt='${update_day}') 
+location '/user/hive/warehouse/src.db/${table_name}/master_org_id=${master_org_id}/dt=${update_day}';
+&quot;
 
-<p>bash ${exe_hive} -e &ldquo;${HQL}&rdquo;</p>
+#执行HQL
+bash ${exe_hive} -e &quot;${HQL}&quot;
 
-<p>#判断数据是否成功导入
+#判断数据是否成功导入
 hdfs dfs -ls /user/hive/warehouse/src.db/${table_name}/master_org_id=${master_org_id}/dt=${update_day}
-if [ $? -eq 0 ] ;then
-    echo &lsquo;导入数据成功&rsquo;
-    # 删除Java文件
-    rm -f *.java
-else
-    echo &lsquo;导入数据失败,请检查相关服务&rsquo;
+if [ $? -eq 0 ] ;then 
+    echo '导入数据成功'
+    #删除Java文件
+    rm -f *.java 
+else 
+    echo '导入数据失败,请检查相关服务'
     exit 1
-fi</p>
-
-<pre><code>&lt;a name=&quot;EcfNj&quot;&gt;&lt;/a&gt;
-## **Hive/Spark**
-&lt;a name=&quot;0bkIT&quot;&gt;&lt;/a&gt;
-### **Hive小文件合并**
-
-&lt;br /&gt;Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。&lt;br /&gt;
-
-- 小文件带来的问题
-
-
-
-简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此1000万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。
-
-此外，HDFS读写小文件时也会更加耗时，因为每次都需要从NameNode获取元信息，并与对应的DataNode建立连接。对于MapReduce程序来说，小文件还会增加Mapper的个数，每个脚本只处理很少的数据，浪费了大量的调度时间。当然，这个问题可以通过使用CombinedInputFile和JVM重用来解决。&lt;br /&gt;
-
-- Hive小文件产生的原因
-
-
-&lt;br /&gt;前面已经提到，汇总后的数据量通常比源数据要少得多。而为了提升运算速度，我们会增加Reducer的数量，Hive本身也会做类似优化——Reducer数量等于源数据的量除以hive.exec.reducers.bytes.per.reducer所配置的量（默认1G）。Reducer数量的增加也即意味着结果文件的增加，从而产生小文件的问题。
-
-解决小文件的问题可以从两个方向入手：&lt;br /&gt;1. 输入合并。即在Map前合并小文件&lt;br /&gt;2. 输出合并。即在输出结果的时候合并小文件&lt;br /&gt;
-
-- 配置Map输入合并
-```sh
--- 每个Map最大输入大小，决定合并后的文件数
-set mapred.max.split.size=256000000;
-
--- 一个节点上split的至少的大小 ，决定了多个data node上的文件是否需要合并
-set mapred.min.split.size.per.node=100000000;
-
--- 一个交换机下split的至少的大小，决定了多个交换机上的文件是否需要合并
-set mapred.min.split.size.per.rack=100000000;
-
--- 执行Map前进行小文件合并
-set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat; 
+fi
 </code></pre>
 
+<p><a name="EcfNj"></a></p>
+
+<h2 id="hive-spark"><strong>Hive/Spark</strong></h2>
+
+<p><a name="0bkIT"></a></p>
+
+<h3 id="hive小文件合并"><strong>Hive小文件合并</strong></h3>
+
+<p><br />Hive的后端存储是HDFS，它对大文件的处理是非常高效的，如果合理配置文件系统的块大小，NameNode可以支持很大的数据量。但是在数据仓库中，越是上层的表其汇总程度就越高，数据量也就越小。而且这些表通常会按日期进行分区，随着时间的推移，HDFS的文件数目就会逐渐增加。<br /></p>
+
 <ul>
-<li>配置Map输入合并</li>
+<li>小文件带来的问题</li>
 </ul>
 
-<p>我们可以通过一些配置项来使Hive在执行结束后对结果文件进行合并：</p>
+<p>简单来说，HDFS的文件元信息，包括位置、大小、分块信息等，都是保存在NameNode的内存中的。每个对象大约占用150个字节，因此1000万个文件及分块就会占用约3G的内存空间，一旦接近这个量级，NameNode的性能就会开始下降了。</p>
 
-<pre><code class="language-shell">hive.merge.mapfiles 在map-only job后合并文件，默认true
+<p>此外，HDFS读写小文件时也会更加耗时，因为每次都需要从NameNode获取元信息，并与对应的DataNode建立连接。对于MapReduce程序来说，小文件还会增加Mapper的个数，每个脚本只处理很少的数据，浪费了大量的调度时间。当然，这个问题可以通过使用CombinedInputFile和JVM重用来解决。<br /></p>
+
+<ul>
+<li>Hive小文件产生的原因</li>
+</ul>
+
+<p><br />前面已经提到，汇总后的数据量通常比源数据要少得多。而为了提升运算速度，我们会增加Reducer的数量，Hive本身也会做类似优化——Reducer数量等于源数据的量除以hive.exec.reducers.bytes.per.reducer所配置的量（默认1G）。Reducer数量的增加也即意味着结果文件的增加，从而产生小文件的问题。</p>
+
+<p>解决小文件的问题可以从两个方向入手：<br />1. 输入合并。即在Map前合并小文件<br />2. 输出合并。即在输出结果的时候合并小文件<br /></p>
+
+<ul>
+<li>配置Map输入合并
+```sh
+&ndash; 每个Map最大输入大小，决定合并后的文件数
+set mapred.max.split.size=256000000;</li>
+</ul>
+
+<p>&ndash; 一个节点上split的至少的大小 ，决定了多个data node上的文件是否需要合并
+set mapred.min.split.size.per.node=100000000;</p>
+
+<p>&ndash; 一个交换机下split的至少的大小，决定了多个交换机上的文件是否需要合并
+set mapred.min.split.size.per.rack=100000000;</p>
+
+<p>&ndash; 执行Map前进行小文件合并
+set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;</p>
+
+<pre><code>
+
+- 配置Map输入合并
+
+我们可以通过一些配置项来使Hive在执行结束后对结果文件进行合并：
+```shell
+hive.merge.mapfiles 在map-only job后合并文件，默认true
 hive.merge.mapredfiles 在map-reduce job后合并文件，默认false
 hive.merge.size.per.task 合并后每个文件的大小，默认256000000
 hive.merge.smallfiles.avgsize 平均文件大小，是决定是否执行合并操作的阈值，默认16000000
