@@ -147,7 +147,8 @@
   <p class="container content">
   
   
-    数据工程化案例介绍 好久没写博客了😃😃😃😃😃😃，最近做完了一个偏数据工程的项目，系统的使用了大数据相关组件，学习了Hadoop生态圈技术以及数据仓库相关知识。下面将一些体会写下。。。
+    [原创]
+数据工程化案例介绍 好久没写博客了😃😃😃😃😃😃，最近做完了一个偏数据工程的项目，系统的使用了大数据相关组件，学习了Hadoop生态圈技术以及数据仓库相关知识。下面将一些体会写下。。。
 
 1 项目背景和业务特点 
 XXX医药业务场景：以终端消费者为中心的服务，以门店、连锁加盟、批发模式触达，当前核心竞争力是品牌加盟和供应链采购能力。随着加盟业务快速成长，致力于成为中国最大的零售药房加盟商，需要配套成长的供应链物流能力和信息化建设。“高库存、高退货、高效期” 等环节精细化运营的薄弱是主要原因，具体表现在以下几点：
@@ -195,7 +196,8 @@ XXX医药业务场景：以终端消费者为中心的服务，以门店、连�
   <p class="container content">
   
   
-    在支持向量机(以下简称SVM)的核函数中，高斯核(以下简称RBF)是最常用的，从理论上讲，RBF一定不比线性核函数差，但是在实际应用中，却面临着几个重要的超参数的调优问题。如果调的不好，可能比线性核函数还要差。所以我们实际应用中，能用线性核函数得到较好效果的都会选择线性核函数。如果线性核不好，我们就需要使用RBF，在享受RBF对非线性数据的良好分类效果前，我们需要对主要的超参数进行选取。本文我们就对scikit-learn中 SVM RBF的调参做一个小结。
+    [原创]
+在支持向量机(以下简称SVM)的核函数中，高斯核(以下简称RBF)是最常用的，从理论上讲，RBF一定不比线性核函数差，但是在实际应用中，却面临着几个重要的超参数的调优问题。如果调的不好，可能比线性核函数还要差。所以我们实际应用中，能用线性核函数得到较好效果的都会选择线性核函数。如果线性核不好，我们就需要使用RBF，在享受RBF对非线性数据的良好分类效果前，我们需要对主要的超参数进行选取。本文我们就对scikit-learn中 SVM RBF的调参做一个小结。
 
 1 SVM RBF 主要超参数概述 如果是SVM分类模型，这两个超参数分别是惩罚系数和RBF核函数的系数。当然如果是nu-SVC的话，惩罚系数C代替为分类错误率上限nu, 由于惩罚系数C和分类错误率上限nu起的作用等价，因此本文只讨论带惩罚系数C的分类SVM**
 
@@ -519,51 +521,6 @@ LightGBM （Light Gradient Boosting Machine）是一个实现 GBDT 算法的框�
   
     <article class="container content summary">
   <div class="container hat">
-  <h2><a href="https://7125messi.github.io/post/seq2seq%E6%A8%A1%E5%9E%8B/">Seq2Seq模型
-</a>
-</h2>
-
-  <time datetime="2019-07-20">20 Jul, 2019</time>
-
-</div>
-
-  <p class="container content">
-  
-  
-    [参考整理]
-前 言 Seq2Seq，全称Sequence to Sequence。它是一种通用的编码器——解码器框架，可用于机器翻译、文本摘要、会话建模、图像字幕等场景中。Seq2Seq并不是GNMT（Google Neural Machine Translation）系统的官方开源实现。框架的目的是去完成更广泛的任务，而神经机器翻译只是其中之一。在循环神经网络中我们了解到如何将一个序列转化成定长输出。在本文中，我们将探究如何将一个序列转化成一个不定长的序列输出（如机器翻译中，源语言和目标语言的句子往往并没有相同的长度）。
-
-1 简单入门 
-设计目标  通用 这个框架最初是为了机器翻译构建的，但是后来使用它完成了各种其他任务，包括文本摘要、会话建模和图像字幕。只要我们的任务，可以将输入数据以一种格式编码并将其以另一种格式解码，我们就可以使用或者扩展这个框架。
- 可用性 支持多种类型的输入数据，包括标准的原始文本。
- 重现性 用YAML文件来配置我们的pipelines和models，容易复现。
- 可扩展性 代码以模块化的方式构建，添加一种新的attention机制或编码器体系结构只需要最小的代码更改。
- 文档化:所有的代码都使用标准的Python文档字符串来记录，并且编写了使用指南来帮助我们着手执行常见的任务。
- 良好的性能:为了代码的简单性，开发团队并没有试图去尽力压榨每一处可能被拓展的性能，但是对于几乎所有的生产和研究项目，当前的实现已经足够快了。此外，tf-seq2seq还支持分布式训练。
-  
-主要概念 Configuration 许多objects都是使用键值对来配置的。这些参数通常以YAML的形式通过配置文件传递，或者直接通过命令行传递。配置通常是嵌套的，如下例所示:
-model_params: attention.class: seq2seq.decoders.attention.AttentionLayerBahdanau attention.params: num_units: 512 embedding.dim: 1024 encoder.class: seq2seq.encoders.BidirectionalRNNEncoder encoder.params: rnn_cell: cell_class: LSTMCell cell_params: num_units: 512   Input Pipeline
-  InputPipeline定义了如何读取、解析数据并将数据分隔成特征和标签。如果您想要读取新的数据格式，我们需要实现自己的输入管道。
- Encoder(编码)
- Decoder（解码）
- Model（Attention）
-  
-
-
-</p>
-
-
-  <div class="container readlink">
-  <a href="https://7125messi.github.io/post/seq2seq%E6%A8%A1%E5%9E%8B/">Read more &rarr;</a>
-
-</div>
-
-
-</article>
-
-  
-    <article class="container content summary">
-  <div class="container hat">
   <h2><a href="https://7125messi.github.io/post/attention%E9%82%A3%E4%BA%9B%E4%BA%8B%E5%84%BF/">Attention那些事儿
 </a>
 </h2>
@@ -601,6 +558,45 @@ Attention 的发展可以粗暴地分为两个阶段。
 </article>
 
   
+    <article class="container content summary">
+  <div class="container hat">
+  <h2><a href="https://7125messi.github.io/post/feature_selector%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9/">Feature_selector实现高效的特征选择
+</a>
+</h2>
+
+  <time datetime="2019-07-03">3 Jul, 2019</time>
+
+</div>
+
+  <p class="container content">
+  
+  
+    [参考整理]
+具体可以参考我的Azure Notebook：
+https://notebooks.azure.com/messi7125/projects/feature-engineering
+下面简要介绍一下功能介绍
+Introduction: Feature Selector Usage 在这个笔记本中，我们将使用FeatureSelector类来选择要从数据集中删除的要素。 此类有五种方法可用于查找要删除的功能：
+ 具有高missing-values百分比的特征 具有高相关性的特征 对模型预测结果无贡献的特征（即zero importance） 对模型预测结果只有很小贡献的特征（即low importance） 具有单个值的特征（即数据集中该特征取值的集合只有一个元素）  requirements：
+lightgbm==2.1.1 matplotlib==2.1.2 seaborn==0.8.1 numpy==1.14.5 pandas==0.23.1 scikit-learn==0.19.1  from feature_selector.selector import FeatureSelector import pandas as pd  Example Dataset 该数据集被用作[Kaggle的[Home Credit Default Risk Competition]竞赛的一部分（https://www.kaggle.com/c/home-credit-default-risk/）。 它适用于受监督的机器学习分类任务，其目标是预测客户是否违约贷款。 整个数据集可以[这里]下载，我们将使用10,000行的小样本。
+特征选择器设计用于机器学习任务，但可以应用于任何数据集。基于特征重要性的方法确实需要受监督的机器学习问题。
+train = pd.read_csv('../data/credit_example.csv') train_labels = train['TARGET'] train.head()  数据集中有几个分类列。 使用基于特征重要性的方法时，FeatureSelector使用独热编码处理这些。
+train = train.drop(columns = ['TARGET']) train.head()  Implementation FeatureSelector有五个函数用于识别要删除的列：
+ identify_missing identify_single_unique identify_collinear identify_zero_importance identify_low_importance  这些方法根据指定的标准查找要删除的功能。 标识的特征存储在FeatureSelector的ops属性（Python字典）中。 我们可以手动删除已识别的功能，或使用FeatureSelector中的remove功能来实际删除功能。
+  
+
+
+</p>
+
+
+  <div class="container readlink">
+  <a href="https://7125messi.github.io/post/feature_selector%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9/">Read more &rarr;</a>
+
+</div>
+
+
+</article>
+
+  
   
 <div class="container pagination">
   
@@ -623,16 +619,12 @@ Attention 的发展可以粗暴地分为两个阶段。
   2
 </a>
 
-<a href="https://7125messi.github.io/page/3/">
-  3
-</a>
-
 
 <a aria-label="Next" href="https://7125messi.github.io/page/2/">
   <span aria-hidden="true">»</span>
 </a>
 
-<a aria-label="Last" href="https://7125messi.github.io/page/3/">
+<a aria-label="Last" href="https://7125messi.github.io/page/2/">
   <span aria-hidden="true">»»</span>
 </a>
 
