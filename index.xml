@@ -7,10 +7,38 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>(c) 2018 7125messi.</copyright>
-    <lastBuildDate>Fri, 02 Aug 2019 21:21:35 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 03 Aug 2020 21:31:10 +0800</lastBuildDate>
     
 	<atom:link href="https://7125messi.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>数据工程化案例介绍</title>
+      <link>https://7125messi.github.io/post/%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B%E5%8C%96%E6%A1%88%E4%BE%8B%E4%BB%8B%E7%BB%8D/</link>
+      <pubDate>Mon, 03 Aug 2020 21:31:10 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B%E5%8C%96%E6%A1%88%E4%BE%8B%E4%BB%8B%E7%BB%8D/</guid>
+      <description>数据工程化案例介绍 好久没写博客了😃😃😃😃😃😃，最近做完了一个偏数据工程的项目，系统的使用了大数据相关组件，学习了Hadoop生态圈技术以及数据仓库相关知识。下面将一些体会写下。。。
+
+1 项目背景和业务特点 
+XXX医药业务场景：以终端消费者为中心的服务，以门店、连锁加盟、批发模式触达，当前核心竞争力是品牌加盟和供应链采购能力。随着加盟业务快速成长，致力于成为中国最大的零售药房加盟商，需要配套成长的供应链物流能力和信息化建设。“高库存、高退货、高效期” 等环节精细化运营的薄弱是主要原因，具体表现在以下几点：
+ (1) 门店补货靠经验，造成了“高退货”; (2) 加盟店和批发商等物流能力尚未触达、物流信息尚未线上化; (3) 与供应商信息沟通均为线下,补货频次较为传统; (4) 采购计划依赖采购员个人经验采用公式计算，未考虑复杂因素;  
+项目目标是构建以智能补货为智慧大脑的需求驱动的全局、动态、平衡的数字化供应链运营体系，提供安全、高效、精准的供应链能力。
+主要包括以下部分：
+ (1) 数据清洗 (2) 特种工程 (3) 模型训练 (4) 模型融合 (5) 数据工程化  
+其中前4个部分是机器学习的常见方法和步骤,考虑到线上生产环境要能正常执行,第5部分数据工程化部分启动非常重要的地位,下面对这个部分进行详细的叙述。
+
+2 数据工程化流程架构 
+这里我们的数据源主要Oracle业务数据以及一些客户提供的人工数据,利用sqoop每日凌晨00:40定时同步数据至Hadoop集群src层。按照经典的Kappa数据仓库分层架构分为:src-&amp;gt;ods-&amp;gt;dw1-&amp;gt;dw2-&amp;gt;app.
+与传统的数仓建模不同的是我们主要的目的是利用机器学习方法进行预测补货,数据仓库ods/dw1都是数据清洗和复杂业务逻辑处理,dw2是特征工程处理生成宽表用于训练模型。在数据清洗的过程中会有一些指标用于KPI展示以及app模型预测补货结果我们会同步至MySQL,这些都是作为数据应用服务。
+整个数据工程基于Hadoop生态圈技术为载体,数据存储主要是HDFS,数据计算主要是Hive/Spark,元数据管理是Apache Atlas,数据质量分析用的是Apache Griffin,数据任务流调度系统用的是Azkaban,数据OLAP数据库是Presto,数据分析可视化Dashboard用的是Superset。这些大数据组件采用Cloudera Manager(CM)进行统一安装配置,为了保证服务的高可用(HA)采用Zookeeper进行资源调度和管理。
+
+3 数据工程生产环境部署 
+
+3.1 可配置项 
+配置项对于数据工程的重要性不言而喻,可灵活调整部署代码,方便控制管理
+├─conf │ │ config.ini 所有可配置参数 │ │ env_name.conf 生产环境和测试环境的标识符 │ │ ini.sh 读写配置文件的函数</description>
+    </item>
     
     <item>
       <title>SVM调优详解</title>
