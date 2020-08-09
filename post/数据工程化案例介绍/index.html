@@ -51,7 +51,7 @@
     },
     "datePublished": "2020-08-03",
     "description": "",
-    "wordCount":  700 
+    "wordCount":  701 
   }
 </script>
 
@@ -162,7 +162,7 @@
 
   
   &middot; Read in about 4 min
-  &middot; (700 Words)
+  &middot; (701 Words)
   <br>
   
 
@@ -528,37 +528,28 @@ order by c.channel_name;
 <p>解决小文件的问题可以从两个方向入手：<strong>1. 输入合并。即在Map前合并小文件  2. 输出合并。即在输出结果的时候合并小文件</strong></p>
 
 <ul>
-<li><p>配置Map输入合并
-```shell</p>
+<li><p>配置Map输入合并</p>
 
-<h1 id="每个map最大输入大小-决定合并后的文件数">每个Map最大输入大小，决定合并后的文件数</h1>
+<pre><code class="language-shell">set mapred.max.split.size=256000000; -- 每个Map最大输入大小，决定合并后的文件数
+set mapred.min.split.size.per.node=100000000; -- 一个节点上split的至少的大小 ，决定了多个data node上的文件是否需要合并
+set mapred.min.split.size.per.rack=100000000; -- 一个交换机下split的至少的大小，决定了多个交换机上的文件是否需要合并
+set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat; -- 执行Map前进行小文件合并
+</code></pre>
 
-<p>set mapred.max.split.size=256000000;</p></li>
+<ul>
+<li>配置Map输出合并
+<br /></li>
 </ul>
 
-<h1 id="一个节点上split的至少的大小-决定了多个data-node上的文件是否需要合并">一个节点上split的至少的大小 ，决定了多个data node上的文件是否需要合并</h1>
+<p>我们可以通过一些配置项来使Hive在执行结束后对结果文件进行合并：</p>
 
-<p>set mapred.min.split.size.per.node=100000000;</p>
-
-<h1 id="一个交换机下split的至少的大小-决定了多个交换机上的文件是否需要合并">一个交换机下split的至少的大小，决定了多个交换机上的文件是否需要合并</h1>
-
-<p>set mapred.min.split.size.per.rack=100000000;</p>
-
-<h1 id="执行map前进行小文件合并">执行Map前进行小文件合并</h1>
-
-<p>set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;</p>
-
-<pre><code>
-- 配置Map输出合并
-  
-我们可以通过一些配置项来使Hive在执行结束后对结果文件进行合并：
-```shell
-# 输出合并小文件
+<pre><code class="language-shell"># 输出合并小文件
 set hive.merge.mapfiles = true; -- 默认true，在map-only任务结束时合并小文件
 set hive.merge.mapredfiles = true; -- 默认false，在map-reduce任务结束时合并小文件
 set hive.merge.size.per.task = 268435456; -- 默认256M
 set hive.merge.smallfiles.avgsize = 16777216; -- 当输出文件的平均大小小于该值时，启动一个独立的map-reduce任务进行文件merge
-</code></pre>
+</code></pre></li>
+</ul>
 
 <h3 id="5-合理设置reduce数">(5) 合理设置Reduce数</h3>
 
