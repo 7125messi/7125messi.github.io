@@ -128,11 +128,44 @@
     <h1>7125messi的博客
 </h1>
 
-    <span>last update: <time datetime="2020-08-03T21:31:10&#43;08:00">3 August at 9:31pm</time>
+    <span>last update: <time datetime="2020-09-10T22:10:29&#43;08:00">10 September at 10:10pm</time>
 </span>
 
   </header>
   
+  
+    <article class="container content summary">
+  <div class="container hat">
+  <h2><a href="https://7125messi.github.io/post/spark_hive_rdbms%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/">DRAFT :: Spark_Hive_RDBMS读写操作
+</a>
+</h2>
+
+  <time datetime="2020-09-10">10 Sep, 2020</time>
+
+</div>
+
+  <p class="container content">
+  
+  
+    [项目总结提炼]
+前面我们在做数据工程化过程中会大量用到数据的读写操作,先总结如下！！！
+主要有以下几个文件：
+config.ini 配置文件 func_forecast.sh 工程执行文件 mysql-connector-java-8.0.11.jar MySQL连接jdbc驱动 predict_pred.py 执行主代码 utils.py 工具项代码  config.ini 主要定义参数值
+[spark] executor_memory = 2g driver_memory = 2g sql_execution_arrow_enabled = true executor_cores = 2 executor_instances = 2 jar = /root/spark-rdbms/mysql-connector-java-8.0.11.jar [mysql] host = 11.23.32.16 port = 3306 db = test user = test password = 123456 [postgresql] host = 11.23.32.16 port = 3306 db = test user = test password = 123456  utils.py 主要定义各个函数
+  
+
+
+</p>
+
+
+  <div class="container readlink">
+  <a href="https://7125messi.github.io/post/spark_hive_rdbms%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/">Read more &rarr;</a>
+
+</div>
+
+
+</article>
+
   
     <article class="container content summary">
   <div class="container hat">
@@ -541,40 +574,6 @@ train = train.drop(columns = ['TARGET']) train.head()  Implementation FeatureSel
 
   <div class="container readlink">
   <a href="https://7125messi.github.io/post/feature_selector%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9/">Read more &rarr;</a>
-
-</div>
-
-
-</article>
-
-  
-    <article class="container content summary">
-  <div class="container hat">
-  <h2><a href="https://7125messi.github.io/post/uer-py%E9%AB%98%E8%B4%A8%E9%87%8F%E4%B8%AD%E6%96%87bert%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B/">UER Py高质量中文BERT预训练模型
-</a>
-</h2>
-
-  <time datetime="2019-06-30">30 Jun, 2019</time>
-
-</div>
-
-  <p class="container content">
-  
-  
-    [原创]
-最近在github看到了一个项目:
-https://github.com/dbiir/UER-py
-貌似是腾讯出品，良心之作，特地去Colab撸了一下，确实可以，封装了很多模块，后续估计还要迭代，直至打成包就更好了。
-有兴趣的同学可以去我的Colab上，玩一下。
-https://colab.research.google.com/drive/1N81AYxPolDWPMdbZpYO1NnfV4T403Bxz
-  
-
-
-</p>
-
-
-  <div class="container readlink">
-  <a href="https://7125messi.github.io/post/uer-py%E9%AB%98%E8%B4%A8%E9%87%8F%E4%B8%AD%E6%96%87bert%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B/">Read more &rarr;</a>
 
 </div>
 

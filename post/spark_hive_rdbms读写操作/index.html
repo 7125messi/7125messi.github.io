@@ -1,16 +1,186 @@
----
-title: "Spark_Hive_RDBMS读写操作"
-date: 2020-09-10T21:58:37+08:00
-draft: true
----
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Spark_Hive_RDBMS读写操作  &middot; 7125messi的博客</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-[项目总结提炼]
 
-前面我们在做数据工程化过程中会大量用到数据的读写操作,先总结如下！！！
+<meta name="description" content="" />
 
-主要有以下几个文件：
-```
-config.ini                         配置文件
+<meta name="keywords" content="">
+
+
+<meta property="og:title" content="Spark_Hive_RDBMS读写操作  &middot; 7125messi的博客 ">
+<meta property="og:site_name" content="7125messi的博客"/>
+<meta property="og:url" content="https://7125messi.github.io/post/spark_hive_rdbms%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/" />
+<meta property="og:locale" content="zh-cn">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2020-09-10T22:10:29&#43;08:00" />
+<meta property="og:article:modified_time" content="2020-09-10T22:10:29&#43;08:00" />
+
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="Spark_Hive_RDBMS读写操作" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://7125messi.github.io/post/spark_hive_rdbms%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/" />
+<meta name="twitter:domain" content="https://7125messi.github.io">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Spark_Hive_RDBMS读写操作",
+    "author": {
+      "@type": "Person",
+      "name": ""
+    },
+    "datePublished": "2020-09-10",
+    "description": "",
+    "wordCount":  880 
+  }
+</script>
+
+
+
+<link rel="canonical" href="https://7125messi.github.io/post/spark_hive_rdbms%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://7125messi.github.io/touch-icon-144-precomposed.png">
+<link href="https://7125messi.github.io/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.55.6" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight/default.css">
+
+  
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper has-sidebar">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="https://7125messi.github.io">
+  箴言
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+  带着爱和梦想去生活
+
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+<a class="homelink" href="https://7125messi.github.io">正文</a>
+
+
+  
+<a href="https://7125messi.github.io/about">相关</a>
+
+<a href="https://7125messi.github.io/post" title="Show list of posts">目录</a>
+
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+<a id="contact-link-github" class="contact_link" rel="me" aria-label="Github" href="https://github.com/7125messi">
+  <span class="fa fa-github-square"></span></a>
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>DRAFT :: Spark_Hive_RDBMS读写操作
+</h1>
+
+  <div class="metas">
+<time datetime="2020-09-10">10 Sep, 2020</time>
+
+
+  
+  &middot; Read in about 5 min
+  &middot; (880 Words)
+  <br>
+  
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<p>[项目总结提炼]</p>
+
+<p>前面我们在做数据工程化过程中会大量用到数据的读写操作,先总结如下！！！</p>
+
+<p>主要有以下几个文件：</p>
+
+<pre><code>config.ini                         配置文件
 
 func_forecast.sh                   工程执行文件
 
@@ -19,14 +189,13 @@ mysql-connector-java-8.0.11.jar    MySQL连接jdbc驱动
 predict_pred.py                    执行主代码
 
 utils.py                           工具项代码
-```
+</code></pre>
 
-# config.ini
+<h1 id="config-ini">config.ini</h1>
 
-主要定义参数值
+<p>主要定义参数值</p>
 
-```ini
-[spark]
+<pre><code class="language-ini">[spark]
 executor_memory = 2g
 driver_memory = 2g
 sql_execution_arrow_enabled = true
@@ -47,14 +216,13 @@ port = 3306
 db = test
 user = test
 password = 123456
-```
+</code></pre>
 
-# utils.py
+<h1 id="utils-py">utils.py</h1>
 
-主要定义各个函数
+<p>主要定义各个函数</p>
 
-```python
-from configparser import ConfigParser
+<pre><code class="language-python">from configparser import ConfigParser
 from pyspark import SparkConf
 import psycopg2
 import pymysql
@@ -64,20 +232,20 @@ import pymysql
 
 
 def get_config():
-    """
+    &quot;&quot;&quot;
     获取整个配置文件信息
     
     Returns
     -------
         cf: ConfigParser
             配置文件信息
-    """
+    &quot;&quot;&quot;
     cf = ConfigParser()
     cf.read('config.ini', encoding='utf-8')
     return cf
 
 def get_user_pwd():
-    """
+    &quot;&quot;&quot;
     获取用户、密码
     
     Returns
@@ -86,7 +254,7 @@ def get_user_pwd():
             连接用户
         strPassword: Str
             连接密码
-    """
+    &quot;&quot;&quot;
     cf = get_config()
     
     strUser = cf.get('mysql', 'user')
@@ -95,14 +263,14 @@ def get_user_pwd():
     return strUser, strPassword
 
 def get_conn_url():
-    """
+    &quot;&quot;&quot;
     通过jdbc方式获取连接URL
     
     Returns
     -------
         strUrl: Str
             连接URL
-    """
+    &quot;&quot;&quot;
     cf = get_config()
     
     host = cf.get('mysql', 'host')
@@ -112,14 +280,14 @@ def get_conn_url():
     return strUrl
 
 def get_conn_properties():
-    """
+    &quot;&quot;&quot;
     获取连接用户名+密码字典
     
     Returns
     -------
         strProperties: Dict
             用户、密码组成的字典
-    """
+    &quot;&quot;&quot;
     cf = get_config()
     
     user = cf.get('mysql', 'user')
@@ -129,18 +297,18 @@ def get_conn_properties():
     return strProperties
 
 def get_spark_conf():
-    """
+    &quot;&quot;&quot;
     获取SparkConf
     
     Returns
     -------
         sparkConf: pyspark.sql.SparkConf
             spark配置参数
-    """
+    &quot;&quot;&quot;
     cf = get_config()
     sparkConf = SparkConf()
-    sparkConf.set("spark.executor.memoryOverhead", "1g")
-    sparkConf.set("spark.driver.maxResultSize", "4g")
+    sparkConf.set(&quot;spark.executor.memoryOverhead&quot;, &quot;1g&quot;)
+    sparkConf.set(&quot;spark.driver.maxResultSize&quot;, &quot;4g&quot;)
     sparkConf.set('spark.some.config.option', 'some-value')
     sparkConf.set('spark.executor.memory', cf.get('spark', 'executor_memory'))
     sparkConf.set('spark.driver.memory', cf.get('spark', 'driver_memory'))
@@ -152,7 +320,7 @@ def get_spark_conf():
 
 def read_dataset(spark, strURL, strDBTable, strUser, strPassword, isConcurrent,
                  partitionColumn='', lowerBound='', upperBound='', numPartitions=1):
-    """
+    &quot;&quot;&quot;
     Spark读取数据 jdbc
     
     Parameters
@@ -180,10 +348,10 @@ def read_dataset(spark, strURL, strDBTable, strUser, strPassword, isConcurrent,
     Returns
     -------
         pyspark.sql.DataFrame
-    """
+    &quot;&quot;&quot;
     if isConcurrent:
-        jdbcDf=spark.read.format("jdbc") \
-                         .option('url', f"jdbc:{strURL}") \
+        jdbcDf=spark.read.format(&quot;jdbc&quot;) \
+                         .option('url', f&quot;jdbc:{strURL}&quot;) \
                          .option('dbtable', strDBTable) \
                          .option('user', strUser) \
                          .option('password', strPassword) \
@@ -194,16 +362,16 @@ def read_dataset(spark, strURL, strDBTable, strUser, strPassword, isConcurrent,
                          .load()
         return jdbcDf
     else:
-        jdbcDf=spark.read.format("jdbc") \
-                         .option('url', f"jdbc:{strURL}") \
+        jdbcDf=spark.read.format(&quot;jdbc&quot;) \
+                         .option('url', f&quot;jdbc:{strURL}&quot;) \
                          .option('dbtable', strDBTable) \
                          .option('user', strUser) \
                          .option('password', strPassword) \
                          .load()
         return jdbcDf
 
-def write_dataset(srcDF, strURL, desDBTable, dictProperties, mode="append"):
-    """
+def write_dataset(srcDF, strURL, desDBTable, dictProperties, mode=&quot;append&quot;):
+    &quot;&quot;&quot;
     Spark写入数据 jdbc
     
     Parameters
@@ -217,9 +385,9 @@ def write_dataset(srcDF, strURL, desDBTable, dictProperties, mode="append"):
         dictProperties: Dict
             用户密码组成的字典
         mode: Str
-            插入模式（"append": 增量更新； "overwrite": 全量更新）
+            插入模式（&quot;append&quot;: 增量更新； &quot;overwrite&quot;: 全量更新）
 
-    """
+    &quot;&quot;&quot;
     try:
         srcDF.write.jdbc(
             f'jdbc:{strURL}', 
@@ -231,14 +399,14 @@ def write_dataset(srcDF, strURL, desDBTable, dictProperties, mode="append"):
         print(repr(e))
 
 def psycopg_execute(strSql):
-    """
+    &quot;&quot;&quot;
     使用psycopg2方式执行sql
     
     Parameters
     ----------
         strSql: Str
             待执行的sql
-    """
+    &quot;&quot;&quot;
     cf = get_config()
     
     # 连接数据库
@@ -269,14 +437,14 @@ def psycopg_execute(strSql):
         conn.close()
 
 def get_sql_conn():
-    """
+    &quot;&quot;&quot;
     连接sql数据库的engine：可用于使用数据库连接
     
     Parameters
     ----------
         conn: Str
             数据库的engine
-    """
+    &quot;&quot;&quot;
     cf = get_config()
     conn = pymysql.connect(
         host=cf.get('mysql', 'host'), 
@@ -284,12 +452,12 @@ def get_sql_conn():
         user=cf.get('mysql', 'user'),
         password=cf.get('mysql', 'password'),
         database=cf.get('mysql', 'db'),
-        charset='utf8'   # charset="utf8"，编码不要写成"utf-8"
+        charset='utf8'   # charset=&quot;utf8&quot;，编码不要写成&quot;utf-8&quot;
     )
     return conn
 
 def mysql_query_data(strSql):
-    """
+    &quot;&quot;&quot;
     使用mysql查询
     
     Parameters
@@ -300,7 +468,7 @@ def mysql_query_data(strSql):
     Returns
     -------
         list[dict]
-    """    
+    &quot;&quot;&quot;    
     # 连接数据库
     conn = get_sql_conn()
 
@@ -317,14 +485,14 @@ def mysql_query_data(strSql):
         conn.close()
 
 def mysql_insert_or_update_data(strSql):
-    """
+    &quot;&quot;&quot;
     使用mysql执行insert或update操作
     
     Parameters
     ----------
         strSql: Str
             待执行的sql
-    """    
+    &quot;&quot;&quot;    
     # 连接数据库
     conn = get_sql_conn()
 
@@ -344,12 +512,11 @@ def mysql_insert_or_update_data(strSql):
         # 关闭连接
         cur.close()
         conn.close()
-```
+</code></pre>
 
-# 测试代码 predict_pred.py
+<h1 id="测试代码-predict-pred-py">测试代码 predict_pred.py</h1>
 
-```python
-from pyspark.sql import SparkSession
+<pre><code class="language-python">from pyspark.sql import SparkSession
 from pyspark.sql import functions as fn
 from pyspark.ml import Pipeline, util
 from pyspark.ml import feature as ft
@@ -379,26 +546,26 @@ if __name__ == '__main__':
     # 启动spark
     spark = SparkSession.\
         builder.\
-        appName("spark_io").\
+        appName(&quot;spark_io&quot;).\
         config(conf=get_spark_conf()).\
         enableHiveSupport().\
         getOrCreate()
     
-    select_dt = "2020-09-09"
-    strSql = f"""
+    select_dt = &quot;2020-09-09&quot;
+    strSql = f&quot;&quot;&quot;
         select * from yth_src.kclb where dt = '{select_dt}'
-    """
+    &quot;&quot;&quot;
     df = spark.sql(strSql)
     print(df.show())
 
 
     # (2) spark写入hive
-    # dt = time.strftime("%Y-%m-%d", time.localtime()) 
+    # dt = time.strftime(&quot;%Y-%m-%d&quot;, time.localtime()) 
     # print(dt)
     # # 打开动态分区
-    # spark.sql("set hive.exec.dynamic.partition.mode=nonstrict")
-    # spark.sql("set hive.exec.dynamic.partition=true")
-    # spark.sql(f"""
+    # spark.sql(&quot;set hive.exec.dynamic.partition.mode=nonstrict&quot;)
+    # spark.sql(&quot;set hive.exec.dynamic.partition=true&quot;)
+    # spark.sql(f&quot;&quot;&quot;
     # insert overwrite table yth_dw.shop_inv_turnover_rate partition (dt)
     # select 
     #     shop_code, 
@@ -407,7 +574,7 @@ if __name__ == '__main__':
     #     current_timestamp as created_time, 
     #     dt = '{dt}'
     # from shop_inv_turnover_rate_table_db
-    # """)
+    # &quot;&quot;&quot;)
 
     # (2) spark读取MySQL
     # 获取用户密码
@@ -432,9 +599,9 @@ if __name__ == '__main__':
     # )
 
     # (3) pymysql读取MySQL
-    strSql2 = f"""
+    strSql2 = f&quot;&quot;&quot;
         select * from hive_kclb limit 5
-    """
+    &quot;&quot;&quot;
     df2 = mysql_query_data(strSql2)   # 返回 list[dict]
     df2 = pd.DataFrame(df2)
     print(df2)
@@ -443,18 +610,17 @@ if __name__ == '__main__':
     engine = get_sql_conn()
     df3 = pd.read_sql(strSql2,con = engine)
     print(df3)
-```
+</code></pre>
 
-# 执行代码 func_forecast.sh
+<h1 id="执行代码-func-forecast-sh">执行代码 func_forecast.sh</h1>
 
-```shell
-# !/bin/bash
+<pre><code class="language-shell"># !/bin/bash
 
 # spark解释器
-spark_interpreter="/opt/spark-2.4.4/bin/spark-submit"
+spark_interpreter=&quot;/opt/spark-2.4.4/bin/spark-submit&quot;
 
 # python解释器
-python_interpreter="/app/anaconda3/bin/python"
+python_interpreter=&quot;/app/anaconda3/bin/python&quot;
 
 function func_forecast()
 {
@@ -480,9 +646,83 @@ function func_forecast()
                         --jars mysql-connector-java-8.0.11.jar predict_pred.py
 
     if [[ $? -ne 0 ]]; then
-        echo "--> 执行失败"
+        echo &quot;--&gt; 执行失败&quot;
     exit 1
     fi
 }
 func_forecast
-```
+</code></pre>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="https://7125messi.github.io/post/%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B%E5%8C%96%E6%A1%88%E4%BE%8B%E4%BB%8B%E7%BB%8D/" title="数据工程化案例介绍">
+      Previous
+    </a>
+    
+
+    
+
+  
+
+
+</div>
+
+  
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+  code with <i class='fa fa-heart'></i>
+
+
+</div>
+
+
+  
+<div class="container copyright">
+  
+  &copy; 2018 7125messi.
+
+
+</div>
+
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+  </body>
+</html>
+

@@ -7,10 +7,23 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>(c) 2018 7125messi.</copyright>
-    <lastBuildDate>Mon, 03 Aug 2020 21:31:10 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 10 Sep 2020 22:10:29 +0800</lastBuildDate>
     
 	<atom:link href="https://7125messi.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Spark_Hive_RDBMS读写操作</title>
+      <link>https://7125messi.github.io/post/spark_hive_rdbms%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/</link>
+      <pubDate>Thu, 10 Sep 2020 22:10:29 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/spark_hive_rdbms%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/</guid>
+      <description>[项目总结提炼]
+前面我们在做数据工程化过程中会大量用到数据的读写操作,先总结如下！！！
+主要有以下几个文件：
+config.ini 配置文件 func_forecast.sh 工程执行文件 mysql-connector-java-8.0.11.jar MySQL连接jdbc驱动 predict_pred.py 执行主代码 utils.py 工具项代码  config.ini 主要定义参数值
+[spark] executor_memory = 2g driver_memory = 2g sql_execution_arrow_enabled = true executor_cores = 2 executor_instances = 2 jar = /root/spark-rdbms/mysql-connector-java-8.0.11.jar [mysql] host = 11.23.32.16 port = 3306 db = test user = test password = 123456 [postgresql] host = 11.23.32.16 port = 3306 db = test user = test password = 123456  utils.py 主要定义各个函数</description>
+    </item>
     
     <item>
       <title>数据工程化案例介绍</title>
