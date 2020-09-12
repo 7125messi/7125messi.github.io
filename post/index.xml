@@ -21,8 +21,8 @@
       <description>[项目总结提炼]
 前面我们在做数据工程化过程中会大量用到数据的读写操作,现总结如下！！！
 主要有以下几个文件：
-config.ini 配置文件 func_forecast.sh 工程执行文件 mysql-connector-java-8.0.11.jar MySQL连接jdbc驱动 predict_pred.py 执行主代码 utils.py 工具项代码  config.ini 主要定义参数值
-[spark] executor_memory = 2g driver_memory = 2g sql_execution_arrow_enabled = true executor_cores = 2 executor_instances = 2 jar = /root/spark-rdbms/mysql-connector-java-8.0.11.jar [mysql] host = 11.23.32.16 port = 3306 db = test user = test password = 123456 [postgresql] host = 11.23.32.16 port = 3306 db = test user = test password = 123456  utils.py 主要定义各个函数</description>
+config.ini 配置文件 func_forecast.sh 工程执行文件 mysql-connector-java-8.0.11.jar MySQL连接jdbc驱动 predict_pred.py 执行主代码 utils.py 工具项代码  1 config.ini 主要定义参数值
+[spark] executor_memory = 2g driver_memory = 2g sql_execution_arrow_enabled = true executor_cores = 2 executor_instances = 2 jar = /root/spark-rdbms/mysql-connector-java-8.0.11.jar [mysql] host = 11.23.32.16 port = 3306 db = test user = test password = 123456 [postgresql] host = 11.23.32.16 port = 3306 db = test user = test password = 123456 [dbms_parameters] mysql_conn_info_passwd @@@ =4bI=prodha mysql_conn_info_database = test_db  2 utils.</description>
     </item>
     
     <item>

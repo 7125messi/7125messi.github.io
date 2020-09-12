@@ -51,7 +51,7 @@
     },
     "datePublished": "2020-09-10",
     "description": "",
-    "wordCount":  880 
+    "wordCount":  1016 
   }
 </script>
 
@@ -153,7 +153,7 @@
 
 <article id="main-content" class="container main_content single">
   <header class="container hat">
-  <h1>Spark_Hive_RDBMS读写操作
+  <h1>DRAFT :: Spark_Hive_RDBMS读写操作
 </h1>
 
   <div class="metas">
@@ -162,7 +162,7 @@
 
   
   &middot; Read in about 5 min
-  &middot; (880 Words)
+  &middot; (1016 Words)
   <br>
   
 
@@ -191,7 +191,7 @@ predict_pred.py                    执行主代码
 utils.py                           工具项代码
 </code></pre>
 
-<h1 id="config-ini">config.ini</h1>
+<h1 id="1-config-ini">1 config.ini</h1>
 
 <p>主要定义参数值</p>
 
@@ -216,9 +216,13 @@ port = 3306
 db = test
 user = test
 password = 123456
+
+[dbms_parameters]
+mysql_conn_info_passwd @@@ =4bI=prodha
+mysql_conn_info_database = test_db
 </code></pre>
 
-<h1 id="utils-py">utils.py</h1>
+<h1 id="2-utils-py">2 utils.py</h1>
 
 <p>主要定义各个函数</p>
 
@@ -514,7 +518,7 @@ def mysql_insert_or_update_data(strSql):
         conn.close()
 </code></pre>
 
-<h1 id="测试代码-predict-pred-py">测试代码 predict_pred.py</h1>
+<h1 id="3-测试代码-predict-pred-py">3 测试代码 predict_pred.py</h1>
 
 <pre><code class="language-python">from pyspark.sql import SparkSession
 from pyspark.sql import functions as fn
@@ -612,7 +616,7 @@ if __name__ == '__main__':
     print(df3)
 </code></pre>
 
-<h1 id="执行代码-func-forecast-sh">执行代码 func_forecast.sh</h1>
+<h1 id="4-执行代码-func-forecast-sh">4 执行代码 func_forecast.sh</h1>
 
 <pre><code class="language-shell"># !/bin/bash
 
@@ -651,6 +655,74 @@ function func_forecast()
     fi
 }
 func_forecast
+</code></pre>
+
+<hr />
+
+<hr />
+
+<h1 id="5-shell中配置文件的读取">5 Shell中配置文件的读取</h1>
+
+<p>编写统一的读取文件<code>ini_pro.sh</code></p>
+
+<pre><code class="language-shell">###
+ # @Author: ydzhao
+ # @Description: read configuration file's parameters
+ # @Date: 2020-07-27 13:10:31
+ # @LastEditTime: 2020-09-13 07:33:14
+ # @FilePath: /git/code/ydzhao/spark-hive-rdbms/conf/ini.sh
+### 
+#!/usr/bin/bash
+
+INIFILE=$1
+SECTION=$2
+ITEM=$3
+SPLIT=$4
+NEWVAL=$5
+
+
+function ReadINIfile(){ 
+  ReadINI=`awk -F $SPLIT '/\['$SECTION'\]/{a=1}a==1&amp;&amp;$1~/'$ITEM'/{print $2;exit}' $INIFILE`
+  echo $ReadINI
+}
+
+
+function WriteINIfile(){
+   WriteINI=`sed -i &quot;/^\[$SECTION\]/,/^\[/ {/^\[$SECTION\]/b;/^\[/b;s/^$ITEM*=.*/$ITEM=$NEWVAL/g;}&quot; $INIFILE`
+  echo $WriteINI
+}
+
+if [ &quot;$5&quot; = &quot;&quot; ] ;then 
+   ReadINIfile $1 $2 $3 $4
+else
+   WriteINIfile $1 $2 $3 $4 $5
+fi
+
+# ./ini.sh $1 $2 $3 $4       读取ini
+# ./ini.sh $1 $2 $3 $4 $5    写入ini &quot;newval&quot;
+</code></pre>
+
+<p>我们读取上面的<code>config.ini</code>文件</p>
+
+<p>可以这样写</p>
+
+<pre><code class="language-shell">[root@ythbdnode01 ~]# mysql_conn_info_user=`bash /root/ini_pro.sh /root/config.ini dbms_parameters mysql_conn_info_user =`
+[root@ythbdnode01 ~]# echo $mysql_conn_info_user
+test_db
+</code></pre>
+
+<p>这里传入4个变量分别是：</p>
+
+<ul>
+<li>INIFILE  配置文件名</li>
+<li>SECTION  某个区块</li>
+<li>ITEM     某个区块下的明细</li>
+<li>SPLIT    分隔符</li>
+</ul>
+
+<pre><code class="language-shell">[root@ythbdnode01 ~]# mysql_conn_info_passwd=`bash /root/ini_pro.sh /root/config.ini dbms_parameters mysql_conn_info_passwd @@@`
+[root@ythbdnode01 ~]# echo $mysql_conn_info_passwd
+=4bI=prodha
 </code></pre>
 
 </div>
