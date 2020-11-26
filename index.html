@@ -128,7 +128,7 @@
     <h1>7125messi的博客
 </h1>
 
-    <span>last update: <time datetime="2020-09-10T22:10:29&#43;08:00">10 September at 10:10pm</time>
+    <span>last update: <time datetime="2020-11-26T21:16:36&#43;08:00">26 November at 9:16pm</time>
 </span>
 
   </header>
@@ -136,7 +136,37 @@
   
     <article class="container content summary">
   <div class="container hat">
-  <h2><a href="https://7125messi.github.io/post/spark_hive_rdbms%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/">Spark_Hive_RDBMS读写操作
+  <h2><a href="https://7125messi.github.io/post/xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt/">Xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt
+</a>
+</h2>
+
+  <time datetime="2020-11-26">26 Nov, 2020</time>
+
+</div>
+
+  <p class="container content">
+  
+  
+    本文主要是提高xgboost/lightgbm/catboost等模型在参数调优方面的工程化实现以及在stacking模型融合使用 * xgboost调优 * lightgbm调优 * catboost调优 * stacking融合 * 网格搜索、随机搜索和贝叶斯优化
+0 工具类函数 from __future__ import print_function from __future__ import division import numpy as np import pandas as pd import matplotlib matplotlib.use(&quot;Agg&quot;) import matplotlib.pyplot as plt from sklearn.metrics import roc_curve, auc from sklearn.metrics import confusion_matrix from sklearn.metrics import f1_score from itertools import chain import time import os def timer(func): &quot;&quot;&quot;计时器&quot;&quot;&quot; def wrapper(*args, **kwargs): t1 = time.time() func(*args, **kwargs) t2 = time.
+  
+
+
+</p>
+
+
+  <div class="container readlink">
+  <a href="https://7125messi.github.io/post/xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt/">Read more &rarr;</a>
+
+</div>
+
+
+</article>
+
+  
+    <article class="container content summary">
+  <div class="container hat">
+  <h2><a href="https://7125messi.github.io/post/spark_hive_rdbms%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/">DRAFT :: Spark_Hive_RDBMS读写操作
 </a>
 </h2>
 
@@ -535,45 +565,6 @@ LightGBM （Light Gradient Boosting Machine）是一个实现 GBDT 算法的框�
 
   <div class="container readlink">
   <a href="https://7125messi.github.io/post/%E5%8D%8A%E5%8F%82%E6%95%B0%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B/">Read more &rarr;</a>
-
-</div>
-
-
-</article>
-
-  
-    <article class="container content summary">
-  <div class="container hat">
-  <h2><a href="https://7125messi.github.io/post/feature_selector%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9/">Feature_selector实现高效的特征选择
-</a>
-</h2>
-
-  <time datetime="2019-07-03">3 Jul, 2019</time>
-
-</div>
-
-  <p class="container content">
-  
-  
-    [参考整理]
-具体可以参考我的Azure Notebook：
-https://notebooks.azure.com/messi7125/projects/feature-engineering
-下面简要介绍一下功能介绍
-Introduction: Feature Selector Usage 在这个笔记本中，我们将使用FeatureSelector类来选择要从数据集中删除的要素。 此类有五种方法可用于查找要删除的功能：
- 具有高missing-values百分比的特征 具有高相关性的特征 对模型预测结果无贡献的特征（即zero importance） 对模型预测结果只有很小贡献的特征（即low importance） 具有单个值的特征（即数据集中该特征取值的集合只有一个元素）  requirements：
-lightgbm==2.1.1 matplotlib==2.1.2 seaborn==0.8.1 numpy==1.14.5 pandas==0.23.1 scikit-learn==0.19.1  from feature_selector.selector import FeatureSelector import pandas as pd  Example Dataset 该数据集被用作[Kaggle的[Home Credit Default Risk Competition]竞赛的一部分（https://www.kaggle.com/c/home-credit-default-risk/）。 它适用于受监督的机器学习分类任务，其目标是预测客户是否违约贷款。 整个数据集可以[这里]下载，我们将使用10,000行的小样本。
-特征选择器设计用于机器学习任务，但可以应用于任何数据集。基于特征重要性的方法确实需要受监督的机器学习问题。
-train = pd.read_csv('../data/credit_example.csv') train_labels = train['TARGET'] train.head()  数据集中有几个分类列。 使用基于特征重要性的方法时，FeatureSelector使用独热编码处理这些。
-train = train.drop(columns = ['TARGET']) train.head()  Implementation FeatureSelector有五个函数用于识别要删除的列：
- identify_missing identify_single_unique identify_collinear identify_zero_importance identify_low_importance  这些方法根据指定的标准查找要删除的功能。 标识的特征存储在FeatureSelector的ops属性（Python字典）中。 我们可以手动删除已识别的功能，或使用FeatureSelector中的remove功能来实际删除功能。
-  
-
-
-</p>
-
-
-  <div class="container readlink">
-  <a href="https://7125messi.github.io/post/feature_selector%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9/">Read more &rarr;</a>
 
 </div>
 

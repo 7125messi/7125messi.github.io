@@ -4,14 +4,19 @@
   
   <url>
     <loc>https://7125messi.github.io/</loc>
-    <lastmod>2020-09-10T22:10:29+08:00</lastmod>
+    <lastmod>2020-11-26T21:16:36+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://7125messi.github.io/post/</loc>
-    <lastmod>2020-09-10T22:10:29+08:00</lastmod>
+    <lastmod>2020-11-26T21:16:36+08:00</lastmod>
     <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://7125messi.github.io/post/xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt/</loc>
+    <lastmod>2020-11-26T21:16:36+08:00</lastmod>
   </url>
   
   <url>

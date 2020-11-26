@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>(c) 2018 7125messi.</copyright>
-    <lastBuildDate>Thu, 10 Sep 2020 22:10:29 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 26 Nov 2020 21:16:36 +0800</lastBuildDate>
     
 	<atom:link href="https://7125messi.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt</title>
+      <link>https://7125messi.github.io/post/xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt/</link>
+      <pubDate>Thu, 26 Nov 2020 21:16:36 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt/</guid>
+      <description>本文主要是提高xgboost/lightgbm/catboost等模型在参数调优方面的工程化实现以及在stacking模型融合使用 * xgboost调优 * lightgbm调优 * catboost调优 * stacking融合 * 网格搜索、随机搜索和贝叶斯优化
+0 工具类函数 from __future__ import print_function from __future__ import division import numpy as np import pandas as pd import matplotlib matplotlib.use(&amp;quot;Agg&amp;quot;) import matplotlib.pyplot as plt from sklearn.metrics import roc_curve, auc from sklearn.metrics import confusion_matrix from sklearn.metrics import f1_score from itertools import chain import time import os def timer(func): &amp;quot;&amp;quot;&amp;quot;计时器&amp;quot;&amp;quot;&amp;quot; def wrapper(*args, **kwargs): t1 = time.time() func(*args, **kwargs) t2 = time.</description>
+    </item>
     
     <item>
       <title>Spark_Hive_RDBMS读写操作</title>

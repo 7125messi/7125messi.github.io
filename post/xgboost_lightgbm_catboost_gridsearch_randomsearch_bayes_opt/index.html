@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt  &middot; 7125messi的博客</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="">
+
+
+<meta property="og:title" content="Xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt  &middot; 7125messi的博客 ">
+<meta property="og:site_name" content="7125messi的博客"/>
+<meta property="og:url" content="https://7125messi.github.io/post/xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt/" />
+<meta property="og:locale" content="zh-cn">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2020-11-26T21:16:36&#43;08:00" />
+<meta property="og:article:modified_time" content="2020-11-26T21:16:36&#43;08:00" />
+
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="Xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://7125messi.github.io/post/xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt/" />
+<meta name="twitter:domain" content="https://7125messi.github.io">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt",
+    "author": {
+      "@type": "Person",
+      "name": ""
+    },
+    "datePublished": "2020-11-26",
+    "description": "",
+    "wordCount":  4987 
+  }
+</script>
+
+
+
+<link rel="canonical" href="https://7125messi.github.io/post/xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://7125messi.github.io/touch-icon-144-precomposed.png">
+<link href="https://7125messi.github.io/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.55.6" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight/default.css">
+
+  
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper has-sidebar">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="https://7125messi.github.io">
+  箴言
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+  带着爱和梦想去生活
+
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+<a class="homelink" href="https://7125messi.github.io">正文</a>
+
+
+  
+<a href="https://7125messi.github.io/about">相关</a>
+
+<a href="https://7125messi.github.io/post" title="Show list of posts">目录</a>
+
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+<a id="contact-link-github" class="contact_link" rel="me" aria-label="Github" href="https://github.com/7125messi">
+  <span class="fa fa-github-square"></span></a>
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>Xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt
+</h1>
+
+  <div class="metas">
+<time datetime="2020-11-26">26 Nov, 2020</time>
+
+
+  
+  &middot; Read in about 24 min
+  &middot; (4987 Words)
+  <br>
+  
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<p>本文主要是提高xgboost/lightgbm/catboost等模型在参数调优方面的工程化实现以及在stacking模型融合使用
+* xgboost调优
+* lightgbm调优
+* catboost调优
+* stacking融合
+* 网格搜索、随机搜索和贝叶斯优化</p>
+
+<h1 id="0-工具类函数">0 工具类函数</h1>
+
+<pre><code class="language-python">from __future__ import print_function
+from __future__ import division
+
+import numpy as np
+import pandas as pd
+import matplotlib
+
+matplotlib.use(&quot;Agg&quot;)
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import f1_score
+from itertools import chain
+import time
+import os
+
+def timer(func):
+    &quot;&quot;&quot;计时器&quot;&quot;&quot;
+    def wrapper(*args, **kwargs):
+        t1 = time.time()
+        func(*args, **kwargs)
+        t2 = time.time()
+        print(&quot;花费时间：{}秒&quot;.format(t2-t1))
+    return wrapper
+
+def time_to_date(time_stamp):
+    &quot;&quot;&quot;把时间戳转成日期的形式&quot;&quot;&quot;
+    time_array = time.localtime(time_stamp)
+    date_style_time = time.strftime(&quot;%Y-%m-%d %H:%M:%S&quot;, time_array)
+    return date_style_time
+
+
+def check_path(_path):
+    &quot;&quot;&quot;检查路径是否存在，不存在则新建&quot;&quot;&quot;
+    if os.path.dirname(_path):
+        if not os.path.exists(os.path.dirname(_path)):
+            os.makedirs(os.path.dirname(_path))
+
+
+def get_no_used_features(all_features, used_features, no_used_features_path='features/no_used_features.csv'):
+    &quot;&quot;&quot;统计没有用到的特征&quot;&quot;&quot;
+    print('n_all_features={}, n_feature_used={}'.format(len(all_features), len(used_features)))
+    no_used_features = list(set(all_features).difference(set(used_features)))
+    n_no_used = len(no_used_features)
+    print('n_no_used_feature={}'.format(n_no_used))
+    df_no_used = pd.DataFrame({'no_used': no_used_features})
+    df_no_used.to_csv(no_used_features_path)
+
+
+def get_lgb_features(lgb_model, lgb_feature_path='features/lgb_features.csv'):
+    &quot;&quot;&quot;获取 lgb 的特征重要度&quot;&quot;&quot;
+    feature_names = lgb_model.feature_name()
+    feature_importances = lgb_model.feature_importance()
+    df_lgb_features = pd.DataFrame({'feature': feature_names, 'scores': feature_importances})
+    df_lgb_features = df_lgb_features.sort_values('scores', ascending=False)
+    df_lgb_features.to_csv(lgb_feature_path, index=False)
+
+
+def get_grid_params(search_params):
+    &quot;&quot;&quot; xgboost 遍历 grid search 的所有参数组合。
+    Args:
+        search_params: dict of params to be search.
+        search_params = {
+            'learning_rate': [0.01, 0.025, 0.05],
+            'max_depth': [5, 6, 7, 8],
+            'subsample': [0.6, 0.8],
+            'colsample_bytree': [0.5, 0.6, 0.8]
+        }
+    Returns:
+        grid_params: list, 每个元素为一个dict, 对应每次搜索的参数。
+        [{'learning_rate':0.01,'max_depth':5,'subsample':0.6,'colsample_bytree':0.5},{},...]
+    &quot;&quot;&quot;
+    keys = list(search_params.keys())
+    values = list(search_params.values())
+    grid_params = list()
+    for lr in values[0]:
+        for md in values[1]:
+            for sub in values[2]:
+                for cb in values[3]:
+                    dict_cb = dict()
+                    dict_cb['learning_rate'] = lr
+                    dict_cb['max_depth'] = md
+                    dict_cb['subsample'] = sub
+                    dict_cb['colsample_bytree'] = cb
+                    grid_params.append(dict_cb)
+    return grid_params
+
+
+def get_grid_params_lgb(search_params):
+    &quot;&quot;&quot; lightgbm 遍历 grid search 的所有参数组合。
+    Args:
+        search_params: dict of params to be search.
+        search_params = {
+            'num_leaves': [20, 30, 40, 50],
+            'learning_rate': [0.025, 0.05, 0.1, 0.15, 0.20]
+        }
+    Returns:
+        grid_params: list, 每个元素为一个dict, 对应每次搜索的参数。
+        [{'num_leaves':0.01,'learning_rate':5},{},...]
+    &quot;&quot;&quot;
+    keys = list(search_params.keys())
+    values = list(search_params.values())
+    grid_params = list()
+    for nl in values[0]:
+        for lr in values[1]:
+            dict_cb = dict()
+            dict_cb['num_leaves'] = nl
+            dict_cb['learning_rate'] = lr
+            grid_params.append(dict_cb)
+    return grid_params
+
+
+def print_confusion_matrix(y_true, y_pred):
+    &quot;&quot;&quot;打印分类混淆矩阵。
+    Args:
+        y_true: 真实类别。
+        y_pred: 预测类别。
+    &quot;&quot;&quot;
+    labels = list(set(y_true))
+    conf_mat = confusion_matrix(y_true, y_pred, labels=labels)
+    print(&quot;confusion_matrix(left labels: y_true, up labels: y_pred):&quot;)
+    out = &quot;labels\t&quot;
+    for i in range(len(labels)):
+        out += (str(labels[i]) + &quot;\t&quot;)
+    print(out)
+    for i in range(len(conf_mat)):
+        out = (str(labels[i]) + &quot;\t&quot;)
+        for j in range(len(conf_mat[i])):
+            out += (str(conf_mat[i][j]) + '\t')
+        print(out)
+    return conf_mat
+
+
+def get_auc(y_true, y_pred_pos_prob, plot_ROC=False):
+    &quot;&quot;&quot;计算 AUC 值。
+    Args:
+        y_true: 真实标签，如 [0, 1, 1, 1, 0]
+        y_pred_pos_prob: 预测每个样本为 positive 的概率。
+        plot_ROC: 是否绘制  ROC 曲线。
+    Returns:
+       roc_auc: AUC 值.
+       fpr, tpr, thresholds: see roc_curve.
+    &quot;&quot;&quot;
+    fpr, tpr, thresholds = (y_true, y_pred_pos_prob)
+    roc_auc = auc(fpr, tpr)  # auc 值
+    if plot_ROC:
+        plt.plot(fpr, tpr, '-*', lw=1, label='auc=%g' % roc_auc)
+        plt.xlim([-0.05, 1.05])
+        plt.ylim([-0.05, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Receiver operating characteristic example')
+        plt.legend(loc=&quot;lower right&quot;)
+        plt.show()
+    return roc_auc, fpr, tpr, thresholds
+
+
+def evaluate(y_true, y_pred):
+    &quot;&quot;&quot;二分类预测结果评估。
+    Args:
+        y_true: list, 真实标签，如 [1, 0, 0, 1]
+        y_pred: list，预测结果，如 [1, 1, 0, 1]
+    Returns:
+        返回正类别的评价指标。
+        p: 预测为正类别的准确率： p = tp / (tp + fp)
+        r: 预测为正类别的召回率： r = tp / (tp + fn)
+        f1: 预测为正类别的 f1 值： f1 = 2 * p * r / (p + r).
+    &quot;&quot;&quot;
+    conf_mat = confusion_matrix(y_true, y_pred)
+    all_p = np.sum(conf_mat[:, 1])
+    if all_p == 0:
+        p = 1.0
+    else:
+        p = conf_mat[1, 1] / all_p
+    r = conf_mat[1, 1] / np.sum(conf_mat[1, :])
+    f1 = f1_score(y_true, y_pred)
+    return p, r, f1
+
+
+def feature_analyze(model, to_print=False, to_plot=False, csv_path=None):
+    &quot;&quot;&quot;XGBOOST 模型特征重要性分析。
+
+    Args:
+        model: 训练好的 xgb 模型。
+        to_print: bool, 是否输出每个特征重要性。
+        to_plot: bool, 是否绘制特征重要性图表。
+        csv_path: str, 保存分析结果到 csv 文件路径。
+    &quot;&quot;&quot;
+    feature_score = model.get_fscore()  # 训练好的模型自带属性
+    feature_score = sorted(feature_score.items(), key=lambda x: x[1], reverse=True)
+    if to_plot:
+        features = list()
+        scores = list()
+        for (key, value) in feature_score:
+            features.append(key)
+            scores.append(value)
+        plt.barh(range(len(scores)), scores)
+        plt.yticks(range(len(scores)), features)
+        for i in range(len(scores)):
+            plt.text(scores[i] + 0.75, i - 0.25, scores[i])
+        plt.xlabel('feature socre')
+        plt.title('feature score evaluate')
+        plt.grid()
+        plt.show()
+    fs = []
+    for (key, value) in feature_score:
+        fs.append(&quot;{0},{1}\n&quot;.format(key, value))
+    if to_print:
+        print(''.join(fs))
+    if csv_path is not None:
+        with open(csv_path, 'w') as f:
+            f.writelines(&quot;feature,score\n&quot;)
+            f.writelines(fs)
+    return feature_score
+
+
+if __name__ == '__main__':
+    search_params = {
+        'learning_rate': [0.01, 0.025, 0.05],
+        'max_depth': [5, 6, 7, 8],
+        'subsample': [0.6, 0.8],
+        'colsample_bytree': [0.5, 0.6, 0.8]
+    }
+    grid_params = get_grid_params(search_params)
+    print(grid_params[0])
+    print(len(grid_params))
+</code></pre>
+
+<ul>
+<li>行为数据、评论数据、历史数据以及用户画像数据处理</li>
+<li>数据预处理&ndash;特征提取</li>
+</ul>
+
+<h1 id="1-xgboost网格搜索">1 xgboost网格搜索</h1>
+
+<pre><code class="language-python">'''
+Author: ydzhao
+Description: xgboost 网格搜索最佳参数/保存最佳参数/使用最佳参数预测结果
+Date: 2020-11-23 10:44:16
+LastEditTime: 2020-11-23 13:35:17
+FilePath: \project\code\DC-hi_guides-master\gridsearch_1_xgb.py
+'''
+from __future__ import print_function
+from __future__ import division
+
+from data_helper import get_action_rate_before_jp
+from data_helper import get_pair_rate_before_jp
+from data_helper import get_triple_rate_before_jp
+from data_helper import get_gender_convert_rate
+from data_helper import get_feat
+from data_helper import load_feat
+
+from my_utils import feature_analyze
+from my_utils import get_grid_params
+from my_utils import check_path
+
+from m1_xgb import xgb_fit
+from m1_xgb import xgb_predict
+
+import joblib
+import time
+from tqdm import tqdm
+
+########### 配置文件 ############
+class Config(object):
+    &quot;&quot;&quot;xgboost模型调参&quot;&quot;&quot;
+    def __init__(self):
+        self.params = {'learning_rate': 0.025,
+                       'eval_metric': 'auc',
+                       'n_estimators': 5000,
+                       'max_depth': 5,
+                       'min_child_weight': 7,
+                       'gamma': 0,
+                       'subsample': 0.8,
+                       'colsample_bytree': 0.6,
+                       'eta': 0.05,
+                       'silent': 1,
+                       'objective': 'binary:logistic',
+                       'scale_pos_weight': 1}
+        self.max_round = 5000
+        self.cv_folds = 5
+        self.early_stop_round = 30
+        self.seed = 3
+        self.save_model_path = None
+        self.best_model_path = 'model/best_xgb_model.dat'
+
+
+########### 日志处理 ############
+import logging.handlers
+LOG_FILE = 'log/xgb_grid_search.log'
+check_path('LOG_FILE')
+# 实例化handler ,RotatingFileHandler 位于 logging.handlers支持循环日志文件
+handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount = 5)
+fmt = '%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s'
+formatter = logging.Formatter(fmt)
+handler.setFormatter(formatter)
+
+logger = logging.getLogger('search')
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
+
+
+########### 逐个参数搜索 ############
+def my_search(config, search_params, model_fit, X_train, y_train):
+    &quot;&quot;&quot;Search for best params. 逐个参数搜索，并不是 grid search 所以应该注意参数的顺序。&quot;&quot;&quot;
+    best_auc = 0.0
+    best_model = None
+    for k, vs in tqdm(search_params.items()):
+        best_v = vs[0]  # the best vs
+        for v in vs:
+            config.params[k] = v
+            _model, _auc, _round, _ = model_fit(config, X_train, y_train)
+            if _auc &gt; best_auc:  # find the better param
+                best_v = v
+                best_auc = _auc
+                best_model = _model
+            message = 'Best_auc={}; {}={}, auc={}, round={}'.format(best_auc, k, v, _auc, _round)
+            logger.info(message)
+            print(message)
+        config.params[k] = best_v  # set the best params
+    search_message = 'Finished Search! Best auc={}. Best params are \n{}'.format(best_auc, config.params)
+    logger.info(search_message)
+    print(search_message)
+    return best_model, config, best_auc
+
+########### 网格搜索 ############
+def my_grid_search(config, search_params, model_fit, X_train, y_train):
+    &quot;&quot;&quot;grid search&quot;&quot;&quot;
+    best_auc = 0.0
+    best_model = None
+    best_params = None
+    grid_params = get_grid_params(search_params)
+    message = 'Begin grid searching. Params group number is {}'.format(len(grid_params))
+    print(message)
+    logger.info(message)
+
+    for i in tqdm(range(len(grid_params))):
+        dict_params = grid_params[i]
+        print(dict_params)
+        logger.info('Searching {}/{}'.format(i+1, len(grid_params)))
+        for k, v in dict_params.items():
+            config.params[k] = v
+        _model, _auc, _round, _ = model_fit(config, X_train, y_train)
+        if _auc &gt;= best_auc:  # find the better param
+            best_params = dict_params.copy()
+            best_auc = _auc
+            best_model = _model
+        message = 'Best_auc={}; auc={}, round={}, params={}'.format(best_auc, _auc, _round, dict_params)
+        logger.info(message)
+        print(message)
+    search_message = 'Finished Search! Best auc={}. Best params are \n{}'.format(best_auc, best_params)
+    logger.info(search_message)
+    print(search_message)
+    return best_model, best_params, best_auc
+
+
+if __name__ == '__main__':
+    ######## 获取特征、训练集和测试集
+    feature_path = 'features/'
+    train_data, test_data = load_feat(re_get=False, feature_path=feature_path)
+    train_feats = train_data.columns
+    test_feats = test_data.columns
+    drop_columns = list(filter(lambda x: x not in test_feats, train_feats))
+    X_train = train_data.drop(drop_columns, axis=1)
+    y_train = train_data['label']
+    X_test = test_data
+    data_message = 'X_train.shape={}, X_test.shape={}'.format(X_train.shape, X_test.shape)
+    print(data_message)
+    print(X_train.shape, X_test.shape)
+    logger.info(data_message)
+
+    ######## 网格调参获取最佳参数并保存模型
+    t1 = time.time()
+    config = Config()
+    search_params = {
+        'learning_rate': [0.01, 0.025, 0.05],
+        'max_depth': [5, 6, 7, 8],
+        'subsample': [0.6, 0.8],
+        'colsample_bytree': [0.5, 0.6, 0.8]
+    }
+    logger.info(search_params)
+    # best_model, config, best_auc = my_search(config, search_params, xgb_fit, X_train, y_train)              # my simple search
+    best_model, best_params, best_auc = my_grid_search(config, search_params, xgb_fit, X_train, y_train)      # my grid search
+    print('Time cost {}s'.format(time.time() - t1))
+
+    ######## 保存最佳模型，落盘之前确定目录是否存在
+    check_path(config.best_model_path)
+    joblib.dump(best_model, config.best_model_path)
+
+    ######## 用最佳模型预测
+    # best_model = joblib.load(config.best_model_path)  # load the trained model
+    now = time.strftime(&quot;%m%d-%H%M%S&quot;)
+    result_path = 'result/result_xgb_search_{}.csv'.format(now)
+    check_path(result_path)
+    xgb_predict(best_model, X_test, result_path)
+
+    ######## feature analyze
+    feature_score_path = 'model/xgb_search_feature_score.csv'
+    check_path(feature_score_path)
+    feature_analyze(best_model, csv_path=feature_score_path)
+</code></pre>
+
+<h1 id="2-lightgbm网格搜索">2 lightgbm网格搜索</h1>
+
+<pre><code class="language-python">'''
+Author: ydzhao
+Description: lightgbm 网格搜索最佳参数/保存最佳参数/使用最佳参数预测结果
+Date: 2020-11-23 10:44:16
+LastEditTime: 2020-11-23 13:35:17
+FilePath: \project\code\DC-hi_guides-master\gridsearch_2_lgb.py
+'''
+from __future__ import print_function
+from __future__ import division
+
+from data_helper import get_action_rate_before_jp
+from data_helper import get_pair_rate_before_jp
+from data_helper import get_triple_rate_before_jp
+from data_helper import get_gender_convert_rate
+from data_helper import get_feat
+from data_helper import load_feat
+
+from my_utils import feature_analyze
+from my_utils import get_grid_params_lgb
+from my_utils import check_path
+
+from m2_lgb import lgb_fit
+from m2_lgb import lgb_predict
+
+import joblib
+import time
+from tqdm import tqdm
+
+########### 配置文件 ############
+class Config(object):
+    &quot;&quot;&quot;lightgbm模型调参&quot;&quot;&quot;
+    def __init__(self):
+        self.params = {
+            'objective': 'binary',
+            'metric': {'auc'},
+            'learning_rate': 0.05,
+            'num_leaves': 30,  # 叶子设置为 50 线下过拟合严重
+            'min_sum_hessian_in_leaf': 0.1,
+            'feature_fraction': 0.3,  # 相当于 colsample_bytree
+            'bagging_fraction': 0.5,  # 相当于 subsample
+            'lambda_l1': 0,
+            'lambda_l2': 5,
+        }
+        self.max_round = 5000
+        self.cv_folds = 5
+        self.early_stop_round =30
+        self.seed = 3
+        self.save_model_path = None
+        self.best_model_path = 'model/best_lgb_model.txt'
+
+########### 日志处理 ############
+import logging.handlers
+LOG_FILE = 'log/lgb_grid_search.log'
+check_path('LOG_FILE')
+# 实例化handler ,RotatingFileHandler 位于 logging.handlers支持循环日志文件
+handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount = 5)
+fmt = '%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s'
+formatter = logging.Formatter(fmt)
+handler.setFormatter(formatter)
+
+logger = logging.getLogger('search')
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
+
+########### 逐个参数搜索 ############
+def my_search(config, search_params, model_fit, X_train, y_train):
+    &quot;&quot;&quot;Simple search. 逐个参数搜索，并不是 grid search， 所以应该注意参数的顺序。&quot;&quot;&quot;
+    best_auc = 0.0
+    best_model = None
+    for k, vs in search_params.items():
+        best_v = vs[0]  # the best vs
+        for v in vs:
+            config.params[k] = v
+            _model, _auc, _round, _ = model_fit(config, X_train, y_train)
+            if _auc &gt; best_auc:  # find the better param
+                best_v = v
+                best_auc = _auc
+                best_model = _model
+            message = 'Best_auc={}; {}={}, auc={}, round={}'.format(best_auc, k, v, _auc, _round)
+            logger.info(message)
+            print(message)
+        config.params[k] = best_v  # set the best params
+    search_message = 'Finished Search! Best auc={}. Best params are \n{}'.format(best_auc, config.params)
+    logger.info(search_message)
+    print(search_message)
+    return best_model, config, best_auc
+
+########### 网格搜索 ############
+def my_grid_search(config, search_params, model_fit, X_train, y_train):
+    &quot;&quot;&quot;grid search.&quot;&quot;&quot;
+    best_auc = 0.0
+    best_model = None
+    best_params = None
+    grid_params = get_grid_params_lgb(search_params)
+    message = 'Begin grid searching. Params group number is {}'.format(len(grid_params))
+    print(message)
+    logger.info(message)
+    for i in tqdm(range(len(grid_params))):
+        dict_params = grid_params[i]
+        logger.info('Searching {}/{}'.format(i+1, len(grid_params)))
+        for k, v in dict_params.items():
+            config.params[k] = v
+        _model, _auc, _round, _ = model_fit(config, X_train, y_train)
+        if _auc &gt;= best_auc:  # find the better param
+            best_params = dict_params.copy()
+            best_auc = _auc
+            best_model = _model
+        message = 'Best_auc={}; auc={}, round={}, params={}'.format(best_auc, _auc, _round, dict_params)
+        logger.info(message)
+        print(message)
+    search_message = 'Finished Search! Best auc={}. Best params are \n{}'.format(best_auc, best_params)
+    logger.info(search_message)
+    print(search_message)
+
+    return best_model, best_params, best_auc
+
+
+if __name__ == '__main__':
+    ######## 获取特征、训练集和测试集
+    feature_path = 'features/'
+    train_data, test_data = load_feat(re_get=False, feature_path=feature_path)
+    train_feats = train_data.columns
+    test_feats = test_data.columns
+    drop_columns = list(filter(lambda x: x not in test_feats, train_feats))
+    X_train = train_data.drop(drop_columns, axis=1).iloc[:, :50]
+    y_train = train_data['label']
+    X_test = test_data.iloc[:, :50]
+    data_message = 'X_train.shape={}, X_test.shape={}'.format(X_train.shape, X_test.shape)
+    print(data_message)
+    logger.info(data_message)
+
+    ######## 网格调参获取最佳参数并保存模型
+    t1 = time.time()
+    config = Config()
+    search_params = {
+        'num_leaves': [20, 30, 40, 50],
+        'learning_rate': [0.025, 0.05, 0.1, 0.15, 0.20]
+    }
+    logger.info(search_params)
+    # best_model, config, best_auc = my_search(config, search_params, lgb_fit, X_train, y_train)  # my simple search
+    best_model, best_params, best_auc = my_grid_search(config, search_params, lgb_fit, X_train, y_train)  # my grid search
+    print('Time cost {}s'.format(time.time() - t1))
+
+    ######## 保存最佳模型，落盘之前确定目录是否存在
+    check_path(config.best_model_path)
+    best_model.save_model(config.best_model_path)
+
+    ######## 用最佳模型预测
+    # best_model = joblib.load(config.best_model_path)  # load the trained model
+    now = time.strftime(&quot;%m%d-%H%M%S&quot;)
+    result_path = 'result/result_lgb_search_{}.csv'.format(now)
+    check_path(result_path)
+    lgb_predict(best_model, X_test, result_path)
+</code></pre>
+
+<h1 id="3-xgboost模型训练-获得特征分数表">3 xgboost模型训练，获得特征分数表</h1>
+
+<pre><code class="language-python">'''
+Author: ydzhao
+Description: xgboost模型训练，获得特征分数表
+Date: 2020-11-23 10:44:16
+LastEditTime: 2020-11-23 13:35:17
+FilePath: \project\code\DC-hi_guides-master\m1_xgb.py
+'''
+
+from __future__ import print_function
+from __future__ import division
+
+from data_helper import get_action_rate_before_jp
+from data_helper import get_pair_rate_before_jp
+from data_helper import get_triple_rate_before_jp
+from data_helper import get_gender_convert_rate
+from data_helper import get_feat
+from data_helper import load_feat
+
+from my_utils import feature_analyze
+from my_utils import check_path
+
+import xgboost as xgb
+import pandas as pd
+import numpy as np
+import joblib
+from sklearn.model_selection import train_test_split
+import time
+
+import logging.handlers
+LOG_FILE = 'log/xgb_train.log'
+check_path(LOG_FILE)
+handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=1)  # 实例化handler
+fmt = '%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s'
+formatter = logging.Formatter(fmt)
+handler.setFormatter(formatter)
+logger = logging.getLogger('train')
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
+
+class Config(object):
+    def __init__(self):
+        self.params = {'learning_rate': 0.05,
+                       'eval_metric': 'auc',
+                       'n_estimators': 5000,
+                       'max_depth': 6,
+                       'min_child_weight': 7,
+                       'gamma': 0,
+                       'subsample': 0.8,
+                       'colsample_bytree': 0.6,
+                       'eta': 0.05,  # 同 learning rate, Shrinkage（缩减），每次迭代完后叶子节点乘以这系数，削弱每棵树的权重
+                       'silent': 1,
+                       'objective': 'binary:logistic',
+                       # 'nthread ': 6,
+                       'scale_pos_weight': 1}
+        self.max_round = 3000
+        self.cv_folds = 10
+        self.early_stop_round = 50
+        self.seed = 3
+        self.save_model_path = 'model/xgb.dat'
+
+
+def xgb_fit(config, X_train, y_train):
+    &quot;&quot;&quot;模型（交叉验证）训练，并返回最优迭代次数和最优的结果。
+    Args:
+        config: xgb 模型参数 {params, max_round, cv_folds, early_stop_round, seed, save_model_path}
+        X_train：array like, shape = n_sample * n_feature
+        y_train:  shape = n_sample * 1
+
+    Returns:
+        best_model: 训练好的最优模型
+        best_auc: float, 在测试集上面的 AUC 值。
+        best_round: int, 最优迭代次数。
+    &quot;&quot;&quot;
+    params = config.params
+    max_round = config.max_round
+    cv_folds = config.cv_folds
+    early_stop_round = config.early_stop_round
+    seed = config.seed
+    save_model_path = config.save_model_path
+    if cv_folds is not None:
+        dtrain = xgb.DMatrix(X_train, label=y_train)
+        cv_result = xgb.cv(params, dtrain, max_round, nfold=cv_folds, seed=seed, verbose_eval=True,
+                           metrics='auc', early_stopping_rounds=early_stop_round, show_stdv=False)
+        # 最优模型，最优迭代次数
+        best_round = cv_result.shape[0]
+        best_auc = cv_result['test-auc-mean'].values[-1]  # 最好的 auc 值
+        best_model = xgb.train(params, dtrain, best_round)
+    else:
+        X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.2, random_state=100)
+        dtrain = xgb.DMatrix(X_train, label=y_train)
+        dvalid = xgb.DMatrix(X_valid, label=y_valid)
+        watchlist = [(dtrain, 'train'), (dvalid, 'valid')]
+        best_model = xgb.train(params, dtrain, max_round, evals=watchlist, early_stopping_rounds=early_stop_round)
+        best_round = best_model.best_iteration
+        best_auc = best_model.best_score
+        cv_result = None
+    if save_model_path:
+        check_path(save_model_path)
+        joblib.dump(best_model, save_model_path)
+    return best_model, best_auc, best_round, cv_result
+
+
+def xgb_predict(model, X_test, save_result_path=None):
+    # print(len(X_test.columns))
+    # print(len(model.feature_names))
+    # print(model.get_score())
+    &quot;&quot;&quot;
+    解决xgboost报错 ： 
+        ValueError: feature_names mismatch
+        即使新数据中，字段的总数和所有字段名称能对应上，但是字段顺序对应不上，也会出现这个问题。
+        xgboost中，如果顺序对应不上，那么加载后预测结果时，默认还是使用以前的顺序，就造成了实际字段不匹配
+    &quot;&quot;&quot;
+    X_test = X_test[model.feature_names]
+    dtest = xgb.DMatrix(X_test)
+    y_pred_prob = model.predict(dtest)
+    print('y_pred_prob length:',len(y_pred_prob))
+    if save_result_path:
+        df_result = X_test
+        df_result['orderType'] = y_pred_prob
+        df_result.to_csv(save_result_path, index=False)
+        print('Save the result to {}'.format(save_result_path))
+    return y_pred_prob
+
+
+def run_cv(X_train, X_test, y_train):
+    config = Config()
+
+    # train model
+    # t1 = time.time()
+    # data_message = 'X_train.shape={}, X_test.shape={}'.format(X_train.shape, X_test.shape)
+    # print(data_message)
+    # logger.info(data_message)
+    #
+    # xgb_model, best_auc, best_round, cv_result = xgb_fit(config = config, X_train = X_train, y_train = y_train)
+    # check_path(config.save_model_path)
+    # joblib.dump(xgb_model, config.save_model_path)
+    #
+    # t2 = time.time()
+    # print('Time cost {}s'.format(t2 - t1))
+    #
+    # result_message = 'best_round={}, best_auc={}'.format(best_round, best_auc)
+    # logger.info(result_message)
+    # print(result_message)
+
+    # predict
+    now = time.strftime(&quot;%m%d-%H%M%S&quot;)
+    # result_path = 'result/result_xgb_{}-{:.4f}.csv'.format(now, best_auc)
+    result_path = 'result/result_xgb_{}-{:.4f}.csv'.format(now, 0.9705906000000001)  # 懒得训练了
+    check_path(result_path)
+    xgb_model = joblib.load(config.save_model_path)
+    xgb_predict(model = xgb_model, X_test = X_test, save_result_path = result_path)
+
+    # feature analyze
+    feature_score_path = 'features/xgb_feature_score.csv'
+    check_path(feature_score_path)
+    feature_analyze(model = xgb_model, to_print = False, to_plot = False, csv_path = feature_score_path)
+
+if __name__ == '__main__':
+    &quot;&quot;&quot;执行顺序。
+    1.首先执行 run_cv() , 会得到一份 feature_score.
+    2.执行 get_no_used_features.py 生成特征排序表。
+    &quot;&quot;&quot;
+    # get feature
+    feature_path = 'features/'
+    train_data, test_data = load_feat(re_get=False, feature_path=feature_path)
+    train_feats = train_data.columns.values
+    test_feats = test_data.columns.values
+    drop_columns = list(filter(lambda x: x not in test_feats, train_feats))
+    X_train = train_data.drop(drop_columns, axis=1)
+    y_train = train_data['label']
+    X_test = test_data
+    data_message = 'X_train.shape={}, X_test.shape={}'.format(X_train.shape, X_test.shape)
+    print(data_message)
+    logger.info(data_message)
+
+    # 直接训练
+    run_cv(X_train, X_test, y_train)
+</code></pre>
+
+<h1 id="4-lightgbm模型训练-获得特征分数表">4 lightgbm模型训练，获得特征分数表</h1>
+
+<pre><code class="language-python">'''
+Author: ydzhao
+Description: lightgbm模型训练，获得特征分数表
+Date: 2020-11-23 10:44:16
+LastEditTime: 2020-11-23 13:35:17
+FilePath: \project\code\DC-hi_guides-master\m2_lgb.py
+'''
+
+from __future__ import print_function
+from __future__ import division
+
+from data_helper import get_action_rate_before_jp
+from data_helper import get_pair_rate_before_jp
+from data_helper import get_triple_rate_before_jp
+from data_helper import get_gender_convert_rate
+from data_helper import get_feat
+from data_helper import load_feat
+
+from my_utils import feature_analyze
+from my_utils import check_path
+
+import lightgbm as lgb
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+import time
+import joblib
+from tqdm import tqdm
+
+import logging.handlers
+LOG_FILE = 'log/lgb_train.log'
+check_path(LOG_FILE)
+handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=1)  # 实例化handler
+fmt = '%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s'
+formatter = logging.Formatter(fmt)
+handler.setFormatter(formatter)
+logger = logging.getLogger('train')
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
+
+class Config(object):
+    def __init__(self):
+        self.params = {
+            'objective': 'binary',
+            'metric': {'auc'},
+            'learning_rate': 0.05,
+            'num_leaves': 30,  # 叶子设置为 50 线下过拟合严重
+            'min_sum_hessian_in_leaf': 0.1,
+            'feature_fraction': 0.3,  # 相当于 colsample_bytree
+            'bagging_fraction': 0.5,  # 相当于 subsample
+            'lambda_l1': 0,
+            'lambda_l2': 5,
+            'num_thread': 6  # 线程数设置为真实的 CPU 数，一般12线程的机器有6个物理核
+        }
+        self.max_round = 3000
+        self.cv_folds = 5
+        self.early_stop_round = 30
+        self.seed = 3
+        self.save_model_path = 'model/lgb.dat'
+
+
+def lgb_fit(config, X_train, y_train):
+    &quot;&quot;&quot;模型（交叉验证）训练，并返回最优迭代次数和最优的结果。
+    Args:
+        config: xgb 模型参数 {params, max_round, cv_folds, early_stop_round, seed, save_model_path}
+        X_train：array like, shape = n_sample * n_feature
+        y_train:  shape = n_sample * 1
+
+    Returns:
+        best_model: 训练好的最优模型
+        best_auc: float, 在测试集上面的 AUC 值。
+        best_round: int, 最优迭代次数。
+    &quot;&quot;&quot;
+    params = config.params
+    max_round = config.max_round
+    cv_folds = config.cv_folds
+    early_stop_round = config.early_stop_round
+    seed = config.seed
+    # seed = np.random.randint(0, 10000)
+    save_model_path = config.save_model_path
+
+    # 是否交叉验证训练
+    if cv_folds is not None:
+        dtrain = lgb.Dataset(X_train, label=y_train)
+        cv_result = lgb.cv(
+            params,
+            dtrain,
+            max_round,
+            nfold=cv_folds,
+            seed=seed,
+            verbose_eval=True,
+            metrics='auc',
+            early_stopping_rounds=early_stop_round,
+            show_stdv=False
+        )
+        # 最优模型，最优迭代次数
+        best_round = len(cv_result['auc-mean'])
+        best_auc = cv_result['auc-mean'][-1]  # 最好的 auc 值
+        best_model = lgb.train(params, dtrain, best_round)
+    else:
+        X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.2, random_state=100)
+        dtrain = lgb.Dataset(X_train, label=y_train)
+        dvalid = lgb.Dataset(X_valid, label=y_valid)
+        watchlist = [dtrain, dvalid]
+        best_model = lgb.train(
+            params,
+            dtrain,
+            max_round,
+            valid_sets=watchlist,
+            early_stopping_rounds=early_stop_round
+        )
+        best_round = best_model.best_iteration
+        best_auc = best_model.best_score
+        cv_result = None
+    if save_model_path:
+        check_path(save_model_path)
+        best_model.save_model(save_model_path)
+        #joblib.dump(best_model, save_model_path)
+    return best_model, best_auc, best_round, cv_result
+
+
+def lgb_predict(model, X_test, save_result_path=None):
+    y_pred_prob = model.predict(X_test)
+    if save_result_path:
+        df_result = X_test
+        df_result['orderType'] = y_pred_prob
+        df_result.to_csv(save_result_path, index=False)
+        print('Save the result to {}'.format(save_result_path))
+    return y_pred_prob
+
+
+def run_feat_search(X_train, X_test, y_train, feature_names):
+    &quot;&quot;&quot;根据特征重要度，逐个删除特征进行训练，获取最好的特征结果。
+    同时，将每次迭代的结果求平均作为预测结果&quot;&quot;&quot;
+
+    config = Config()
+
+    # train model
+    t1 = time.time()
+    y_pred_list = list()
+    aucs = list()
+    for i in tqdm(range(1, 250, 3)):
+        drop_cols = feature_names[-i:]
+        X_train_ = X_train.drop(drop_cols, axis=1)
+        X_test_ = X_test.drop(drop_cols, axis=1)
+        data_message = 'X_train.shape={}, X_test.shape={}'.format(X_train_.shape, X_test_.shape)
+        print(data_message)
+        logger.info(data_message)
+
+        lgb_model, best_auc, best_round, cv_result = lgb_fit(config, X_train_, y_train)
+
+        t2 = time.time()
+        print('Time cost {}s'.format(t2 - t1))
+
+        result_message = 'best_round={}, best_auc={}'.format(best_round, best_auc)
+        logger.info(result_message)
+        print(result_message)
+
+        # predict
+        # lgb_model = lgb.Booster(model_file=config.save_model_path)
+        now = time.strftime(&quot;%m%d-%H%M%S&quot;)
+        result_path = 'result/result_lgb_{}-{:.4f}.csv'.format(now, best_auc)
+        check_path(result_path)
+
+        y_pred = lgb_predict(lgb_model, X_test_, result_path)
+        y_pred_list.append(y_pred)
+        aucs.append(best_auc)
+
+        y_preds_path = 'stack_preds/lgb_feat_search_pred_{}.npz'.format(i)
+        check_path(y_preds_path)
+        np.savez(y_preds_path, y_pred_list=y_pred_list, aucs=aucs)
+        message = 'Saved y_preds to {}. Best auc is {}'.format(y_preds_path, np.max(aucs))
+        logger.info(message)
+        print(message)
+
+
+def run_cv(X_train, X_test, y_train):
+    config = Config()
+
+    # train model
+    t1 = time.time()
+    data_message = 'X_train.shape={}, X_test.shape={}'.format(X_train.shape, X_test.shape)
+    print(data_message)
+    logger.info(data_message)
+    lgb_model, best_auc, best_round, cv_result = lgb_fit(config, X_train, y_train)
+    t2 = time.time()
+    print('Time cost {}s'.format(t2 - t1))
+
+    result_message = 'best_round={}, best_auc={}'.format(best_round, best_auc)
+    logger.info(result_message)
+    print(result_message)
+
+    # predict
+    # lgb_model = lgb.Booster(model_file=config.save_model_path)
+    now = time.strftime(&quot;%m%d-%H%M%S&quot;)
+    result_path = 'result/result_lgb_{}-{:.4f}.csv'.format(now, best_auc)
+    check_path(result_path)
+    lgb_predict(lgb_model, X_test, result_path)
+
+
+if __name__ == '__main__':
+    &quot;&quot;&quot;执行顺序。
+    1.首先执行 run_cv() , 会得到一份 feature_score.
+    2.执行 get_no_used_features.py 生成特征排序表。
+    3.执行 run_feat_search 进行特征搜索，并将预测的结果进行保存。
+    &quot;&quot;&quot;
+    # get feature
+    feature_path = 'features/'
+    train_data, test_data = load_feat(re_get=False, feature_path=feature_path)  # re_get=False 在xgboost部分已经预处理过了数据
+    train_feats = train_data.columns.values
+    test_feats = test_data.columns.values
+    drop_columns = list(filter(lambda x: x not in test_feats, train_feats))
+    X_train = train_data.drop(drop_columns, axis=1)
+    y_train = train_data['label']
+    X_test = test_data
+    data_message = 'X_train.shape={}, X_test.shape={}'.format(X_train.shape, X_test.shape)
+    print(data_message)
+    logger.info(data_message)
+
+    # 根据特征搜索中最好的结果丢弃部分特征
+    # n_drop_col = 141
+    # drop_cols = feature_names[-n_drop_col:]
+    # X_train = X_train.drop(drop_cols, axis=1)
+    # X_test = X_test.drop(drop_cols, axis=1)
+
+    # 直接训练
+    # run_cv(X_train, X_test, y_train)
+
+    # 特征搜索
+    # get feature scores
+    try:
+        df_lgb_feat_score = pd.read_csv('features/lgb_features.csv')
+        feature_names = df_lgb_feat_score.feature.values
+    except Exception as e:
+        print('You should run the get_no_used_features.py first.')
+    run_feat_search(X_train, X_test, y_train, feature_names)
+</code></pre>
+
+<h1 id="5-catboost模型训练-获得特征分数表">5 catboost模型训练，获得特征分数表</h1>
+
+<pre><code class="language-python">'''
+Author: ydzhao
+Description: catboost 模型训练，获得特征分数表
+Date: 2020-11-23 10:44:16
+LastEditTime: 2020-11-23 13:35:17
+FilePath: \project\code\DC-hi_guides-master\m2_cgb.py
+'''
+
+from __future__ import print_function
+from __future__ import division
+
+from data_helper import get_action_rate_before_jp
+from data_helper import get_pair_rate_before_jp
+from data_helper import get_triple_rate_before_jp
+from data_helper import get_gender_convert_rate
+from data_helper import get_feat
+from data_helper import load_feat
+
+from my_utils import feature_analyze
+from my_utils import check_path
+
+import catboost as cgb
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+import time
+import pickle
+
+
+import logging.handlers
+LOG_FILE = 'log/cgb_train.log'
+check_path(LOG_FILE)
+handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=1)  # 实例化handler
+fmt = '%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s'
+formatter = logging.Formatter(fmt)
+handler.setFormatter(formatter)
+logger = logging.getLogger('train')
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
+
+
+class Config(object):
+    def __init__(self):
+        self.params = {
+            'learning_rate': 0.05,
+            'eval_metric': 'AUC',
+            'depth': 8,
+            'logging_level': 'Info',
+            'loss_function': 'Logloss',
+            'train_dir': 'model/cgb_record/',
+            'thread_count': 6
+        }
+        check_path(self.params['train_dir'])
+        self.max_round = 1000
+        self.cv_folds = 5
+        self.seed = 3
+        self.save_model_path = 'model/cgb.model'
+
+
+def cgb_fit(config, X_train, y_train):
+    &quot;&quot;&quot;模型（交叉验证）训练，并返回最优迭代次数和最优的结果。
+    Args:
+        config: xgb 模型参数 {params, max_round, cv_folds, early_stop_round, seed, save_model_path}
+        X_train：array like, shape = n_sample * n_feature
+        y_train:  shape = n_sample * 1
+
+    Returns:
+        best_model: 训练好的最优模型
+        best_auc: float, 在测试集上面的 AUC 值。
+        best_round: int, 最优迭代次数。
+    &quot;&quot;&quot;
+    params = config.params
+    max_round = config.max_round
+    cv_folds = config.cv_folds
+    seed = config.seed
+    save_model_path = config.save_model_path
+    if cv_folds is not None:
+        dtrain = cgb.Pool(X_train, label=y_train)
+        cv_result = cgb.cv(dtrain, params, num_boost_round=max_round, nfold=cv_folds, seed=seed, logging_level='Verbose')
+        print(type(cv_result))
+        print(cv_result.columns)
+        # 最优模型，最优迭代次数
+        auc_test_avg = cv_result['test-AUC-mean']
+        best_round = np.argmax(auc_test_avg)
+        best_auc = np.max(auc_test_avg)  # 最好的 auc 值
+        best_model = cgb.train(dtrain, params, num_boost_round=best_round)
+    else:
+        X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.2, random_state=100)
+        dtrain = cgb.Pool(X_train, label=y_train)
+        dvalid = cgb.Pool(X_valid, label=y_valid)
+        best_model = cgb.train(params, dtrain, num_boost_round=max_round, eval_set=dvalid)
+        best_round = best_model.best_iteration
+        best_auc = best_model.best_score
+        cv_result = None
+    if save_model_path:
+        check_path(save_model_path)
+        # 把训练好的模型存储起来，这样在进行决策时直接将模型读出，而不需要重新训练模型，这样就大大节约了时间。
+        # Python提供的pickle模块就很好地解决了这个问题，它可以序列化对象并保存到磁盘中，并在需要的时候读取出来，任何对象都可以执行序列化操作。   dump:写入  open:读写
+        pickle.dump(best_model, open(save_model_path, 'wb'))
+    return best_model, best_auc, best_round, cv_result
+
+
+def cgb_predict(model, X_test, save_result_path=None):
+    y_pred_prob = model.predict(X_test, prediction_type='Probability')
+    y_pred_prob = y_pred_prob[:, 1]  # get the probability of class 1
+    if save_result_path:
+        df_result = X_test
+        df_result['orderType'] = y_pred_prob
+        df_result.to_csv(save_result_path, index=False)
+        print('Save the result to {}'.format(save_result_path))
+    return y_pred_prob
+
+
+if __name__ == '__main__':
+    # get feature
+    feature_path = 'features/'
+    train_data, test_data = load_feat(re_get=False, feature_path=feature_path)
+    train_feats = train_data.columns.values
+    test_feats = test_data.columns.values
+
+    drop_columns = list(filter(lambda x: x not in test_feats, train_feats))
+    X_train = train_data.drop(drop_columns, axis=1)
+    y_train = train_data['label']
+    X_test = test_data
+
+    data_message = 'X_train.shape={}, X_test.shape={}'.format(X_train.shape, X_test.shape)
+    print(data_message)
+    logger.info(data_message)
+
+    config = Config()
+
+    # train model
+    # t1 = time.time()
+    # cgb_model, best_auc, best_round, cv_result = cgb_fit(config, X_train, y_train)
+    # t2 = time.time()
+    # print('Time cost {}s'.format(t2 - t1))
+    # result_message = 'best_round={}, best_auc={}'.format(best_round, best_auc)
+    # logger.info(result_message)
+    # print(result_message)
+
+    # predict
+    cgb_model = pickle.load(open(config.save_model_path, 'rb'))
+    now = time.strftime(&quot;%m%d-%H%M%S&quot;)
+    result_path = 'result/result_cgb_{}.csv'.format(now)
+    check_path(result_path)
+    cgb_predict(cgb_model, X_test, result_path)
+</code></pre>
+
+<h1 id="6-stacking模型融合">6 stacking模型融合</h1>
+
+<pre><code class="language-python">'''
+Author: ydzhao
+Description: stacking模型融合
+Date: 2020-11-23 10:44:16
+LastEditTime: 2020-11-23 13:35:17
+FilePath: \project\code\DC-hi_guides-master\stacking.py
+'''
+
+from __future__ import print_function
+from __future__ import division
+
+from m1_xgb import xgb_fit
+from m1_xgb import xgb_predict
+from m1_xgb import Config as XGB_Config
+
+from m2_lgb import lgb_fit
+from m2_lgb import lgb_predict
+from m2_lgb import Config as LGB_Config
+
+from m3_cgb import cgb_fit
+from m3_cgb import cgb_predict
+from m3_cgb import Config as CGB_Config
+
+from data_helper import get_action_rate_before_jp
+from data_helper import get_pair_rate_before_jp
+from data_helper import get_triple_rate_before_jp
+from data_helper import get_gender_convert_rate
+from data_helper import get_feat
+from data_helper import load_feat
+
+from my_utils import feature_analyze
+from my_utils import check_path
+
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import KFold
+from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import LogisticRegression
+
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+from catboost import CatBoostClassifier
+
+from sklearn.svm import SVR
+import logging.handlers
+import time
+
+&quot;&quot;&quot;Model stacking.
+my_stacking: 每个单模型需要具备两个函数：
+- 1.model_fit, 返回 best model;
+- 2.返回的 best_model 具有 predict 预测类别概率。
+- sklearn_stacking: 所有 base_model 都是 sklearn 中的模型，这样具有统一的 fit, perdict 接口。
+&quot;&quot;&quot;
+
+LOG_FILE = 'log/stacking.log'
+check_path(LOG_FILE)
+handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=1)  # 实例化handler
+fmt = '%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s'
+formatter = logging.Formatter(fmt)
+handler.setFormatter(formatter)
+logger = logging.getLogger('stack')
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
+
+SEED = 3
+
+
+def load_features(feature_path='features_lin/'):
+    &quot;&quot;&quot;加载训练集和测试集&quot;&quot;&quot;
+    train_data, test_data = load_feat(re_get=False, feature_path=feature_path)
+    train_feats = train_data.columns.values
+    test_feats = test_data.columns.values
+
+    drop_columns = list(filter(lambda x: x not in test_feats, train_feats))
+    X_train = train_data.drop(drop_columns, axis=1)
+    y_train = train_data['label']
+    X_test = test_data
+
+    data_message = 'X_train.shape={}, X_test.shape={}'.format(X_train.shape, X_test.shape)
+    print(data_message)
+    logger.info(data_message)
+
+    return X_train, y_train, X_test
+
+
+def my_stacking(fit_funcs, predict_funcs, configs, X_train, y_train, X_test, n_fold=5):
+    &quot;&quot;&quot;Stacking 自定义组合：xgb, lgb, cgb.
+    每个模型包含：fit和predict函数
+    Args:
+        fit_funcs: return the best model
+        predict_funcs: return the probability of the positive class
+        configs: the config for each model.
+
+        X_train: shape=[n_sample_train, n_feats], feature for training data
+        y_train: shape=[n_sample_train, 1], labels for training data.
+        X_test: shape=[n_sample_test, n_feats]feature for testing data.
+
+        n_fold: n_fold for cv.
+
+        save_path: the path to save stack features.
+    Returns:
+        X_train_stack: shape=[n_sample_train, n_model]
+        y_train_stack: shape=[n_sample_test, 1]
+        X_test_stack: shape=[n_sample_test, n_model]
+    &quot;&quot;&quot;
+
+    if type(X_train) == pd.DataFrame:
+        X_train = X_train.values
+    if type(X_test) == pd.DataFrame:
+        X_test = X_test.values
+    if (type(y_train) == pd.DataFrame) | (type(y_train) == pd.Series):
+        y_train = y_train.values
+    n_train = len(X_train)
+    n_test = len(X_test)
+
+    n_model = len(fit_funcs)
+
+    # shuffle数据集
+    new_idx = np.random.permutation(n_train)
+    y_train = y_train[new_idx]
+    X_train = X_train[new_idx]
+    print('X_train.shape={}, X_test.shape={}'.format(X_train.shape, X_test.shape))
+
+    kf = KFold(n_splits=n_fold, shuffle=False)
+    X_train_stack = None
+    X_test_stack = None
+
+    t1 = time.time()
+    for k in range(n_model):
+        message = 'Training model {}/{}, pass {}s.'.format(k + 1, n_model, time.time() - t1)
+        print(message)
+        logger.info(message)
+
+        fit_func = fit_funcs[k]
+        predict_func = predict_funcs[k]
+        config = configs[k]
+
+        oof_train = np.zeros((n_train,))
+        oof_test_skf = np.zeros((n_test, n_fold))
+
+        for i, (train_idx, test_idx) in enumerate(kf.split(X_train)):
+            X_tr = X_train[train_idx]
+            y_tr = y_train[train_idx]
+            X_te = X_train[test_idx]
+            best_model, best_auc, _, _ = fit_func(config, X_tr, y_tr)
+            message = 'Fished fold {}/{}, auc={}'.format(i + 1, n_fold, best_auc)
+            logger.info(message)
+
+            y_pred_prob = predict_func(best_model, X_te)
+            oof_train[test_idx] = y_pred_prob
+            oof_test_skf[:, i] = predict_func(best_model, X_test)
+        oof_train = oof_train.reshape(-1, 1)
+        oof_test = np.mean(oof_test_skf, axis=1).reshape(-1, 1)
+        if X_train_stack is None:  # the first model
+            X_train_stack = oof_train
+            X_test_stack = oof_test
+        else:
+            X_train_stack = np.hstack((X_train_stack, oof_train))
+            X_test_stack = np.hstack((X_test_stack, oof_test))
+
+        stack_feats_path = 'features/stack_feats/round_{}.npz'.format(k + 1)  # 训练过程中进行保存
+        check_path(stack_feats_path)
+        np.savez(stack_feats_path, X_train=X_train_stack, y_train=y_train, X_test=X_test_stack)
+
+    message = 'X_train_stack.shape={}, X_test_stack.shape={}'.format(X_train_stack.shape, X_test_stack.shape)
+    print(message)
+    logger.info(message)
+
+    save_path = 'features/stack_feat_{}.npz'.format(time.strftime(&quot;%m%d-%H%M%S&quot;))
+    check_path(save_path)
+
+    np.savez(save_path, X_train=X_train_stack, y_train=y_train, X_test=X_test_stack)
+    message = 'Finished stacking, saved the features to {}'.format(save_path)
+    logger.info(message)
+    print(message)
+
+    return X_train_stack, y_train, X_test_stack
+
+
+def final_fit_predict(X_train, y_train, X_test, save_result_path=None):
+    &quot;&quot;&quot;最后使用stacking特征.
+    这层使用简单的LR模型
+    &quot;&quot;&quot;
+    param_grids = {
+        &quot;C&quot;: list(np.linspace(0.0001, 10, 100))
+    }
+    print('Begin final fit with params:{}'.format(param_grids))
+
+    grid = GridSearchCV(
+        LogisticRegression(penalty='l2', max_iter=200),
+        param_grid=param_grids,
+        cv=5,
+        scoring=&quot;roc_auc&quot;
+    )
+    grid.fit(X_train, y_train)
+
+    try:
+        message = 'Final fit: param_grids is: {};\n best_param is {};\n best cv_score is {};\n best_estimator is {}'.format(param_grids, grid.best_params_, grid.best_score_, grid.best_estimator_)
+        logger.info(message)
+        print(message)
+    except Exception as e:
+        print(e.message)
+
+    y_pred_prob = grid.predict_proba(X_test)[:, 1]
+    if save_result_path is not None:
+        df_result = X_test
+        df_result['orderType'] = y_pred_prob
+        df_result.to_csv(save_result_path, index=False)
+        print('Save the result to {}'.format(save_result_path))
+    return y_pred_prob
+
+
+def run_my_stack():
+    &quot;&quot;&quot;My stacking function test.&quot;&quot;&quot;
+
+    X_train, y_train, X_test = load_features()
+
+    # 初始化stacking 的 config/fit/predict函数
+    configs = list()
+    fit_funcs = list()
+    predict_funcs = list()
+    MAX_ROUND = 3
+
+    # lgb
+    num_leaves = [31, 41, 51, 61, 71, 81, 91]
+    feature_fractions = [0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3]
+    for i in range(len(num_leaves)):
+        lgb_config = LGB_Config()
+        lgb_config.params['num_leaves'] = num_leaves[i]
+        lgb_config.params['feature_fraction'] = feature_fractions[i]
+        lgb_config.seed = np.random.randint(0, 10000)
+        lgb_config.save_model_path = None
+        # lgb_config.max_round = MAX_ROUND
+
+        configs.append(lgb_config)          # 加载lgb模型的配置项
+        fit_funcs.append(lgb_fit)           # 加载lgb模型训练函数 为 stacking
+        predict_funcs.append(lgb_predict)   # 加载lgb模型预测函数 为 stacking
+
+    # xgb
+    # max_depths = [6, 7]
+    # colsample_bytrees = [0.7, 0.6]
+    # for i in range(len(max_depths)):
+    #     xgb_config = XGB_Config()
+    #     xgb_config.params['max_depth'] = max_depths[i]
+    #     xgb_config.params['colsample_bytree'] = colsample_bytrees[i]
+    #     xgb_config.seed = np.random.randint(0, 10000)
+    #     xgb_config.save_model_path = None
+    #     # xgb_config.max_round = MAX_ROUND
+    #
+    #     configs.append(xgb_config)          # 加载xgb模型的配置项
+    #     fit_funcs.append(xgb_fit)           # 加载xgb模型训练函数 为 stacking
+    #     predict_funcs.append(xgb_predict)   # 加载xgb模型预测函数 为 stacking
+
+    # cgb
+    max_depths = [8]
+    for i in range(len(max_depths)):
+        cgb_config = CGB_Config()
+        cgb_config.params['depth'] = max_depths[i]
+        cgb_config.seed = np.random.randint(0, 10000)
+        cgb_config.save_model_path = None
+        # cgb_config.max_round = MAX_ROUND
+
+        configs.append(cgb_config)          # 加载cgb模型的配置项
+        fit_funcs.append(cgb_fit)           # 加载cgb模型训练函数 为 stacking
+        predict_funcs.append(cgb_predict)   # 加载cgb模型训练函数 为 stacking
+
+    X_train_stack, y_train_stack, X_test_stack = my_stacking(
+        fit_funcs,
+        predict_funcs,
+        configs,
+        X_train,
+        y_train,
+        X_test
+    )
+    result_path = 'result/my_stack_result-{}.csv'.format(time.strftime(&quot;%m%d-%H%M%S&quot;))
+    y_pred_prob = final_fit_predict(X_train_stack, y_train_stack, X_test_stack, save_result_path=result_path)
+    return y_pred_prob
+
+
+def sklearn_stacking(base_models, X_train, y_train, X_test, n_fold=5, save_path='features/sklearn_stack_feat.npz'):
+    &quot;&quot;&quot;Stacking for sklearn models.&quot;&quot;&quot;
+    pass
+    if type(X_train) == pd.DataFrame:
+        X_train = X_train.values
+    if type(X_test) == pd.DataFrame:
+        X_test = X_test.values
+    if (type(y_train) == pd.DataFrame) | (type(y_train) == pd.Series):
+        y_train = y_train.values
+    n_train = len(X_train)
+    n_test = len(X_test)
+    n_model = len(base_models)
+
+    # shuffle训练数据
+    new_idx = np.random.permutation(n_train)
+    X_train = X_train[new_idx]
+    y_train = y_train[new_idx]
+    print('X_train.shape={}, X_test.shape={}'.format(X_train.shape, X_test.shape))
+
+    kf = KFold(n_splits=n_fold, shuffle=False)
+
+    X_train_stack = None
+    X_test_stack = None
+    t1 = time.time()
+    for k in range(n_model):
+        message = 'Training model {}/{}, pass {}s.'.format(k + 1, n_model, time.time() - t1)
+        print(message)
+        logger.info(message)
+
+        oof_train = np.zeros((n_train,))
+        oof_test_skf = np.zeros((n_test, n_fold))
+        model = base_models[k]
+
+        for i, (train_idx, test_idx) in enumerate(kf.split(X_train)):
+            X_tr = X_train[train_idx]
+            y_tr = y_train[train_idx]
+            y_tr = y_tr.reshape(-1,1)
+            X_te = X_train[test_idx]
+
+            print(X_tr.shape)
+            print(y_tr.shape)
+            print(X_te.shape)
+
+            model.fit(X_tr, y_tr)
+
+            message = 'Fished fold {}/{}, pass {}s'.format(i + 1, n_fold, time.time() - t1)
+            print(message)
+            logger.info(message)
+
+            y_pred_prob = model.predict_proba(X_te)[:, 1]
+            oof_train[test_idx] = y_pred_prob
+            oof_test_skf[:, i] = model.predict_proba(X_test)[:, 1]
+
+        oof_train = oof_train.reshape(-1, 1)
+        oof_test = np.mean(oof_test_skf, axis=1).reshape(-1, 1)
+        if X_train_stack is None:  # the first model
+            X_train_stack = oof_train
+            X_test_stack = oof_test
+        else:
+            X_train_stack = np.hstack((X_train_stack, oof_train))
+            X_test_stack = np.hstack((X_test_stack, oof_test))
+        stack_feats_path = 'features/stack_feats/round_{}.npz'.format(k + 1)  # 训练过程中进行保存
+        check_path(stack_feats_path)
+        np.savez(stack_feats_path, X_train=X_train_stack, y_train=y_train, X_test=X_test_stack)
+
+    message = 'X_train_stack.shape={}, X_test_stack.shape={}'.format(X_train_stack.shape, X_test_stack.shape)
+    print(message)
+    logger.info(message)
+
+    if save_path:
+        check_path(save_path)
+        np.savez(save_path, X_train=X_train_stack, y_train=y_train, X_test=X_test_stack)
+        message = 'Finished stacking, saved the features to {}'.format(save_path)
+        logger.info(message)
+        print(message)
+    return X_train_stack, y_train, X_test_stack
+
+
+def run_sklearn_stack():
+    &quot;&quot;&quot;Stacking with sklearn model test.&quot;&quot;&quot;
+    X_train, y_train, X_test = load_features()
+
+    base_models = [
+        XGBClassifier(learning_rate=0.05,
+                      eval_metric='auc',
+                      # n_estimators=712,  # 750
+                      n_estimators=7,  # 750
+                      max_depth=5,
+                      min_child_weight=7,
+                      gamma=0,
+                      subsample=0.8,
+                      colsample_bytree=0.6,
+                      eta=0.05,
+                      silent=1,
+                      seed=3,
+                      objective='binary:logistic',
+                      scale_pos_weight=1),
+        LGBMClassifier(num_leaves=31,
+                       learning_rate=0.05,
+                       # n_estimators=543,  # 443
+                       n_estimators=5,  # 443
+                       objective='binary',
+                       metric={'auc'},
+                       seed=3,
+                       colsample_bytree=0.8,
+                       min_child_weight=7,
+                       subsample=0.8,
+                       silent=1),
+        CatBoostClassifier(iterations=5,
+                           learning_rate=0.05,
+                           eval_metric='AUC',
+                           depth=8
+                           ),
+    ]
+
+    X_train_stack, y_train_stack, X_test_stack = sklearn_stacking(base_models, X_train, y_train, X_test, n_fold=5)
+
+    result_path = 'result/sklearn_stack_result-{}.csv'.format(time.strftime(&quot;%m%d-%H%M%S&quot;))
+    check_path(result_path)
+    y_pred_prob = final_fit_predict(X_train_stack, y_train_stack, X_test_stack, save_result_path=result_path)
+
+    return y_pred_prob
+
+
+if __name__ == '__main__':
+    run_my_stack()
+    # run_sklearn_stack()
+</code></pre>
+
+<h1 id="7-ml模型超参数调节-网格搜索-随机搜索与贝叶斯优化">7 ML模型超参数调节：网格搜索、随机搜索与贝叶斯优化</h1>
+
+<p>在进行机器学习的过程中，最为核心的一个概念就是参数，而参数又分为模型参数与超参数。
+* 模型参数，顾名思义就是我们使用的模型根据训练数据学习到的参数，这一部分不需要我们人为的先验经验。
+* 超参数是在开始学习过程之前设置值的参数，而不是通过训练得到的参数数据。
+通常情况下，需要对超参数进行优化，给模型选择一组最优超参数，以提高学习的性能和效果。
+通常情况下，常用的超参数调参的方法有：<strong>网格搜索，随机搜索与贝叶斯优化</strong></p>
+
+<h2 id="1-网格搜索">（1）网格搜索</h2>
+
+<p>网格搜索是应用最广泛的超参数搜索算法，网格搜索通过查找搜索范围内的所有的点，来确定最优值。
+一般通过给出较大的搜索范围以及较小的步长，网格搜索是一定可以找到全局最大值或最小值的。
+但是，网格搜索一个比较大的问题是，它十分消耗计算资源，特别是需要调优的超参数比较多的时候。
+在比赛中，需要调参的模型数量与对应的超参数比较多，而涉及的数据量又比较大，因此相当的耗费时间。
+此外，由于给出的超参数组合比较多，因此一般都会固定多数参数，分步对1~2个超参数进行调解，这样能够减少时间但是缺难以自动化进行，而且由于目标参数一般是非凸的，因此容易陷入局部最小值。
+根据我们设定的超参数分布范围来看，对所有的参数组合进行一一尝试是不现实的，这可能会消耗数天甚至数星期的时间，尤其是在大样本训练集上。</p>
+
+<h2 id="2-随机搜索">（2）随机搜索</h2>
+
+<p>与网格搜索相比，随机搜索并未尝试所有参数值，而是从指定的分布中采样固定数量的参数设置。
+它的理论依据是，如果随机样本点集足够大，那么也可以找到全局的最大或最小值，或它们的近似值。通过对搜索范围的随机取样，随机搜索一般会比网格搜索要快一些。但是和网格搜索的快速版（非自动版）相似，结果也是没法保证的。
+随机搜索的过程如下，使用方法与网格搜索完全一致</p>
+
+<h2 id="3-贝叶斯优化">（3）贝叶斯优化</h2>
+
+<p>贝叶斯优化用于机器学习调参由J. Snoek(2012)提出，主要思想是，给定优化的目标函数(广义的函数，只需指定输入和输出即可，无需知道内部结构以及数学性质)，
+通过不断地添加样本点来更新目标函数的后验分布(高斯过程,直到后验分布基本贴合于真实分布。</p>
+
+<p>简单的说，就是考虑了上一次参数的信息，从而更好的调整当前的参数。</p>
+
+<p>贝叶斯优化与常规的网格搜索或者随机搜索的区别是：</p>
+
+<ul>
+<li>1.贝叶斯调参采用高斯过程，考虑之前的参数信息，不断地更新先验；网格搜索未考虑之前的参数信息。</li>
+<li>2.贝叶斯调参迭代次数少，速度快；网格搜索速度慢,参数多时易导致维度爆炸。</li>
+<li>3.贝叶斯调参针对非凸问题依然稳健；网格搜索针对非凸问题易得到局部优最。</li>
+</ul>
+
+<p>贝叶斯优化调参的具体原理可以参考:拟合目标函数后验分布的调参利器：贝叶斯优化</p>
+
+<p>我们使用BayesOpt包来进行贝叶斯优化调参，安装命令如下所示：</p>
+
+<pre><code class="language-shell">pip install bayesian-optimization
+</code></pre>
+
+<p>BayesOpt包主要使用BayesianOptimization函数来创建一个优化对象，该函数接受一个模型评估函数function，
+这个function的输入应该是xgboost(或者其他ML模型)的超参数，输出是模型在测试集上的效果(可以是Accuracy，也可以是RMSE，取决于具体的任务，一般返回K-Fold的均值)。
+基于5-Fold的LightGBM贝叶斯优化的</p>
+
+<pre><code class="language-python"># -*- coding: utf-8 -*-#
+
+# -------------------------------------------------------------------------------
+# @Project       :code
+# @Author        :ydzhao
+# @Email         :zydeve@163.com
+# @Datetime      :2020-11-26 16:56
+# @Software      :PyCharm
+# @Name          :hyper_parameters.py.py
+# @Description   :ML模型超参数调节：网格搜索、随机搜索与贝叶斯优化
+# -------------------------------------------------------------------------------
+
+from __future__ import print_function
+from __future__ import division
+
+import time
+import sys
+import os
+
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+import seaborn as sns
+
+import joblib
+import lightgbm as lgb
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import  RandomizedSearchCV
+from bayes_opt import BayesianOptimization
+
+
+
+
+from data_helper import load_feat
+from my_utils import feature_analyze
+from my_utils import check_path
+
+
+import logging.handlers
+LOG_FILE = 'log/hyper_parameters.log'
+check_path(LOG_FILE)
+handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=1)  # 实例化handler
+fmt = '%(asctime)s - %(filename)s:%(lineno)s - %(name)s - %(message)s'
+formatter = logging.Formatter(fmt)
+handler.setFormatter(formatter)
+logger = logging.getLogger('train')
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
+
+class ConfigSearch(object):
+    def __init__(self):
+        self.params = {
+            'objective': 'binary',
+            'metric': 'auc',
+            'learning_rate': 0.05,
+            'num_leaves': 30,  # 叶子设置为 50 线下过拟合严重
+            'min_sum_hessian_in_leaf': 0.1,
+            'feature_fraction': 0.3,  # 相当于 colsample_bytree
+            'bagging_fraction': 0.5,  # 相当于 subsample
+            'lambda_l1': 0,
+            'lambda_l2': 5
+        }
+        self.best_model_path = 'model/best_lgb_model_hyper_parameters.txt'
+
+
+def GridSearch(clf, params, X, y):
+    &quot;&quot;&quot;网格搜索&quot;&quot;&quot;
+    grid_search = GridSearchCV(clf, params, scoring='roc_auc', n_jobs=2, cv=5)   # scoring指定损失函数类型，n_jobs=-1指定全部cpu跑，cv指定交叉验证
+    grid_result = grid_search.fit(X, y)  # 运行网格搜索
+
+    data_message = &quot;best_score: {} ,using best_params: {}&quot;.format(grid_result.best_score_, grid_result.best_params_)
+    logger.info(data_message)
+
+    data_cv_result = &quot;cv_result:{}&quot;.format(grid_result.cv_results_)
+    logger.info(data_cv_result)
+
+    data_best_estimator = &quot;best_estimator:{}&quot;.format(grid_result.best_estimator_)
+    logger.info(data_best_estimator)
+
+    # 输出网格搜索每组超参数的cv数据
+    # for p, s in zip(grid_result.cv_results_['params'],grid_result.cv_results_['mean_test_score']):
+    #     print(p, s)
+
+
+def RandomSearch(clf, params, X, y):
+    &quot;&quot;&quot;随机搜索&quot;&quot;&quot;
+    rscv_search = RandomizedSearchCV(clf, params, scoring='roc_auc', n_jobs=-1, cv=5)
+    rscv_result = rscv_search.fit(X, y)
+
+    data_message = &quot;best_score: {} ,using best_params: {}&quot;.format(rscv_result.best_score_, rscv_result.best_params_)
+    logger.info(data_message)
+
+    data_cv_result = &quot;cv_result:{}&quot;.format(rscv_result.cv_results_)
+    logger.info(data_cv_result)
+
+    data_best_estimator = &quot;best_estimator:{}&quot;.format(rscv_result.best_estimator_)
+    logger.info(data_best_estimator)
+
+
+def GBM_evaluate_reg(min_child_samples, min_child_weight, colsample_bytree, max_depth, subsample, reg_alpha, reg_lambda):
+    &quot;&quot;&quot;自定义的模型评估函数&quot;&quot;&quot;
+    #################### 回归问题 ####################
+    # 模型固定的超参数
+    param = {
+        'objective': 'regression',
+        'n_estimators': 275,
+        'metric': 'rmse',
+        'random_state': 2018
+    }
+
+    # 贝叶斯优化器生成的超参数
+    param['min_child_weight'] = int(min_child_weight)
+    param['colsample_bytree'] = float(colsample_bytree),
+    param['max_depth'] = int(max_depth),
+    param['subsample'] = float(subsample),
+    param['reg_lambda'] = float(reg_lambda),
+    param['reg_alpha'] = float(reg_alpha),
+    param['min_child_samples'] = int(min_child_samples)
+
+    # 5-flod 交叉检验，注意BayesianOptimization会向最大评估值的方向优化，因此对于回归任务需要取负数。
+    # 这里的评估函数为neg_mean_squared_error，即负的MSE。
+    val = cross_val_score(
+        lgb.LGBMRegressor(**param),
+        train_X,
+        train_y,
+        scoring = 'neg_mean_squared_error',
+        cv = 5
+    ).mean()
+    return val
+
+
+def GBM_evaluate_cls(num_leaves,learning_rate):
+    &quot;&quot;&quot;自定义的模型评估函数&quot;&quot;&quot;
+    #################### 分类问题 ####################
+    param = {
+        'objective': 'binary',
+        'metric': 'auc',
+        'min_sum_hessian_in_leaf': 0.1,
+        'feature_fraction': 0.3,  # 相当于 colsample_bytree
+        'bagging_fraction': 0.5,  # 相当于 subsample
+        'lambda_l1': 0,
+        'lambda_l2': 5
+    }
+
+    param['num_leaves'] = int(num_leaves)
+    param['learning_rate'] = float(learning_rate)
+
+    val = cross_val_score(
+        lgb.LGBMClassifier(**param),
+        train_X,
+        train_y,
+        scoring = 'roc_auc',
+        cv = 5
+    ).mean()
+    return val
+
+
+def BayesianSearch(clf, params):
+    &quot;&quot;&quot;贝叶斯优化器&quot;&quot;&quot;
+
+    # 迭代次数
+    num_iter = 25
+    init_points = 5
+
+    # 创建一个贝叶斯优化对象，输入为自定义的模型评估函数与超参数的范围
+    bayes = BayesianOptimization(clf, params)
+
+    # 开始优化
+    bayes.maximize(init_points=init_points, n_iter=num_iter)
+
+    # 输出结果
+    bayes_max = &quot;bayes_max: {}&quot;.format(bayes.max)
+    print(bayes_max)
+    logger.info(bayes_max)
+
+    for i, res in enumerate(bayes.res):
+        print(&quot;Iteration {}: {}&quot;.format(i, res))
+        result = &quot;Iteration {}: {}&quot;.format(i, res)
+        logger.info(result)
+
+if __name__ == '__main__':
+    ######## 获取训练集和测试集
+    feature_path = 'features/'
+    train_data, test_data = load_feat(re_get=False, feature_path=feature_path)
+    train_feats = train_data.columns.values
+    test_feats = test_data.columns.values
+    drop_columns = list(filter(lambda x: x not in test_feats, train_feats))
+
+    train_X = train_data.drop(drop_columns, axis=1)  # &lt;class 'pandas.core.frame.DataFrame'&gt;
+    train_y = train_data['label']                    # &lt;class 'pandas.core.series.Series'&gt;
+    test_X = test_data                               # &lt;class 'pandas.core.frame.DataFrame'&gt;
+
+    data_message = 'X_train.shape={}, X_test.shape={}'.format(train_X.shape, test_X.shape)
+    print(data_message)
+    logger.info(data_message)
+
+
+
+    ######## 调参获取最佳参数
+    # config = ConfigSearch()
+    # adj_params = {
+    #     'num_leaves': [20, 30, 40, 50],
+    #     'learning_rate': [0.025, 0.05, 0.1, 0.15, 0.20]
+    # }
+    # logger.info(adj_params)
+    # print(config.params)
+    # classer = lgb.LGBMClassifier(**config.params)
+
+    # (1) 网格搜索
+    # GridSearch(classer,adj_params,train_X,train_y)
+    # (2) 随机搜索
+    # RandomSearch(classer,adj_params,train_X,train_y)
+
+    # 调用贝叶斯优化
+    BayesianSearch(
+        clf = GBM_evaluate_cls,
+        params = {
+            'num_leaves': (20, 50),
+            'learning_rate': (0.025, 0.20)
+        }
+    )
+</code></pre>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="https://7125messi.github.io/post/spark_hive_rdbms%E8%AF%BB%E5%86%99%E6%93%8D%E4%BD%9C/" title="Spark_Hive_RDBMS读写操作">
+      Previous
+    </a>
+    
+
+    
+
+  
+
+
+</div>
+
+  
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+  code with <i class='fa fa-heart'></i>
+
+
+</div>
+
+
+  
+<div class="container copyright">
+  
+  &copy; 2018 7125messi.
+
+
+</div>
+
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+  </body>
+</html>
+
