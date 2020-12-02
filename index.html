@@ -147,7 +147,7 @@
   <p class="container content">
   
   
-    本文主要是提高xgboost/lightgbm/catboost等模型在参数调优方面的工程化实现以及在stacking模型融合使用 * xgboost调优 * lightgbm调优 * catboost调优 * stacking融合 * 网格搜索、随机搜索和贝叶斯优化
+    本文主要是提高xgboost/lightgbm/catboost等模型在参数调优方面的工程化实现以及在stacking模型融合使用 * xgboost调优 * lightgbm调优 * catboost调优 * stacking融合 * 网格搜索、随机搜索和贝叶斯优化 * LightGBM各种操作
 0 工具类函数 from __future__ import print_function from __future__ import division import numpy as np import pandas as pd import matplotlib matplotlib.use(&quot;Agg&quot;) import matplotlib.pyplot as plt from sklearn.metrics import roc_curve, auc from sklearn.metrics import confusion_matrix from sklearn.metrics import f1_score from itertools import chain import time import os def timer(func): &quot;&quot;&quot;计时器&quot;&quot;&quot; def wrapper(*args, **kwargs): t1 = time.time() func(*args, **kwargs) t2 = time.
   
 

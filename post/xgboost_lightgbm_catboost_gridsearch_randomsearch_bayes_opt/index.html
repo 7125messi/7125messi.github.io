@@ -51,7 +51,7 @@
     },
     "datePublished": "2020-11-26",
     "description": "",
-    "wordCount":  4987 
+    "wordCount":  5564 
   }
 </script>
 
@@ -161,8 +161,8 @@
 
 
   
-  &middot; Read in about 24 min
-  &middot; (4987 Words)
+  &middot; Read in about 27 min
+  &middot; (5564 Words)
   <br>
   
 
@@ -179,7 +179,8 @@
 * lightgbm调优
 * catboost调优
 * stacking融合
-* 网格搜索、随机搜索和贝叶斯优化</p>
+* 网格搜索、随机搜索和贝叶斯优化
+* LightGBM各种操作</p>
 
 <h1 id="0-工具类函数">0 工具类函数</h1>
 
@@ -1994,6 +1995,241 @@ if __name__ == '__main__':
             'learning_rate': (0.025, 0.20)
         }
     )
+</code></pre>
+
+<h1 id="8-lightgbm各种操作">8 LightGBM各种操作</h1>
+
+<p>LightGBM是基于XGBoost的一款可以快速并行的树模型框架，内部集成了多种集成学习思路，在代码实现上对XGBoost的节点划分进行了改进，内存占用更低训练速度更快。</p>
+
+<p>LightGBM官网： <a href="https://lightgbm.readthedocs.io/en/latest/">https://lightgbm.readthedocs.io/en/latest/</a></p>
+
+<p>参数介绍： <a href="https://lightgbm.readthedocs.io/en/latest/Parameters.html">https://lightgbm.readthedocs.io/en/latest/Parameters.html</a></p>
+
+<h2 id="8-1-安装方法">8.1 安装方法</h2>
+
+<p>LightGBM的安装非常简单，在Linux下很方便的就可以开启GPU训练。可以优先选用从pip安装，如果失败再从源码安装。</p>
+
+<p>安装方法：从源码安装</p>
+
+<pre><code class="language-shell">git clone --recursive https://github.com/microsoft/LightGBM ; 
+cd LightGBM
+
+mkdir build ; cd build
+cmake ..
+
+# 开启MPI通信机制，训练更快
+# cmake -DUSE_MPI=ON ..
+
+# GPU版本，训练更快
+# cmake -DUSE_GPU=1 ..
+
+make -j4
+</code></pre>
+
+<p>安装方法：pip安装</p>
+
+<pre><code class="language-shell"># 默认版本
+pip install lightgbm
+
+# MPI版本
+pip install lightgbm --install-option=--mpi
+
+# GPU版本
+pip install lightgbm --install-option=--gpu
+</code></pre>
+
+<h2 id="8-2-调用方法">8.2 调用方法</h2>
+
+<p>在Python语言中LightGBM提供了两种调用方式，分为为原生的API和Scikit-learn API，两种方式都可以完成训练和验证。当然原生的API更加灵活，看个人习惯来进行选择。</p>
+
+<h3 id="定义数据集">定义数据集</h3>
+
+<pre><code class="language-python">df_train = pd.read_csv('https://cdn.coggle.club/LightGBM/examples/binary_classification/binary.train', header=None, sep='\t')
+df_test = pd.read_csv('https://cdn.coggle.club/LightGBM/examples/binary_classification/binary.test', header=None, sep='\t')
+W_train = pd.read_csv('https://cdn.coggle.club/LightGBM/examples/binary_classification/binary.train.weight', header=None)[0]
+W_test = pd.read_csv('https://cdn.coggle.club/LightGBM/examples/binary_classification/binary.test.weight', header=None)[0]
+
+y_train = df_train[0]
+y_test = df_test[0]
+
+X_train = df_train.drop(0, axis=1)
+X_test = df_test.drop(0, axis=1)
+
+num_train, num_feature = X_train.shape
+
+# create dataset for lightgbm
+# if you want to re-use data, remember to set free_raw_data=False
+lgb_train = lgb.Dataset(
+                X_train, 
+                y_train,
+                weight=W_train, 
+                free_raw_data=False
+            )
+lgb_eval = lgb.Dataset(
+                X_test, 
+                y_test, 
+                reference=lgb_train,
+                weight=W_test, 
+                free_raw_data=False
+            )
+</code></pre>
+
+<h3 id="模型训练">模型训练</h3>
+
+<pre><code class="language-python">params = {
+    'boosting_type': 'gbdt',
+    'objective': 'binary',
+    'metric': 'binary_logloss',
+    'num_leaves': 31,
+    'learning_rate': 0.05,
+    'feature_fraction': 0.9,
+    'bagging_fraction': 0.8,
+    'bagging_freq': 5,
+    'verbose': 0
+}
+
+# generate feature names
+feature_name = ['feature_' + str(col) for col in range(num_feature)]
+gbm = lgb.train(
+        params,
+        lgb_train,
+        num_boost_round=10,
+        valid_sets=lgb_train,  # eval training data
+        feature_name=feature_name,
+        categorical_feature=[21]
+    )
+</code></pre>
+
+<h3 id="模型保存与加载">模型保存与加载</h3>
+
+<pre><code class="language-python"># save model to file
+gbm.save_model('model.txt')
+
+print('Dumping model to JSON...')
+model_json = gbm.dump_model()
+with open('model.json', 'w+') as f:
+    json.dump(model_json, f, indent=4)
+</code></pre>
+
+<h3 id="查看特征重要性">查看特征重要性</h3>
+
+<pre><code class="language-python"># feature names
+print('Feature names:', gbm.feature_name())
+
+# feature importances
+print('Feature importances:', list(gbm.feature_importance()))
+</code></pre>
+
+<h3 id="继续训练">继续训练</h3>
+
+<pre><code class="language-python"># continue training
+# init_model accepts:
+# 1. model file name
+# 2. Booster()
+gbm = lgb.train(params,
+                lgb_train,
+                num_boost_round=10,
+                init_model='model.txt',
+                valid_sets=lgb_eval)
+print('Finished 10 - 20 rounds with model file...')
+</code></pre>
+
+<h3 id="动态调整模型超参数">动态调整模型超参数</h3>
+
+<pre><code class="language-python"># decay learning rates
+# learning_rates accepts:
+# 1. list/tuple with length = num_boost_round
+# 2. function(curr_iter)
+gbm = lgb.train(params,
+                lgb_train,
+                num_boost_round=10,
+                init_model=gbm,
+                learning_rates=lambda iter: 0.05 * (0.99 ** iter),
+                valid_sets=lgb_eval)
+print('Finished 20 - 30 rounds with decay learning rates...')
+
+# change other parameters during training
+gbm = lgb.train(params,
+                lgb_train,
+                num_boost_round=10,
+                init_model=gbm,
+                valid_sets=lgb_eval,
+                callbacks=[lgb.reset_parameter(bagging_fraction=[0.7] * 5 + [0.6] * 5)])
+print('Finished 30 - 40 rounds with changing bagging_fraction...')
+</code></pre>
+
+<h3 id="自定义损失函数">自定义损失函数</h3>
+
+<pre><code class="language-python"># self-defined objective function
+# f(preds: array, train_data: Dataset) -&gt; grad: array, hess: array
+# log likelihood loss
+def loglikelihood(preds, train_data):
+    labels = train_data.get_label()
+    preds = 1. / (1. + np.exp(-preds))
+    grad = preds - labels
+    hess = preds * (1. - preds)
+    return grad, hess
+    
+# self-defined eval metric
+# f(preds: array, train_data: Dataset) -&gt; name: string, eval_result: float, is_higher_better: bool
+# binary error
+# NOTE: when you do customized loss function, the default prediction value is margin
+# This may make built-in evalution metric calculate wrong results
+# For example, we are doing log likelihood loss, the prediction is score before logistic transformation
+# Keep this in mind when you use the customization
+def binary_error(preds, train_data):
+    labels = train_data.get_label()
+    preds = 1. / (1. + np.exp(-preds))
+    return 'error', np.mean(labels != (preds &gt; 0.5)), False
+
+gbm = lgb.train(params,
+                lgb_train,
+                num_boost_round=10,
+                init_model=gbm,
+                fobj=loglikelihood,
+                feval=binary_error,
+                valid_sets=lgb_eval)
+print('Finished 40 - 50 rounds with self-defined objective function and eval metric...')
+</code></pre>
+
+<h3 id="调参方法-网格搜索">调参方法————网格搜索</h3>
+
+<pre><code class="language-python">lg = lgb.LGBMClassifier(silent=False)
+param_dist = {&quot;max_depth&quot;: [4,5, 7],
+              &quot;learning_rate&quot; : [0.01,0.05,0.1],
+              &quot;num_leaves&quot;: [300,900,1200],
+              &quot;n_estimators&quot;: [50, 100, 150]
+             }
+
+grid_search = GridSearchCV(lg, n_jobs=-1, param_grid=param_dist, cv = 5, scoring=&quot;roc_auc&quot;, verbose=5)
+grid_search.fit(train,y_train)
+grid_search.best_estimator_, grid_search.best_score_
+</code></pre>
+
+<h3 id="调参方法-贝叶斯优化">调参方法————贝叶斯优化</h3>
+
+<pre><code class="language-python">import warnings
+import time
+warnings.filterwarnings(&quot;ignore&quot;)
+from bayes_opt import BayesianOptimization
+def lgb_eval(max_depth, learning_rate, num_leaves, n_estimators):
+    params = {
+             &quot;metric&quot; : 'auc'
+        }
+    params['max_depth'] = int(max(max_depth, 1))
+    params['learning_rate'] = np.clip(0, 1, learning_rate)
+    params['num_leaves'] = int(max(num_leaves, 1))
+    params['n_estimators'] = int(max(n_estimators, 1))
+    cv_result = lgb.cv(params, d_train, nfold=5, seed=0, verbose_eval =200,stratified=False)
+    return 1.0 * np.array(cv_result['auc-mean']).max()
+
+lgbBO = BayesianOptimization(lgb_eval, {'max_depth': (4, 8),
+                                            'learning_rate': (0.05, 0.2),
+                                            'num_leaves' : (20,1500),
+                                            'n_estimators': (5, 200)}, random_state=0)
+
+lgbBO.maximize(init_points=5, n_iter=50,acq='ei')
+print(lgbBO.max)
 </code></pre>
 
 </div>
