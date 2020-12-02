@@ -51,7 +51,7 @@
     },
     "datePublished": "2020-11-26",
     "description": "",
-    "wordCount":  5564 
+    "wordCount":  5584 
   }
 </script>
 
@@ -162,7 +162,7 @@
 
   
   &middot; Read in about 27 min
-  &middot; (5564 Words)
+  &middot; (5584 Words)
   <br>
   
 
@@ -2193,6 +2193,14 @@ print('Finished 40 - 50 rounds with self-defined objective function and eval met
 </code></pre>
 
 <h3 id="调参方法-网格搜索">调参方法————网格搜索</h3>
+
+<pre><code class="language-python"># （1）num_leaves
+#  LightGBM使用的是leaf - wise的算法，因此在调节树的复杂程度时，使用的是num_leaves而不是max_depth。
+#  大致换算关系：num_leaves = 2 ^ (max_depth)
+# （2）样本分布非平衡数据集：可以param[‘is_unbalance’]=’true’
+# （3）Bagging参数：bagging_fraction + bagging_freq（必须同时设置）、feature_fraction
+# （4）min_data_in_leaf、min_sum_hessian_in_leaf
+</code></pre>
 
 <pre><code class="language-python">lg = lgb.LGBMClassifier(silent=False)
 param_dist = {&quot;max_depth&quot;: [4,5, 7],
