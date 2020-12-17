@@ -51,7 +51,7 @@
     },
     "datePublished": "2020-09-10",
     "description": "",
-    "wordCount":  1016 
+    "wordCount":  1183 
   }
 </script>
 
@@ -161,8 +161,8 @@
 
 
   
-  &middot; Read in about 5 min
-  &middot; (1016 Words)
+  &middot; Read in about 6 min
+  &middot; (1183 Words)
   <br>
   
 
@@ -614,6 +614,91 @@ if __name__ == '__main__':
     engine = get_sql_conn()
     df3 = pd.read_sql(strSql2,con = engine)
     print(df3)
+</code></pre>
+
+<h2 id="补充spark-jdbc方式读取扩展">补充spark jdbc方式读取扩展</h2>
+
+<pre><code class="language-python">from pyspark.sql import SparkSession
+import sys
+
+from utils import get_spark_conf
+from utils import get_user_pwd
+from utils import get_conn_url
+from utils import read_dataset
+
+if __name__ == &quot;__main__&quot;:
+    select_dt = sys.argv[1]
+    print(&quot;分区:&quot;,select_dt)
+
+    # spark初始化
+    spark = SparkSession.\
+                builder.\
+                appName(&quot;spark_job&quot;).\
+                config(conf=get_spark_conf()).\
+                enableHiveSupport().\
+                getOrCreate()
+
+    strUser, strPwd = get_user_pwd()
+    mysql_query_1 = f&quot;&quot;&quot;
+        (
+	select 
+            t1.purchase_date, 
+            t1.shop_code, 
+            t3.shop_name, 
+            t2.create_datetime, 
+            t2.status, 
+            if(t2.status=1,'已发布','未发布') as issue_status
+        from (
+            select distinct purchase_date,shop_code 
+            from prod_yth_hn.shop_replenishment 
+        ) t1 
+        left join (
+            select * 
+            from prod_yth_hn.shop_replenishment_info 
+        ) t2 on t2.shop_code=t1.shop_code and t2.purchase_date=t1.purchase_date
+        left join prod_yth_hn.hive_shop_attribute t3 
+        on t3.shop_code=t1.shop_code
+	) as res
+        &quot;&quot;&quot;
+
+    mysql_df_1 = read_dataset(
+        spark = spark,
+        strURL = get_conn_url(),
+        strDBTable = mysql_query_1,
+        strUser = strUser,
+        strPassword = strPwd,
+        isConcurrent = False
+    )
+
+    print(type(mysql_df_1))
+    print(mysql_df_1.show())
+</code></pre>
+
+<p>spark-submit方式提交，可以添加Python解释器和MySQL的jdbc，JAR包</p>
+
+<pre><code class="language-shell">#!/usr/bin/bash
+base_dir=&quot;/root/spark-jdbc-test&quot;
+
+# spark解释器
+spark_interpreter=&quot;/opt/spark-2.4.4/bin/spark-submit&quot;
+
+# python解释器
+python_interpreter=&quot;/app/anaconda3/bin/python&quot;
+
+if [[ $# -eq 1 ]]; then
+    select_dt=$1
+else
+    select_dt=$(date -d &quot;1 day ago&quot; +&quot;%Y-%m-%d&quot;)
+fi
+echo &quot;select dt is :${select_dt}&quot;
+
+# 执行程序
+${spark_interpreter} --master yarn \
+                    --num-executors 4 \
+                    --conf spark.pyspark.python=${python_interpreter} \
+                    --executor-memory 4g \
+                    --driver-class-path mysql-connector-java-8.0.21.jar \
+                    --jars mysql-connector-java-8.0.21.jar ${base_dir}/hn_arp_desc_for_store_wh.py &quot;${select_dt}&quot;
 </code></pre>
 
 <h1 id="4-执行代码-func-forecast-sh">4 执行代码 func_forecast.sh</h1>
