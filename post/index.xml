@@ -257,8 +257,8 @@ LightGBM （Light Gradient Boosting Machine）是一个实现 GBDT 算法的框�
       
       <guid>https://7125messi.github.io/post/feature_selector%E5%AE%9E%E7%8E%B0%E9%AB%98%E6%95%88%E7%9A%84%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9/</guid>
       <description>[参考整理]
-具体可以参考我的Azure Notebook：
-https://notebooks.azure.com/messi7125/projects/feature-engineering
+具体可以参考我的Google云盘
+https://drive.google.com/drive/folders/1cRk1d592TY3IywA6I4hWthks0QTDeTRh
 下面简要介绍一下功能介绍
 Introduction: Feature Selector Usage 在这个笔记本中，我们将使用FeatureSelector类来选择要从数据集中删除的要素。 此类有五种方法可用于查找要删除的功能：
  具有高missing-values百分比的特征 具有高相关性的特征 对模型预测结果无贡献的特征（即zero importance） 对模型预测结果只有很小贡献的特征（即low importance） 具有单个值的特征（即数据集中该特征取值的集合只有一个元素）  requirements：
@@ -306,8 +306,8 @@ import pandas as pd import numpy as np import h5py # 数据转换成张量类型
       
       <guid>https://7125messi.github.io/post/%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B%E6%96%B9%E6%B3%95%E8%AE%BA/</guid>
       <description>[原创]
-欢迎浏览我的Azure Notebooks
-https://notebooks.azure.com/messi7125/projects/feature-engineering</description>
+欢迎浏览我的Google云盘
+https://drive.google.com/drive/folders/1XHvA5hoMNfBmfvFllD9-KUYY58KjB4v4?usp=sharing</description>
     </item>
     
   </channel>
