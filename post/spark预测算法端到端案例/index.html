@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Spark预测算法端到端案例  &middot; 7125messi的博客</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="description" content="" />
+
+<meta name="keywords" content="">
+
+
+<meta property="og:title" content="Spark预测算法端到端案例  &middot; 7125messi的博客 ">
+<meta property="og:site_name" content="7125messi的博客"/>
+<meta property="og:url" content="https://7125messi.github.io/post/spark%E9%A2%84%E6%B5%8B%E7%AE%97%E6%B3%95%E7%AB%AF%E5%88%B0%E7%AB%AF%E6%A1%88%E4%BE%8B/" />
+<meta property="og:locale" content="zh-cn">
+
+
+<meta property="og:type" content="article" />
+<meta property="og:description" content=""/>
+<meta property="og:article:published_time" content="2021-03-27T15:28:21&#43;08:00" />
+<meta property="og:article:modified_time" content="2021-03-27T15:28:21&#43;08:00" />
+
+  
+
+  
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@" />
+<meta name="twitter:creator" content="@" />
+<meta name="twitter:title" content="Spark预测算法端到端案例" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:url" content="https://7125messi.github.io/post/spark%E9%A2%84%E6%B5%8B%E7%AE%97%E6%B3%95%E7%AB%AF%E5%88%B0%E7%AB%AF%E6%A1%88%E4%BE%8B/" />
+<meta name="twitter:domain" content="https://7125messi.github.io">
+  
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Spark预测算法端到端案例",
+    "author": {
+      "@type": "Person",
+      "name": ""
+    },
+    "datePublished": "2021-03-27",
+    "description": "",
+    "wordCount":  3304 
+  }
+</script>
+
+
+
+<link rel="canonical" href="https://7125messi.github.io/post/spark%E9%A2%84%E6%B5%8B%E7%AE%97%E6%B3%95%E7%AB%AF%E5%88%B0%E7%AB%AF%E6%A1%88%E4%BE%8B/" />
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://7125messi.github.io/touch-icon-144-precomposed.png">
+<link href="https://7125messi.github.io/favicon.png" rel="icon">
+
+<meta name="generator" content="Hugo 0.55.6" />
+
+  <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link href='https://fonts.googleapis.com/css?family=Merriweather:300%7CRaleway%7COpen+Sans' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight/default.css">
+
+  
+  
+</head>
+<body>
+  <main id="main-wrapper" class="container main_wrapper has-sidebar">
+    <header id="main-header" class="container main_header">
+  <div class="container brand">
+  <div class="container title h1-like">
+  <a class="baselink" href="https://7125messi.github.io">
+  箴言
+
+</a>
+
+</div>
+
+  
+<div class="container topline">
+  
+  带着爱和梦想去生活
+
+
+</div>
+
+
+</div>
+
+  <nav class="container nav primary no-print">
+  
+
+<a class="homelink" href="https://7125messi.github.io">正文</a>
+
+
+  
+<a href="https://7125messi.github.io/about">相关</a>
+
+<a href="https://7125messi.github.io/post" title="Show list of posts">目录</a>
+
+
+</nav>
+
+<div class="container nav secondary no-print">
+  
+
+
+<a id="contact-link-github" class="contact_link" rel="me" aria-label="Github" href="https://github.com/7125messi">
+  <span class="fa fa-github-square"></span></a>
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+  
+
+</header>
+
+
+<article id="main-content" class="container main_content single">
+  <header class="container hat">
+  <h1>DRAFT :: Spark预测算法端到端案例
+</h1>
+
+  <div class="metas">
+<time datetime="2021-03-27">27 Mar, 2021</time>
+
+
+  
+  &middot; Read in about 16 min
+  &middot; (3304 Words)
+  <br>
+  
+
+
+</div>
+
+</header>
+
+  <div class="container content">
+  
+
+<p>最近做完了一个预测算法，数据量巨大，需要分布式环境跑数据，算法本身用的是LightGBM，没什么好说的，主要是怎么用Spark每个driver端跑模型。</p>
+
+<h1 id="1-基础数据">1.基础数据</h1>
+
+<ul>
+<li><p>订单数据：主数据，包括渠道订单量和品类销量（day和hour）</p>
+
+<p>wfm_order_quantity_day
+  wfm_order_quantity_half_hour</p>
+
+<p>wfm_sale_quantity_day
+  wfm_sale_quantity_half_hour</p>
+
+<p>渠道：instore、mop(手机下单，店里取)、mod(外卖,打包) （店内、啡快、专星送）
+  销量预测：品类+销量
+  单量预测：渠道+订单量</p></li>
+
+<li><p>天气数据</p></li>
+
+<li><p>促销数据</p></li>
+
+<li><p>门店数据：商圈类型  城市级别</p></li>
+
+<li><p>商品数据：商品品类</p></li>
+
+<li><p>预测目标</p>
+
+<ul>
+<li>算法中除了考虑内部因子（如历史销售、市场促销、周中周末等）以外，还需纳入外部因子（如天气、节假日、季节、偶发事件等）</li>
+<li>每家店的每日平均半小时预测准确率应超过75%（1-MAPE）</li>
+<li>每家店的每月平均每日预测准确率应超过92%（1-MAPE）</li>
+<li>每家店的每日预测准确率应超过80%（1-WMAPE）</li>
+</ul></li>
+</ul>
+
+<h1 id="2-特征处理">2.特征处理</h1>
+
+<ul>
+<li>时间类：年月日，星期，小时等</li>
+<li>历史统计类：最大，最小，均值，方差，中位数等</li>
+<li>促销类：促销类型，粒度等</li>
+<li>节假日：工作日，节假日【传统节日，法定节日等】</li>
+</ul>
+
+<h1 id="3-模型加工">3.模型加工</h1>
+
+<p>一般预测未来N天有三种方式，本项目预测28天：</p>
+
+<ul>
+<li>循环发           每次预测一天      带入历史特征       滚动预测下一天     性能低下</li>
+<li>gap 1-28       28个模型             效率低</li>
+<li>分段               直接预测             比较合理</li>
+</ul>
+
+<p>分7    14     21      28四个shift，     组成28天预测模型</p>
+
+<p>预测1-7         采用 shift 7</p>
+
+<p>预测8-14       采用 shift 14</p>
+
+<p>预测15-21     采用 shift 21</p>
+
+<p>预测22-28     采用 shift 28</p>
+
+<h1 id="4-模型训练过程">4.模型训练过程</h1>
+
+<ul>
+<li><p>加工一套一套特征，gap 为0</p></li>
+
+<li><p>特征分两类：固定特征，shift 特征，</p>
+
+<ul>
+<li>固定特征，例如：商品品类、门店等分类特征；</li>
+<li>时间特征，未来日期，代表样本当天特征；去年同期等。</li>
+<li>shift特征：历史N天统计特征，最大值，最小值，均值，中位数，众数，标准差，ptp极差，偏度，封度量。</li>
+<li>代表历史最近一段时间，时序的统计特性，这些特征，根据预测未来N天，需要shift，形成样本的gap。</li>
+<li>例如：预测未来1天，需要构建 shift特征与 label&ndash;y的gap为1的样本 shift1，预测未来7天需要 shift 7</li>
+</ul></li>
+
+<li><p>分四次 shift  7 14 21 28   形成四个gap的样本，训练四个模型。  预测未来28天。</p></li>
+</ul>
+
+<h1 id="5-模型优化">5.模型优化</h1>
+
+<ul>
+<li><p>异常值剔除，根据历史同一个时间短，剔除异常值</p></li>
+
+<li><p>剔除疫情期间数据</p></li>
+
+<li><p>MOP 由于年度之间分布不同，只用今年数据</p></li>
+
+<li><p>阴阳历对齐，今年是春节，去年不是春节；今年不是春节，去年是春节的需要调整成阴历对齐</p></li>
+
+<li><p>学习率的动态调整，动态衰减</p></li>
+</ul>
+
+<h1 id="6-分布式部署">6.分布式部署</h1>
+
+<p>对4000家门店预测结果，需要样本<strong>在千万级以上，需要分布式</strong></p>
+
+<p>我们采用Spark ，通过<strong>对样本分组，每个组内统一训练模型</strong></p>
+
+<p>例如：<strong>按照地区分组，按照店铺类型分组，按照城市级别分组，或者通过多个条件聚类分组</strong>，是<strong>预测分组数量预测计算资源相匹配。</strong></p>
+
+<p><strong>这样，既能够优化性能，也能够提高预测的准确率</strong>。</p>
+
+<pre><code>'global_store_number', 'channel',  'pred_date', 'half_hour','true_value', 'pred_value','w6_mean'
+'global_store_number', 'category', 'pred_date', 'half_hour','true_value', 'pred_value','w6_mean'
+</code></pre>
+
+<h1 id="7-代码实操">7.代码实操</h1>
+
+<p>下面以 <strong>渠道&ndash;订单量预测</strong> 为例介绍下，具体实现过程：</p>
+
+<h2 id="7-1-数据预处理">7.1 数据预处理</h2>
+
+<pre><code># get_order_qty_hour     获取  订单量-小时
+# get_calendar           获取  日历信息，节日
+# get_store              获取  门店数据
+
+# get_order_feat_hour    获取  订单特征 -按小时
+</code></pre>
+
+<pre><code class="language-python"># 门店列表test
+valid_store_list = tuple([22529, 22530, 22531, 56836, 61967, 21526, 21527, 48168, 47659, 47660, 61483, 58434, 26186, 19536,
+                     18522, 53341, 53342, 19040, 25185, 25186, 19553, 19041, 19042, 19044, 19043, 19045, 25188, 57448,
+                     18038, 18039, 60536, 55930, 60546, 27780, 16517, 19592, 51854, 57486, 50318, 48274, 29843, 29844,
+                     29846, 64662, 64663, 48795, 48798, 48799, 48800, 56481, 52900, 27303, 18090, 18606, 60084, 17082,
+                     52936, 64714, 55507, 58067, 52957, 62176, 61153, 23783, 23784, 17129, 20202, 50923, 22252, 61675,
+                     51949, 23788, 24816, 20209, 28909, 20211, 28916, 24819, 23795, 18685, 24829, 17151, 63746, 54022,
+                     17680, 62742, 17177, 24346, 64796, 60190, 59679, 51488, 51487, 47395, 63787, 48428, 60205, 60207,
+                     18228, 48438, 63287, 63289, 20287, 20303, 27472, 25939, 51027, 62294, 17245, 59743, 48998, 49515,
+                     56685, 18806, 53624, 56700, 52103, 56712, 55691, 60300, 63897, 58268, 52642, 61861, 16293, 51637,
+                     51638, 52668, 64958, 47553, 60866, 19403, 25037, 56782, 17870, 27092, 51668, 63959, 27614, 24544,
+                     57316, 56805, 48102, 24552, 49132, 20976, 58867])
+is_test = True
+
+def get_store(spark):
+    &quot;&quot;&quot;
+    获取门店数据
+    Parameters
+    ----------
+    spark
+    Returns
+    -------
+
+    &quot;&quot;&quot;
+    sql = &quot;&quot;&quot;
+        select * from database.wfm_store  
+    &quot;&quot;&quot;
+    # print(sql)
+    sparkdf = spark.sql(sql)
+    return sparkdf
+
+def get_calendar(spark):
+    &quot;&quot;&quot;
+    获取日历信息，节日
+    Parameters
+    ----------
+    spark
+
+    Returns
+    -------
+
+    &quot;&quot;&quot;
+    sql = &quot;&quot;&quot;
+        select * from database.calendar
+    &quot;&quot;&quot;
+    # print(sql)
+    sparkdf = spark.sql(sql)
+    return sparkdf
+
+
+def get_order_qty_hour(spark, start_date, end_date):
+    &quot;&quot;&quot;
+    获取  单量-小时
+    Parameters
+    ----------
+    spark
+    start_date
+    end_date
+
+    Returns
+    -------
+
+    &quot;&quot;&quot;
+    filter_cond = ''
+    sql_tpl = &quot;&quot;&quot;
+        select * from database.wfm_order_channel_half_hour where sale_day&gt;='{0}' and sale_day&lt;='{1}' and channel &lt;&gt; 'scope out'  {2}
+    &quot;&quot;&quot;
+    if is_test:
+        filter_cond = 'and global_store_number in {}'.format(valid_store_list)
+    sql = sql_tpl.format(start_date, end_date, filter_cond)
+    # print(sql)
+    sparkdf = spark.sql(sql)
+    return sparkdf
+
+###################################################获取特征表
+def get_order_feat_hour(spark, date):
+    &quot;&quot;&quot;
+    获取订单特征 -按小时
+    Parameters
+    ----------
+    spark
+    date
+
+    Returns
+    -------
+
+    &quot;&quot;&quot;
+    sql_tpl = &quot;&quot;&quot;
+        select * from database.wfm_order_feat_h where statis_date='{}' 
+    &quot;&quot;&quot;
+    sql = sql_tpl.format(date)
+    # print(sql)
+    sparkdf = spark.sql(sql)
+    return sparkdf
+</code></pre>
+
+<h2 id="7-2-driver端代码">7.2 Driver端代码</h2>
+
+<h3 id="写表">写表</h3>
+
+<pre><code class="language-python">def insert_table_by_sparkdf(sparkdf, table_name, statis_date_str,partion_num):
+    &quot;&quot;&quot;
+    预测结果插入到预测结果表中
+    :param spark:
+    :param spark_rdd:
+    :param statis_date:
+    :return:
+    &quot;&quot;&quot;
+    rdd = sparkdf.withColumn('statis_date', functions.lit(statis_date_str)).repartition(partion_num).write.mode(&quot;overwrite&quot;).format(&quot;orc&quot;).partitionBy('statis_date').saveAsTable(&quot;database.{}&quot;.format(table_name))
+    return rdd
+</code></pre>
+
+<h3 id="driver端渠道订单量特征生成">driver端渠道订单量特征生成</h3>
+
+<pre><code class="language-python">def get_order_qty_hour_data(spark, start_date_str, end_date_str):
+    &quot;&quot;&quot;
+    获取订单 小时 数据
+    1.过滤 scope out
+    2.聚合楼层
+    Parameters
+    ----------
+    spark
+    start_date_str
+    end_date_str
+
+    Returns
+    -------
+
+    &quot;&quot;&quot;
+    order_qty_hour_sdf = get_order_qty_hour(spark, start_date_str, end_date_str)
+    order_qty_hour_sdf_cut = order_qty_hour_sdf.select(['global_store_number', 'channel', 'store_floor', 'half_hour', 'order_qty', 'sale_day'])
+    order_qty_hour_sdf_cut_f = order_qty_hour_sdf_cut.filter(order_qty_hour_sdf_cut['channel'] != 'scope out')
+    order_qty_hour_sdf_cut_f = order_qty_hour_sdf_cut_f.withColumn(&quot;order_qty&quot;,order_qty_hour_sdf_cut_f[&quot;order_qty&quot;].cast(IntegerType()))
+    order_qty_day_sdf_acc = order_qty_hour_sdf_cut_f.groupby(['global_store_number', 'channel', 'sale_day', 'half_hour']).agg({'order_qty': 'sum'}).withColumnRenamed(&quot;sum(order_qty)&quot;, &quot;order_qty&quot;)
+    order_qty_day_sdf_acc = order_qty_day_sdf_acc.withColumn(&quot;half_hour&quot;,order_qty_day_sdf_acc[&quot;half_hour&quot;].cast(IntegerType()))
+    return order_qty_day_sdf_acc
+</code></pre>
+
+<pre><code class="language-python">def create_features_groupbyKey(rows, calendar_b, keys, pred_type):
+    &quot;&quot;&quot;
+    pandas操作
+    &quot;&quot;&quot;
+    row_list = list()
+    for row in rows:
+        row_list.append(row.asDict())
+    print(row_list)
+    
+    ts_df = pd.DataFrame(row_list)
+    raw_df = ts_df
+    
+    raw_df['sale_day'] = pd.to_datetime(raw_df['sale_day'], format='%Y%m%d')
+    calendar_df = calendar_b.value    # 广播变量
+    calendar_df['sale_day'] = pd.to_datetime(calendar_df['sale_day'], format='%Y%m%d')
+    
+    # 生成特征
+    features_df = gen_features(raw_df, calendar_df, keys, predict_begin_date, end_date, predict_date_list,pred_type, spring_day_list,day_windows, week_windows)
+    
+    # datetime64类型转成str:y-m-d
+    features_df.loc[:, features_df.select_dtypes(include=['datetime64']).columns] = features_df.loc[:,features_df.select_dtypes(include=['datetime64']).columns].apply(lambda x: x.dt.strftime('%Y%m%d'))
+    
+    FeatureRow = Row(*features_df.columns)
+    row_list = []
+    for r in features_df.values:
+        row_list.append(FeatureRow(*r))
+    
+    return row_list
+</code></pre>
+
+<pre><code class="language-python">import random
+import re
+import sys
+import os
+import numpy as np
+import pandas as pd
+from pyspark import SparkConf
+from pyspark.sql import SparkSession
+from pyspark.sql.types import Row
+from pyspark.sql.types import IntegerType
+from pyspark.sql.types import DoubleType
+from pyspark.sql import functions
+
+spark_conf = SparkConf().set(&quot;spark.yarn.queue&quot;, &quot;root.project_name&quot;)
+spark = SparkSession.builder.appName(&quot;Gen_Features&quot;).config(conf=spark_conf).enableHiveSupport().getOrCreate()
+
+&quot;&quot;&quot;
+预测order构造特征
+&quot;&quot;&quot;
+spark_conf = SparkConf()
+# 构造spark_session对象
+spark = SparkSession.builder.appName(&quot;wfm lgb order make feature&quot;).config(conf=spark_conf).enableHiveSupport().getOrCreate()
+
+random.seed(100)
+np.random.seed(100)
+
+predict_begin_date = pd.to_datetime('20200901', format='%Y%m%d')
+print(predict_begin_date)
+
+history_months = 36
+start_date = predict_begin_date - pd.DateOffset(months=history_months)
+print(start_date)
+
+periods = 28
+
+# 数据最后一天日期，用于调试历史
+end_date = predict_begin_date + pd.to_timedelta(periods - 1, 'D')
+print(end_date)
+
+predict_date_list = pd.date_range(predict_begin_date, periods=periods)
+print(predict_date_list)
+
+# 特征参数
+keys = [&quot;global_store_number&quot;, &quot;channel&quot;]
+spring_day_list = ['20160208', '20170128', '20180216', '20190205', '20200125']
+week_windows = [1, 2, 3, 4, 5, 6]
+day_windows = [2, 3, 5, 7, 14, 21, 28, 30, 60, 90]
+
+# 读取广播数据
+calendar_df = get_calendar(spark).toPandas()
+calendar_b = spark.sparkContext.broadcast(calendar_df)
+store_df = get_store(spark).toPandas()
+store_b = spark.sparkContext.broadcast(store_df)
+
+# 获取历史数据
+start_date_str, end_date_str = start_date.strftime('%Y%m%d'), end_date.strftime('%Y%m%d')
+predict_begin_date_str = predict_begin_date.strftime('%Y%m%d')
+print(start_date_str,end_date_str,predict_begin_date_str)
+
+order_qty_hour_sdf = get_order_qty_hour_data(spark, start_date_str, end_date_str)
+print('order_qty_hour_sdf length is {}'.format(order_qty_hour_sdf.count()))
+
+###################################
+################################### 主要是这里利用了spark的分布式计算能力，其他都是利用driver端pandas进行计算 ###################################
+hour_feat_rdd = order_qty_hour_sdf.rdd.map(lambda x: (x['global_store_number'], x)).groupByKey().flatMap(lambda x: create_features_groupbyKey(x[1], calendar_b, keys, pred_type='hour'))
+hour_feat_sdf = spark.createDataFrame(hour_feat_rdd)
+
+# 插入结果
+insert_table_by_sparkdf(hour_feat_sdf, table_name='wfm_order_feat_h', statis_date_str=predict_begin_date_str,partion_num=100)
+print(&quot;features_rdd done!&quot;)
+spark.stop()
+</code></pre>
+
+<h3 id="gen-features生成特征函数">gen_features生成特征函数</h3>
+
+<p>由于功能复杂，现举几个例子：</p>
+
+<h4 id="1-优化空间存储和内存占用">（1）优化空间存储和内存占用</h4>
+
+<pre><code class="language-python">import itertools
+from functools import partial
+
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+
+import datetime
+import datetime as dt
+from dateutil.relativedelta import relativedelta
+
+import random
+from scipy.stats import hmean
+# from pykalman import KalmanFilter
+from tqdm import tqdm
+
+class Data_Preprocess:
+    def __init__(self):
+        self.int8_max = np.iinfo(np.int8).max
+        self.int8_min = np.iinfo(np.int8).min
+
+        self.int16_max = np.iinfo(np.int16).max
+        self.int16_min = np.iinfo(np.int16).min
+
+        self.int32_max = np.iinfo(np.int32).max
+        self.int32_min = np.iinfo(np.int32).min
+
+        self.int64_max = np.iinfo(np.int64).max
+        self.int64_min = np.iinfo(np.int64).min
+
+        self.float16_max = np.finfo(np.float16).max
+        self.float16_min = np.finfo(np.float16).min
+
+        self.float32_max = np.finfo(np.float32).max
+        self.float32_min = np.finfo(np.float32).min
+
+        self.float64_max = np.finfo(np.float64).max
+        self.float64_min = np.finfo(np.float64).min
+
+    '''
+    function: _get_type(self,min_val, max_val, types)
+
+       get the correct types that our columns can trans to
+
+    '''
+
+    def _get_type(self, min_val, max_val, types):
+        if types == 'int':
+            if max_val &lt;= self.int8_max and min_val &gt;= self.int8_min:
+                return np.int8
+            elif max_val &lt;= self.int16_max &lt;= max_val and min_val &gt;= self.int16_min:
+                return np.int16
+            elif max_val &lt;= self.int32_max and min_val &gt;= self.int32_min:
+                return np.int32
+            return None
+
+        elif types == 'float':
+            if max_val &lt;= self.float16_max and min_val &gt;= self.float16_min:
+                return np.float16
+            if max_val &lt;= self.float32_max and min_val &gt;= self.float32_min:
+                return np.float32
+            if max_val &lt;= self.float64_max and min_val &gt;= self.float64_min:
+                return np.float64
+            return None
+
+    '''
+
+    function: _memory_process(self,df) 
+       column data types trans, to save more memory
+    '''
+
+    def _memory_process(self, df):
+        init_memory = df.memory_usage().sum() / 1024 ** 2 / 1024
+        print('Original data occupies {} GB memory.'.format(init_memory))
+        df_cols = df.columns
+
+        for col in tqdm(df_cols):
+            try:
+                if 'float' in str(df[col].dtypes):
+                    pass
+                    # max_val = df[col].max()
+                    # min_val = df[col].min()
+                    # trans_types = self._get_type(min_val, max_val, 'float')
+                    # if trans_types is not None:
+                    #     df[col] = df[col].astype(trans_types)
+                elif 'int' in str(df[col].dtypes):
+                    max_val = df[col].max()
+                    min_val = df[col].min()
+                    trans_types = self._get_type(min_val, max_val, 'int')
+                    if trans_types is not None:
+                        df[col] = df[col].astype(trans_types)
+            except:
+                print(' Can not do any process for column, {}.'.format(col))
+        afterprocess_memory = df.memory_usage().sum() / 1024 ** 2 / 1024
+        print('After processing, the data occupies {} GB memory.'.format(afterprocess_memory))
+        return df
+</code></pre>
+
+<h4 id="2-阴阳历转换">（2）阴阳历转换</h4>
+
+<p>用了 <a href="https://github.com/lidaobing/python-lunardate">https://github.com/lidaobing/python-lunardate</a></p>
+
+<h4 id="3-工具类函数">（3）工具类函数</h4>
+
+<pre><code class="language-python">def add_shift_feat(feature_df, windows, grp_keys, period_type):
+    &quot;&quot;&quot;
+    添加 shift特征，改成原生聚合函数
+    天粒度：
+        1.按照 keys 滑动,也就是按天滑动
+    小时粒度：
+        2.按照 keys 滑动,也就是按小时滑动  注意**：因为没有实时数据，不能使用这个特征
+        3.按照 keys+['half_hour'] 滑动，也就不同的小时，按照天滑动
+    注意：暂时没有两种粒度的特征
+    :param feature_df:
+    :return:
+    &quot;&quot;&quot;
+    min_periods = 1
+    # 不同天的同一小时shift
+    if grp_keys[-1] != 'half_hour':
+        shift_value = 'd'
+    else:
+        shift_value = 'h'
+    if period_type == 'week':
+        grp_keys = grp_keys + ['dayofweek']
+    dl = list(range(len(grp_keys)))
+    gs = feature_df.groupby(grp_keys)['target_value']
+    for w in windows:
+        print('add_shift_feat windows {} week'.format(w))
+        w_columns = ['target_value_{}_{}_{}_by{}'.format(f, w, shift_value, period_type) for f in
+                     ['max', 'min', 'mean', 'median', 'std', 'ptp', 'kurt', 'skew']]
+        f1 = gs.rolling(window=w, min_periods=min_periods).max()
+        f1.index = f1.index.droplevel(dl)
+        feature_df.loc[:, w_columns[0]] = f1.astype(np.float32)
+        # f2
+        f2 = gs.rolling(window=w, min_periods=min_periods).min()
+        f2.index = f2.index.droplevel(dl)
+        feature_df.loc[:, w_columns[1]] = f2.astype(np.float32)
+        # f3  bug  mean写成了 max
+        f3 = gs.rolling(window=w, min_periods=min_periods).mean()
+        f3.index = f3.index.droplevel(dl)
+        feature_df.loc[:, w_columns[2]] = f3.astype(np.float32)
+        # f4
+        f4 = gs.rolling(window=w, min_periods=min_periods).median()
+        f4.index = f4.index.droplevel(dl)
+        feature_df.loc[:, w_columns[3]] = f4.astype(np.float32)
+        # f5
+        f5 = gs.rolling(window=w, min_periods=min_periods).std()
+        f5.index = f5.index.droplevel(dl)
+        feature_df.loc[:, w_columns[4]] = f5.astype(np.float32)
+        # ptp
+        feature_df.loc[:, w_columns[5]] = feature_df.loc[:, w_columns[0]] - feature_df.loc[:, w_columns[1]]
+
+    return feature_df
+
+
+def add_other_feat(feature_df, grp_keys, period_type):
+    &quot;&quot;&quot;
+    添加 环比特征
+    Parameters
+    ----------
+    feature_df
+    windows
+    grp_keys
+    period_type
+
+    Returns
+    -------
+
+    &quot;&quot;&quot;
+    if period_type == 'byweek':
+        grp_keys = grp_keys + ['dayofweek']
+    gs = feature_df.groupby(grp_keys)['target_value']
+    # 添加环比特征
+    fname6 = 'target_value_pct_chg'
+    f6 = gs.shift(1).pct_change()
+    # 那些为0的置为None
+    f6.loc[f6 == 0] = None
+    feature_df.loc[:, fname6] = f6.astype(np.float32)
+    return feature_df
+
+
+def add_holiday_feat(feature_df, calendar_df):
+    &quot;&quot;&quot;
+    添加节假日特征
+    包括春节
+    Parameters
+    ----------
+    feature_df
+    calendar_df
+
+    Returns
+    -------
+
+    &quot;&quot;&quot;
+    feature_df = pd.merge(feature_df, calendar_df, on=['sale_day'], how='left')
+    feature_df['holiday'] = feature_df['holiday'].fillna('h0000')
+    labelencoder = LabelEncoder()
+    feature_df['holiday_label'] = labelencoder.fit_transform(feature_df['holiday'])
+    return feature_df
+
+
+def filter_outliers(feature_df, grp_keys, predict_begin_date):
+    &quot;&quot;&quot;
+    平滑异常值
+    Parameters
+    ----------
+    feature_df
+    predict_begin_date
+
+    Returns
+    -------
+
+    &quot;&quot;&quot;
+    grp_keys = grp_keys + ['dayofweek']
+    dl = list(range(len(grp_keys)))
+    feature_df['md'] = feature_df.groupby(grp_keys)['target_value'].rolling(window=5, min_periods=1).median().droplevel(
+        dl)
+    cond = (feature_df['target_value'] &gt; feature_df['md'] * 2.5) &amp; (feature_df['sale_day'] &lt; predict_begin_date)
+    feature_df.loc[cond, 'target_value'] = feature_df.loc[cond, 'md'] * 2.5
+    return feature_df
+
+
+def gen_features(raw_df, calendar_df, keys, predict_begin_date, end_date, predict_date_list, pred_type, spring_day_list,
+                 day_windows, week_windows):
+    &quot;&quot;&quot;
+    生成特征
+    :param raw_df:
+    :param predict_date_list:
+    :return:
+    &quot;&quot;&quot;
+    ts_diff = (end_date - predict_begin_date).days
+    feat_conf = {}
+    feat_conf['lastyear_feat'] = True
+
+    if 'order_qty' in raw_df:
+        raw_df.rename(columns={'order_qty': 'target_value'}, inplace=True)
+    if 'sale_qty' in raw_df:
+        raw_df.rename(columns={'sale_qty': 'target_value'}, inplace=True)
+
+    # 添加统计指标，为了过滤数据
+    df, statis_columns = add_statis_columns(raw_df, keys, pred_type, predict_begin_date)
+    
+    # 只预测平均销量&gt;10的，超过500天的。没有中间为0的，如果有，得去掉
+    df_filter = filter_df(df, ts_diff)
+    
+    # 防止后续异常，如果过滤成空的，后面会报错
+    if len(df_filter) == 0:
+        return pd.DataFrame()
+    if pred_type == 'day':
+        # cut_columns = keys + ['sale_day', 'target_value']
+        # 填充缺失值
+        fill_df = fill_empty_df(df_filter, keys, fill_group_day, end_date)
+        # 构造特征
+        # feature_df = fill_df
+        # 添加未来预测天的样本
+        expanded_df = add_predict_data_day(fill_df, predict_date_list, keys)
+    else:
+        # cut_columns = keys + ['sale_day', 'half_hour', 'target_value']
+        fill_df = fill_empty_df(df_filter, keys, fill_group_hour, end_date)
+        # 构造特征
+        # feature_df = fill_df
+        # 添加未来预测天的样本
+        expanded_df = add_predict_data_hour(fill_df, predict_date_list, keys)
+    
+    # 添加日期等公共特征
+    feature_df = add_common_feat(expanded_df)
+    
+    # 添加春节标记；去年是春节标记
+    fes_df = gen_spring_day_df(spring_day_list, before_days=7, after_days=15)
+    feature_df = add_spring_label(feature_df, fes_df)
+    
+    # 添加去年同期特征
+    if feat_conf['lastyear_feat']:
+        # 添加阳历同期
+        feature_df = add_solar_lastyear_feat(feature_df, keys, pred_type)
+        # 添加阴历同期：太慢去掉
+        feature_df = add_lunar_lastyear_feat(feature_df, keys, pred_type)
+        # 调整春节期间 lastyear_vb_num
+        feature_df = adjust_lastyear_feature(feature_df)
+    
+    # 添加促销类型标记
+    # promotion_df = gen_promotion_df()
+    # feature_df = add_promotion_label(feature_df, promotion_df)
+    
+    # 添加节假日特征
+    feature_df = add_holiday_feat(feature_df, calendar_df)
+    
+    # 预测特征中的label  置0
+    # feature_df['target_value'].fillna(0, inplace=True)
+    # feature_df['{}_s2254'.format('target_value')] = feature_df.groupby(keys)['vb_num'].apply(smooth)
+    if pred_type == 'day':
+        grp_keys = keys
+    else:
+        grp_keys = keys + ['half_hour']
+    
+    # 添加 异常值平滑
+    # feature_df = filter_outliers(feature_df, grp_keys, predict_begin_date)
+    feature_df = add_shift_feat(feature_df, day_windows, grp_keys, period_type='day')
+    feature_df = add_shift_feat(feature_df, week_windows, grp_keys, period_type='week')
+    feature_df = add_other_feat(feature_df, grp_keys, period_type='week')
+    
+    # 添加日期正弦 余弦
+    feature_df['ws'] = np.sin(feature_df['dayofweek'])
+    feature_df['wc'] = np.cos(feature_df['dayofweek'])
+    
+    # 添加天特征
+    # if pred_type == 'hour' and feat_conf.add_day_feat:
+    #     feature_df = add_shift_feat(feature_df, day_windows, grp_keys, period_type='week')
+    return feature_df
+</code></pre>
+
+<h2 id="7-3-预测订单量模型训练和预测">7.3 预测订单量模型训练和预测</h2>
+
+<pre><code class="language-python">import lightgbm as lgb
+import numpy as np
+import pandas as pd
+import re
+
+gbdt_params = {'task': 'train',
+               'boosting_type': 'gbdt',
+               'objective': 'regression',
+               'metric': {'mape'},
+               'num_leaves': 64,
+               'min_child_samples': 2,
+               'learning_rate': 0.03,
+               'feature_fraction': 1,
+               'bagging_fraction': 1,
+               'bagging_freq': 3,
+               # 'nthread': 20,
+               'num_threads': 1,
+               'seed': 2018,
+               'bagging_seed': 2018,
+               'feature_fraction_seed': 2018,
+               'verbose': 1,
+               'max_bin': 128
+               }
+
+
+def error_weighted_mapd_lgb(preds, dtrain):
+    &quot;&quot;&quot;
+
+    :param preds:
+    :param dtrain:
+    :return:
+    &quot;&quot;&quot;
+    labels = dtrain.get_label()
+    return 'wmapd', compute_mapd(labels, preds), False
+
+
+def mapd(r, p):
+    &quot;&quot;&quot;
+    如果分母为零 返回 分子（误差）
+    :param r:
+    :param p:
+    :return:
+    &quot;&quot;&quot;
+    return r &gt; 0 and abs(p - r) / r or abs(p - r)
+
+
+def mapd_list(rl, pl):
+    &quot;&quot;&quot;
+    如果分母为零 返回 分子（误差）
+    :param r:
+    :param p:
+    :return:
+    &quot;&quot;&quot;
+    mmape = np.mean([mapd(r, p) for r, p in zip(rl, pl)])
+    return mmape
+
+
+def create_features_by_gap(feature_df, gap, fix_features, shift_features, keys, pred_type):
+    &quot;&quot;&quot;
+    构造shift特征
+    Parameters
+    ----------
+    feature_df
+    gap
+    fix_features
+    shift_features
+
+    Returns
+    -------
+
+    &quot;&quot;&quot;
+    # if pred_type == 'day':
+    #     grp_keys = keys
+    #     # time_columns = ['sale_day']
+    #     # merge_key =grp_keys+['sale_day']
+    # else:
+    #     grp_keys = keys + ['half_hour']
+    #     # time_columns = ['sale_day', 'half_hour']
+
+    grp_keys = keys
+    if pred_type != 'day':
+        grp_keys = keys + ['half_hour']
+    merge_key = grp_keys + ['sale_day']
+    
+    fix_df = feature_df[grp_keys + ['sale_day'] + fix_features + ['target_value']]
+    shift_featues_df = feature_df[grp_keys + ['sale_day'] + shift_features]
+
+    # 把日期改成gap的天,会报错，慢
+    # shift_featues_df['sale_day'] = shift_featues_df.groupby(grp_keys)['sale_day'].apply(lambda x: x.shift(-gap))
+    shift_featues_df['sale_day'] = shift_featues_df['sale_day'] + pd.DateOffset(days=gap)
+    
+    # 也就是让shift往后挪动
+    feature_gap_df = pd.merge(fix_df, shift_featues_df, on=merge_key, how='left')
+    
+    return feature_gap_df
+
+
+def train_model(train_data, valid_data, features, target, category_columns, error_func):
+    &quot;&quot;&quot;
+    训练模型
+    Parameters
+    ----------
+    train_data
+    valid_data
+    features
+    target
+    category_columns
+    error_func
+
+    Returns
+    -------
+
+    &quot;&quot;&quot;
+    # 构造训练数据
+    dTrain = lgb.Dataset(train_data.loc[:, features], train_data.loc[:, target], categorical_feature=category_columns)
+    dValid = lgb.Dataset(valid_data.loc[:, features], label=valid_data.loc[:, target],categorical_feature=category_columns)
+
+    # 训练参数 modify by yxm
+    # model = lgb.train(gbdt_params, dTrain, early_stopping_rounds=300, num_boost_round=4000, verbose_eval=50, valid_sets=dValid, feval=error_func)
+    try:
+        model = lgb.train(gbdt_params, dTrain, early_stopping_rounds=100, num_boost_round=1000, verbose_eval=50,valid_sets=dValid, feval=error_func)
+    except:
+        print('*************************train models abced***')
+        print('dTrain.data.head is {} '.format(dTrain.data.head()))
+        print('dTrain.data.dtypes is {}'.format(dTrain.data.dtypes))
+        print('dValid.data.head is {}'.format(dValid.data.head()))
+        raise ValueError('input error!')
+    return model
+
+
+def make_train(feature_gap_df, features, category_columns, target, predict_begin_date, predict_end_date,train_end_date):
+    &quot;&quot;&quot;
+
+    :param feature_gap_df:
+    :param features:
+    :param target:
+    :param predict_date:
+    :return:
+    &quot;&quot;&quot;
+    # end_date =pd.to_datetime(predict_date)-pd.DateOffset(days=1)
+    # bug ？？ isnull
+    # end_date = feature_gap_df.loc[feature_gap_df[target] &gt; 0, 'sale_day'].max()
+    end_date = feature_gap_df.loc[feature_gap_df[target].notnull(), 'sale_day'].max()
+    print('******************************max date{}'.format(end_date))
+    
+    # if end_date &gt;= predict_begin_date:
+    #     end_date = pd.to_datetime(predict_begin_date) - pd.DateOffset(days=1)
+    if end_date &gt;= train_end_date:
+        end_date = pd.to_datetime(train_end_date) - pd.DateOffset(days=7)
+    print('******************************valid date{}'.format(end_date))
+    
+    cond = (feature_gap_df[target].notnull()) &amp; (feature_gap_df['sale_day'] &lt;= end_date)
+    # 去掉 lastyear为空的
+    # lastyear_column = 'lastyear_target_value'
+    # if lastyear_column in feature_gap_df:
+    #     cond = cond &amp; feature_gap_df[lastyear_column].notnull()
+    train_data = feature_gap_df.loc[cond]
+    
+    # 最后一天作为验证集，与train data 重合，验证集不影响训练
+    valid_data = feature_gap_df.loc[(feature_gap_df['sale_day'] == end_date)]
+    pred_data = feature_gap_df.loc[
+        (feature_gap_df['sale_day'] &gt;= predict_begin_date) &amp; (feature_gap_df['sale_day'] &lt; predict_end_date)]
+    model = None
+    try:
+        model = train_model(train_data, valid_data, features, target, category_columns, error_func=error_weighted_mapd_lgb)
+    except:
+        print('train_data is {}'.format(train_data.head()))
+        print('feature_gap_df {}'.format(feature_gap_df['global_store_number'].iloc[0]))
+    return model
+
+
+def make_predict(model, feature_gap_df, features, category_columns, target, predict_begin_date,predict_end_date,train_end_date):
+    &quot;&quot;&quot;
+
+    :param feature_gap_df:
+    :param features:
+    :param target:
+    :param predict_date:
+    :return:
+    &quot;&quot;&quot;
+    # end_date =pd.to_datetime(predict_date)-pd.DateOffset(days=1)
+    # bug ？？ isnull
+    # end_date = feature_gap_df.loc[feature_gap_df[target] &gt; 0, 'sale_day'].max()
+    end_date = feature_gap_df.loc[feature_gap_df[target].notnull(), 'sale_day'].max()
+    print('******************************max date{}'.format(end_date))
+    
+    # if end_date &gt;= predict_begin_date:
+    #     end_date = pd.to_datetime(predict_begin_date) - pd.DateOffset(days=1)
+    if end_date &gt;= train_end_date:
+        end_date = pd.to_datetime(train_end_date) - pd.DateOffset(days=7)
+    print('******************************valid date{}'.format(end_date))
+    cond = (feature_gap_df[target].notnull()) &amp; (feature_gap_df['sale_day'] &lt;= end_date)
+    
+    # 去掉 lastyear为空的
+    # lastyear_column = 'lastyear_target_value'
+    # if lastyear_column in feature_gap_df:
+    #     cond = cond &amp; feature_gap_df[lastyear_column].notnull()
+    train_data = feature_gap_df.loc[cond]
+    
+    # 最后一天作为验证集，与train data 重合，验证集不影响训练
+    valid_data = feature_gap_df.loc[(feature_gap_df['sale_day'] == end_date)]
+    pred_data = feature_gap_df.loc[(feature_gap_df['sale_day'] &gt;= predict_begin_date) &amp; (feature_gap_df['sale_day'] &lt; predict_end_date)]
+    preds, clip_preds = None, None
+    
+    if len(pred_data.loc[:, features]) &gt; 0:
+        preds = model.predict(pred_data.loc[:, features], num_iteration=model.best_iteration)
+        # 归零处理
+        clip_preds = np.array([max(0.0, p) for p in preds])
+        # 训练集mapd
+        # mapd = compute_mapd(pred_data.loc[:, target], clip_preds)
+        # mmapd = mapd_list(pred_data.loc[:, target].tolist(), clip_preds.tolist())
+        # print('mean wmapd:{}'.format(np.mean(mapd)))
+        # print('mean mape :{}'.format(mmapd))
+    return train_data, pred_data, preds, clip_preds
+
+
+def cmp_acc(valid_data_pred_df, predict_date):
+    &quot;&quot;&quot;
+    计算准确度
+        1.	每家店的每日平均半小时预测准确率应超过75%（1-MAPE）
+        2.	每家店的每月平均每日预测准确率应超过92%（1-MAPE）
+        3.	每家店的每日预测准确率应超过80%（1-WMAPE）
+    :param valid_data_pred_df:
+    :return:
+    &quot;&quot;&quot;
+    # 'statis_date', 's_werks', 'zsize'
+    pred = valid_data_pred_df[valid_data_pred_df['pred_date'] == predict_date]
+    pred['mape1'] = 1 - np.abs(pred['target_value'] - pred['pred']) / pred['target_value']
+
+    return pred
+
+
+def do_train(feature_df, predict_date_list, gap_list, features, category_columns, fix_features, shift_features, keys, pred_type):
+    &quot;&quot;&quot;
+    多天预测入口
+    :param feature_df:
+    :param predict_date_list:
+    :return:
+    &quot;&quot;&quot;
+    valid_data_list = []
+    if pred_type == 'day':
+        time_columns = ['sale_day']
+    else:
+        time_columns = ['sale_day', 'half_hour']
+
+    # 分成四组
+    train_end_date = predict_date_list[0]
+    models = {}
+    for gap, predict_date in zip(gap_list, predict_date_list):
+        print('************************************predict_date:{} gap: {}'.format(predict_date, gap))
+
+        feature_gap_df = create_features_by_gap(feature_df, gap, fix_features, shift_features, keys, pred_type)
+        predict_begin_date = predict_date
+        predict_end_date = predict_date + pd.DateOffset(days=7)
+        # 一次取出7天
+        model = make_train(feature_gap_df, features, category_columns,
+                             target='target_value',
+                             predict_begin_date=predict_begin_date,
+                             predict_end_date=predict_end_date,
+                             train_end_date=train_end_date
+                            )
+        models[gap] = model
+    return models
+
+
+
+def do_predict(models, feature_df, predict_date_list, gap_list, features, category_columns, fix_features, shift_features,
+               keys, pred_type):
+    &quot;&quot;&quot;
+    多天预测入口
+    :param feature_df:
+    :param predict_date_list:
+    :return:
+    &quot;&quot;&quot;
+    valid_data_list = []
+    if pred_type == 'day':
+        time_columns = ['sale_day']
+    else:
+        time_columns = ['sale_day', 'half_hour']
+
+    # 分成四组
+    train_end_date = predict_date_list[0]
+    for gap, predict_date in zip(gap_list, predict_date_list):
+        print('************************************predict_date:{} gap: {}'.format(predict_date, gap))
+
+        feature_gap_df = create_features_by_gap(feature_df, gap, fix_features, shift_features, keys, pred_type)
+        predict_begin_date = predict_date
+        predict_end_date = predict_date + pd.DateOffset(days=7)
+        # 一次取出7天
+        train_data, valid_data, preds, clip_preds = make_predict(models[gap], feature_gap_df, features, category_columns,
+                                                                 target='target_value',
+                                                                 predict_begin_date=predict_begin_date,
+                                                                 predict_end_date=predict_end_date,
+                                                                 train_end_date=train_end_date
+                                                                )
+        
+        valid_data_cut = valid_data[keys + time_columns + ['target_value']]
+        # train_data['pred{}'.format(gap)] = model.predict(train_data.loc[:, features],
+        valid_data_cut['pred'] = clip_preds
+        valid_data_list.append(valid_data_cut)
+        # 预热期处理结束
+    
+    valid_data_pred_df = pd.concat(valid_data_list, axis=0).reset_index(drop=True)
+    valid_data_pred_df = valid_data_pred_df.sort_values(by=keys + time_columns)
+
+    valid_data_pred_df.rename(columns={'sale_day': 'pred_date'}, inplace=True)
+    valid_data_pred_df['pred_date'] = valid_data_pred_df['pred_date'].dt.strftime('%Y%m%d')
+
+    return valid_data_pred_df
+
+def get_hour_feat_data(spark, predict_begin_date_str):
+    &quot;&quot;&quot;
+    过滤 订单-小时 数据
+    cond1=(g['sale_day']&gt;pd.to_datetime('2019-06-01'))&amp;(g['sale_day']&lt;pd.to_datetime('2019-11-01'))
+    cond2=(g['sale_day']&gt;pd.to_datetime('2020-06-01'))
+    cond3=(g['channel']=='In-Store')
+    cond4=(g['channel']!='In-Store')
+    cond=((cond1|cond2)&amp;cond3)|(cond2&amp;cond4)
+    :param spark:
+    :param predict_begin_date_str:
+    :return:
+    &quot;&quot;&quot;
+    order_hour_feat_sdf = get_order_feat_hour(spark, predict_begin_date_str)
+    
+    # 去年同期
+    cond1 = &quot; sale_day &gt;'20190601'  and sale_day&lt; '20191101' &quot;
+    
+    # 今年6月后
+    cond2 = &quot; sale_day &gt;'20200601' &quot;
+    cond3 = &quot; channel =='In-Store'&quot;
+    cond4 = &quot; channel !='In-Store'&quot;
+    
+    cond = &quot;((({0}) or  {1}) and  {2}) or ({1} and {3})&quot;.format(cond1, cond2, cond3, cond4)
+    order_hour_feat_sdf_f = order_hour_feat_sdf.filter(cond)
+    return order_hour_feat_sdf_f
+
+
+def make_and_train(store, rows, shift_features, category_columns, features, keys, pred_type):
+    &quot;&quot;&quot;
+    预测结果
+    :param feature_df:
+    :return:
+    &quot;&quot;&quot;
+    row_list = list()
+    for row in rows:
+        row_list.append(row.asDict())
+    # print(row_list)
+    feature_df = pd.DataFrame(row_list)
+    feature_df['sale_day'] = pd.to_datetime(feature_df['sale_day'], format='%Y%m%d')
+    
+    models = do_train(            feature_df, predict_date_list, gap_list, features, category_columns, fix_features, shift_features, keys, pred_type)
+    return store, models
+
+
+def make_and_predict(models, rows, shift_features, category_columns, features, keys, pred_type):
+    &quot;&quot;&quot;
+    预测结果
+    :param feature_df:
+    :return:
+    &quot;&quot;&quot;
+    row_list = list()
+    for row in rows:
+        row_list.append(row.asDict())
+    # print(row_list)
+    feature_df = pd.DataFrame(row_list)
+    feature_df['sale_day'] = pd.to_datetime(feature_df['sale_day'], format='%Y%m%d')
+    
+    result_df = do_predict(models,feature_df, predict_date_list, gap_list, features, category_columns, fix_features, shift_features, keys, pred_type)
+    
+    datetime_cls = result_df.select_dtypes(include=['datetime64']).columns
+    result_df.loc[:, datetime_cls] = result_df.loc[:, datetime_cls].apply(lambda x: x.dt.strftime('%Y%m%d'))
+    ResultRow = Row(*result_df.columns)
+    
+    row_list = []
+    for r in result_df.values:
+        row_list.append(ResultRow(*r))
+    
+    return row_list
+</code></pre>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+作业量预测 lightgbm
+&quot;&quot;&quot;
+spark_conf = SparkConf()
+spark = SparkSession.builder.appName(&quot;wfm lgb order train and predict&quot;).config(conf=spark_conf).enableHiveSupport().getOrCreate()
+
+# 确定随机数种子
+random.seed(100)
+np.random.seed(100)
+
+keys = [&quot;global_store_number&quot;, &quot;channel&quot;]
+
+predict_begin_date_str = '20210201'
+periods = 28
+predict_date_list = pd.date_range(predict_begin_date_str, periods=4, freq='7D')
+gap_list = [i + 7 for i in range(0, periods, 7)]
+print(&quot;predict_date_list:&quot;, predict_date_list)
+
+# 获取特征数据
+order_hour_feat_sdf = get_hour_feat_data(spark, predict_begin_date_str)
+print('order_hour_feat_sdf length is {}'.format(order_hour_feat_sdf.count()))
+
+# 定义特征名字
+fix_features = [
+    'month',
+    'dayofweek',
+    'day',
+    'is_work_day',
+    'holiday_label',
+    # 'open',
+    # 'close',
+    'lastyear_target_value',
+    'ws',
+    'wc'
+]
+
+# hour names
+shift_features_h = [c for c in order_hour_feat_sdf.columns if re.match(r'^target_value.+$', c)]
+print('shift features columns hour is {}'.format(shift_features_h))
+
+features_h = fix_features + shift_features_h + ['half_hour']
+category_columns = ['month', 'day', 'is_work_day', 'holiday_label']
+
+# 进行预测
+retrain = 1
+
+if retrain:
+    hour_models = order_hour_feat_sdf.rdd.map(lambda x: (x['global_store_number'], x)).groupByKey().map(lambda x: make_and_train(x[0], x[1], shift_features_h, category_columns, features_h, keys, 'hour'))
+    # hour_models 是 rdd训练好的模型保存到HDFS
+    os.system('hadoop fs -rm -r hdfs://ns1/user/admin/order_hour_models.pkl')
+    hour_models.saveAsPickleFile('order_hour_models.pkl')
+else:
+    # 直接用训练好的模型来预测数据
+    hour_models = spark.sparkContext.pickleFile('order_hour_models.pkl')
+    hour_result_rdd = order_hour_feat_sdf.rdd.map(lambda x: (x['global_store_number'], x)).groupByKey().join(hour_models).flatMap(lambda x: make_and_predict(x[1][1], x[1][0], shift_features_h, category_columns, features_h, keys, 'hour'))
+    hour_result_sdf = spark.createDataFrame(hour_result_rdd)
+    
+    # 预测数据写表
+    table = 'wfm_order_predict_h'
+    insert_table_by_sparkdf(hour_result_sdf, table_name='test_order_sale_train_predict', statis_date_str=predict_begin_date_str,partion_num=100)    
+
+print(&quot;train and predict done!&quot;)
+</code></pre>
+
+<pre><code class="language-shell"># 训练结果的模型保存HDFS
+[root@ce60148 ~]$ hdfs dfs -ls /user/admin
+drwxr-xr-x   - admin       supergroup                   0 2021-03-14 07:44 /user/admin/order_hour_models.pkl
+drwxr-xr-x   - admin       supergroup                   0 2021-03-21 18:42 /user/admin/order_hour_models_0.pkl
+drwxr-xr-x   - admin       supergroup                   0 2021-03-21 18:45 /user/admin/order_hour_models_1.pkl
+drwxr-xr-x   - admin       supergroup                   0 2021-03-21 19:13 /user/admin/order_hour_models_10.pkl
+
+# 预测结果存表
+[root@ce60148 ~]$ hdfs dfs -ls /user/hive/warehouse/database.db/wfm_order_predict_h
+Found 2 items
+-rw-r--r--   3 admin hive          0 2021-03-22 10:31 /user/hive/warehouse/database.db/wfm_order_predict_h/_SUCCESS
+drwxr-xr-x   - admin hive          0 2021-03-22 10:31 /user/hive/warehouse/database.db/wfm_order_predict_h/statis_date=20210321
+[root@ce60148 ~]$ hdfs dfs -ls /user/hive/warehouse/database.db/wfm_order_predict_h/statis_date=20210321
+Found 32 items
+drwxr-xr-x   - admin hive          0 2021-03-22 09:53 /user/hive/warehouse/database.db/wfm_order_predict_h/statis_date=20210321/batch=0
+drwxr-xr-x   - admin hive          0 2021-03-22 09:54 /user/hive/warehouse/database.db/wfm_order_predict_h/statis_date=20210321/batch=1
+drwxr-xr-x   - admin hive          0 2021-03-22 10:05 
+
+[root@ce60148 ~]$ hdfs dfs -ls /user/hive/warehouse/database.db/wfm_order_predict_h/statis_date=20210321/batch=1
+Found 123 items
+-rw-r--r--   3 admin hive      22271 2021-03-22 09:54 /user/hive/warehouse/database.db/wfm_order_predict_h/statis_date=20210321/batch=1/part-00000-aebab4c0-5c9c-4e66-af20-123b4fad21e2.c000.snappy.orc
+-rw-r--r--   3 admin hive      26636 2021-03-22 09:54 /user/hive/warehouse/database.db/wfm_order_predict_h/statis_date=20210321/batch=1/part-00002-aebab4c0-5c9c-4e66-af20-123b4fad21e2.c000.snappy.orc
+</code></pre>
+
+<h2 id="7-4-模型部署工程化">7.4 模型部署工程化</h2>
+
+<h3 id="特征生成">特征生成</h3>
+
+<pre><code class="language-shell">################################################################################
+# Function : algorithm_python_features
+# Author : ydzhao
+# Created Time : 2021-01-21
+# Input table :
+# Output table :
+# Comment :7天一跑
+################################################################################
+# !/bin/bash
+current_dir=$(cd $(dirname $0); pwd)
+cd ${current_dir}
+
+source /etc/profile
+source ../global_config.sh
+
+bash /root/update_kerberos.sh
+
+function algorithm_python_features()
+{
+    /opt/spark-2.4.4/bin/spark-submit  \
+	--master  yarn-client  \
+    --executor-cores  1  \
+    --num-executors  8  \
+    --executor-memory  10g  \
+    --conf  spark.memory.fraction=0.8  \
+    --conf  spark.driver.maxResultSize=4g  \
+	--queue root.project_name  \
+	--py-files  ../algorithm/algorithm.zip \
+	../algorithm/wfmforecast/drivers/$1  $pred_time 28
+
+		if [[ $? -ne 0 ]]; then
+			echo &quot;--&gt; execute algorithm_python_features failed!&quot;
+		exit 1
+		fi
+}
+
+startDate=$(date -d &quot;${pred_start_time}&quot; +%s)
+endDate=$(date -d &quot;${pred_time}&quot; +%s)
+##计算两个时间戳的差值除于每天86400s即为天数差
+stampDiff=`expr $endDate - $startDate`
+dayDiff=`expr $stampDiff / 86400`
+echo $dayDiff
+flag=$(( $dayDiff % 7 ))
+if [ ${flag} = 0 ]; then
+    echo &quot;algorithm_python_features run&quot;
+    algorithm_python_features $1
+fi
+</code></pre>
+
+<h3 id="模型训练和预测">模型训练和预测</h3>
+
+<pre><code class="language-shell">################################################################################
+# Function : algorithm_python_train
+# Author : ydzhao
+# Created Time : 2021-01-21
+# Input table :
+# Output table :
+# Comment :
+################################################################################
+# !/bin/bash
+current_dir=$(cd $(dirname $0); pwd)
+cd ${current_dir}
+
+source /etc/profile
+source ../global_config.sh
+
+bash /root/update_kerberos.sh
+
+function algorithm_python_train()
+{
+    /opt/spark-2.4.4/bin/spark-submit  \
+	--master  yarn-client  \
+    --executor-cores  1  \
+    --num-executors  8  \
+    --executor-memory  10g  \
+    --conf  spark.memory.fraction=0.8  \
+    --conf  spark.driver.maxResultSize=4g  \
+	--queue root.project_name  \
+	--py-files  ../algorithm/algorithm.zip \
+	../algorithm/wfmforecast/drivers/$1  $pred_time 28 1
+
+		if [[ $? -ne 0 ]]; then
+			echo &quot;--&gt; execute algorithm_python_train failed!&quot;
+		exit 1
+		fi
+}
+startDate=$(date -d &quot;${pred_start_time}&quot; +%s)
+endDate=$(date -d &quot;${pred_time}&quot; +%s)
+##计算两个时间戳的差值除于每天86400s即为天数差
+stampDiff=`expr $endDate - $startDate`
+dayDiff=`expr $stampDiff / 86400`
+echo $dayDiff
+flag=$(( $dayDiff % 28 ))
+if [ ${flag} = 0 ]; then
+    echo &quot;algorithm_python_train run&quot;
+    algorithm_python_train $1
+fi
+</code></pre>
+
+<pre><code class="language-shell">################################################################################
+# Function : algorithm_python_predict
+# Author : ydzhao
+# Created Time : 2021-01-21
+# Input table :
+# Output table :
+# Comment :
+################################################################################
+# !/bin/bash
+current_dir=$(cd $(dirname $0); pwd)
+cd ${current_dir}
+
+source /etc/profile
+source ../global_config.sh
+
+bash /root/update_kerberos.sh
+
+function algorithm_python_predict()
+{
+    /opt/spark-2.4.4/bin/spark-submit  \
+	--master  yarn-client  \
+    --executor-cores  1  \
+    --num-executors  8  \
+    --executor-memory  10g  \
+    --conf  spark.memory.fraction=0.8  \
+    --conf  spark.driver.maxResultSize=4g  \
+	--queue root.project_name  \
+	--py-files  ../algorithm/algorithm.zip \
+	../algorithm/wfmforecast/drivers/$1  $pred_time 28 0
+
+		if [[ $? -ne 0 ]]; then
+			echo &quot;--&gt; execute algorithm_python_predict failed!&quot;
+		exit 1
+		fi
+}
+
+startDate=$(date -d &quot;${pred_start_time}&quot; +%s)
+endDate=$(date -d &quot;${pred_time}&quot; +%s)
+##计算两个时间戳的差值除于每天86400s即为天数差
+stampDiff=`expr $endDate - $startDate`
+dayDiff=`expr $stampDiff / 86400`
+echo $dayDiff
+flag=$(( $dayDiff % 7 ))
+if [ ${flag} = 0 ]; then
+    echo &quot;algorithm_python_predict run&quot;
+    algorithm_python_predict $1
+fi
+</code></pre>
+
+<h3 id="azkaban调度任务">Azkaban调度任务</h3>
+
+<p>由于隐私，这里不做具体展示，需要根据上游数据生成时间和频率，将算法模块放入依赖项之后，目前的频率是每周训练预测一次。。。</p>
+
+</div>
+
+
+  <footer class="container">
+  <div class="container navigation no-print">
+  <h2>Navigation</h2>
+  
+  
+
+    
+    <a class="prev" href="https://7125messi.github.io/post/xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt/" title="Xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt">
+      Previous
+    </a>
+    
+
+    
+
+  
+
+
+</div>
+
+  
+
+</footer>
+
+</article>
+      <footer id="main-footer" class="container main_footer">
+  
+
+  <div class="container nav foot no-print">
+  
+
+  <a class="toplink" href="#">back to top</a>
+
+</div>
+
+  <div class="container credits">
+  
+<div class="container footline">
+  
+  code with <i class='fa fa-heart'></i>
+
+
+</div>
+
+
+  
+<div class="container copyright">
+  
+  &copy; 2018 7125messi.
+
+
+</div>
+
+
+</div>
+
+</footer>
+
+    </main>
+    
+
+
+<script src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+  </body>
+</html>
+

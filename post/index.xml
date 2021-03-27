@@ -7,10 +7,33 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>(c) 2018 7125messi.</copyright>
-    <lastBuildDate>Thu, 26 Nov 2020 21:16:36 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 27 Mar 2021 15:28:21 +0800</lastBuildDate>
     
 	<atom:link href="https://7125messi.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Spark预测算法端到端案例</title>
+      <link>https://7125messi.github.io/post/spark%E9%A2%84%E6%B5%8B%E7%AE%97%E6%B3%95%E7%AB%AF%E5%88%B0%E7%AB%AF%E6%A1%88%E4%BE%8B/</link>
+      <pubDate>Sat, 27 Mar 2021 15:28:21 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/spark%E9%A2%84%E6%B5%8B%E7%AE%97%E6%B3%95%E7%AB%AF%E5%88%B0%E7%AB%AF%E6%A1%88%E4%BE%8B/</guid>
+      <description>最近做完了一个预测算法，数据量巨大，需要分布式环境跑数据，算法本身用的是LightGBM，没什么好说的，主要是怎么用Spark每个driver端跑模型。
+1.基础数据  订单数据：主数据，包括渠道订单量和品类销量（day和hour）
+wfm_order_quantity_day wfm_order_quantity_half_hour
+wfm_sale_quantity_day wfm_sale_quantity_half_hour
+渠道：instore、mop(手机下单，店里取)、mod(外卖,打包) （店内、啡快、专星送） 销量预测：品类+销量 单量预测：渠道+订单量
+ 天气数据
+ 促销数据
+ 门店数据：商圈类型 城市级别
+ 商品数据：商品品类
+ 预测目标
+ 算法中除了考虑内部因子（如历史销售、市场促销、周中周末等）以外，还需纳入外部因子（如天气、节假日、季节、偶发事件等） 每家店的每日平均半小时预测准确率应超过75%（1-MAPE） 每家店的每月平均每日预测准确率应超过92%（1-MAPE） 每家店的每日预测准确率应超过80%（1-WMAPE）   2.特征处理  时间类：年月日，星期，小时等 历史统计类：最大，最小，均值，方差，中位数等 促销类：促销类型，粒度等 节假日：工作日，节假日【传统节日，法定节日等】  3.模型加工 一般预测未来N天有三种方式，本项目预测28天：
+ 循环发 每次预测一天 带入历史特征 滚动预测下一天 性能低下 gap 1-28 28个模型 效率低 分段 直接预测 比较合理  分7 14 21 28四个shift， 组成28天预测模型
+预测1-7 采用 shift 7
+预测8-14 采用 shift 14
+预测15-21 采用 shift 21</description>
+    </item>
     
     <item>
       <title>Xgboost_lightgbm_catboost_gridsearch_randomsearch_bayes_opt</title>
