@@ -7,10 +7,30 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>(c) 2018 7125messi.</copyright>
-    <lastBuildDate>Sat, 27 Mar 2021 15:28:21 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 26 Apr 2021 22:19:13 +0800</lastBuildDate>
     
 	<atom:link href="https://7125messi.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Lightgbm在spark实战</title>
+      <link>https://7125messi.github.io/post/lightgbm%E5%9C%A8spark%E5%AE%9E%E6%88%98/</link>
+      <pubDate>Mon, 26 Apr 2021 22:19:13 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/lightgbm%E5%9C%A8spark%E5%AE%9E%E6%88%98/</guid>
+      <description>通常业务中对计算性能有要求时，通常不使用GPU跑tf，会使用xgboost/lightgbm on Spark来解决，既保证速度，准确率也能接受。
+LightGBM是使用基于树的学习算法的梯度增强框架。它被设计为分布式且高效的，具有以下优点：
+根据官网的介绍 * LigthGBM训练速度更快，效率更高。LightGBM比XGBoost快将近10倍。 * 降低内存使用率。内存占用率大约为XGBoost的1/6。 * 准确性有相应提升。 * 支持并行和GPU学习。 * 能够处理大规模数据。
+大部分使用和分析LigthGBM的都是在python单机版本上。要在spark上使用LigthGBM，需要安装微软的MMLSpark包。
+MMLSpark可以通过&amp;ndash;packages安装。
+spark * &amp;ndash;packages参数
+根据jar包的maven地址，使用该包，该参数不常用，因为公司内部的数据平台的集群不一定能联网。 如下示例：
+$ bin/spark-shell --packages com.microsoft.ml.spark:mmlspark_2.11:1.0.0-rc1 http://maven.aliyun.com/nexus/content/groups/public/   &amp;ndash;repositories 为该包的maven地址，建议给定，不写则使用默认源。 若依赖多个包，则中间以逗号分隔，类似&amp;ndash;jars 默认下载的包位于当前用户根目录下的.ivy/jars文件夹中 应用场景：本地没有编译好的jar包，集群中服务需要该包的的时候，都是从给定的maven地址，直接下载  MMLSpark用法 1 .MMLSpark可以通&amp;ndash;packages选项方便地安装在现有的Spark集群上，例如:
+spark-shell --packages com.microsoft.ml.spark:mmlspark_2.11:1.0.0-rc1 pyspark --packages com.microsoft.ml.spark:mmlspark_2.11:1.0.0-rc1 spark-submit --packages com.microsoft.ml.spark:mmlspark_2.11:1.0.0-rc1  这也可以在其他Spark contexts中使用，例如，可以通过将MMLSpark添加到.aztk/spark-default.conf文件中来在AZTK中使用MMLSpark。
+2 .要在Python(或Conda)安装上尝试MMLSpark，首先通过pip安装PySpark, pip安装PySpark。接下来，使用&amp;ndash;package或在运行时添加包来获取scala源代码
+import pyspark spark = pyspark.sql.SparkSession.builder.appName(&amp;quot;MyApp&amp;quot;).\ config(&amp;quot;spark.jars.packages&amp;quot;,&amp;quot;com.microsoft.ml.spark:mmlspark_2.11:1.0.0-rc1&amp;quot;).\ getOrCreate() import mmlspark  3.python建模使用
+# 分类 from mmlspark.lightgbm import LightGBMClassifier model = LightGBMClassifier(learningRate=0.</description>
+    </item>
     
     <item>
       <title>Spark预测算法端到端案例</title>
