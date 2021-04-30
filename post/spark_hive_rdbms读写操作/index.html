@@ -51,7 +51,7 @@
     },
     "datePublished": "2020-09-10",
     "description": "",
-    "wordCount":  1183 
+    "wordCount":  1786 
   }
 </script>
 
@@ -161,8 +161,8 @@
 
 
   
-  &middot; Read in about 6 min
-  &middot; (1183 Words)
+  &middot; Read in about 9 min
+  &middot; (1786 Words)
   <br>
   
 
@@ -518,7 +518,257 @@ def mysql_insert_or_update_data(strSql):
         conn.close()
 </code></pre>
 
-<h1 id="3-测试代码-predict-pred-py">3 测试代码 predict_pred.py</h1>
+<h1 id="3-postgresql读-写-插入-更新">3 postgresql读/写/插入/更新</h1>
+
+<pre><code class="language-python">import os
+import io
+import re
+import psycopg2
+import numpy as np
+import pandas as pd
+from datetime import datetime
+from sqlalchemy import create_engine
+from configparser import ConfigParser
+import subprocess
+# subprocess 模块允许你生成新的进程，连接它们的输入、输出、错误管道，并且获取它们的返回码。
+# 推荐的调用子进程的方式是在任何它支持的用例中使用 run() 函数。对于更进阶的用例，也可以使用底层的 Popen 接口。
+
+def is_windows():
+    import sys
+    return sys.platform.startswith('win')
+
+# 解密
+def decrypt_password(encrypted_password: str):
+    password_command = 'password'
+    cmd = subprocess.Popen(f'{password_command} decrypt {encrypted_password}', stdin=subprocess.PIPE,
+                           stderr=subprocess.PIPE,
+                           stdout=subprocess.PIPE, universal_newlines=True, shell=True, bufsize=1)
+    return '\n'.join(cmd.stdout.readlines())
+
+# 加密
+def encrypt_password(decrypted_password: str):
+    password_command = 'password'
+    cmd = subprocess.Popen(f'{password_command} encrypt {decrypted_password}', stdin=subprocess.PIPE,
+                           stderr=subprocess.PIPE,
+                           stdout=subprocess.PIPE, universal_newlines=True, shell=True, bufsize=1)
+    stderr_message = '\n'.join(cmd.stderr.readlines())
+    if stderr_message.strip() != '':
+        raise Exception(stderr_message)
+    return '\n'.join(cmd.stdout.readlines())
+
+
+def get_config_file_path():
+    path = os.path.abspath(os.path.join(os.getcwd(), &quot;..&quot;))
+    return f'{path}/algo_config/config.ini'
+
+
+def get_relative_config_file_path():
+    return &quot;../algo_config/config.ini&quot;
+
+
+def get_config():
+    # 获取根目录路径
+    path = get_config_file_path()
+
+    # 初始化配置文件对象
+    cf = ConfigParser()
+    cf.read(path, encoding='utf-8')
+    return cf
+
+
+def get_env(env: str = None):
+    # 获取配置文件对象
+    cf = get_config()
+
+    # 初始化环境变量, 默认default
+    env = 'default' if env is None else env
+
+    # 读取当前环境变量配置文件, 若存在则修改环境变量的初始值
+    if os.path.exists('/data/env_conf/env_name.conf'):
+        with open('/data/env_conf/env_name.conf') as env_f:
+            env = env_f.read().strip()
+
+    return cf, env
+
+
+def get_user_pwd(env: str = None):
+    # 初始化配置文件对象及环境变量值
+    cf, env = get_env(env)
+
+    # 分区拼接
+    partition = f'postgresql_{env}'
+
+    # 获取用户名及密码
+    user = cf.get(partition, 'user')
+    password = decrypt_password(cf.get(partition, 'password'))
+    # print(f'current env: {env}, read partition: {partition}, user: {user}, password: {password}')
+
+    return user, password
+
+
+def get_conn_info(env=None):
+    # 初始化配置文件对象及环境变量值
+    cf, env = get_env(env)
+
+    # 分区拼接
+    partition = f'postgresql_{env}'
+
+    # 获取数据库的IP地址、端口号、以及要连接的数据库
+    host = cf.get(partition, 'host')
+    port = cf.get(partition, 'port')
+    db = cf.get(partition, 'db')
+
+    # print(f'current env: {env}, read partition: {partition}, host: {host}, port: {port}, db: {db}')
+    return host, port, db
+
+
+def replace_value(x):
+    if x == &quot;''::character varying&quot;:
+        return ' '
+    elif x == 'now()':
+        return datetime.now()
+    elif x is np.nan:
+        return x
+    elif x is None:
+        return x
+    elif x.startswith('('):
+        return re.findall(r'\((.*?)\)', x)[0]
+    else:
+        return x
+
+
+def read_dataset(sql):
+    # 配置文件信息读取
+    user, password = get_user_pwd()
+    host, port, db = get_conn_info()
+
+    # 连接数据库
+    conn = psycopg2.connect(database=db, user=user, password=password, host=host, port=port)
+    df = pd.read_sql(sql, con=conn)
+    return df
+
+
+def write_dataset(df, schema, table_name, if_exists='fail'):
+    &quot;&quot;&quot;
+        if_exists mode:
+            fail: 数据库不存在目标表时， 根据待写入数据创建对应的数据表， 数据可正常写入， 表存在则写入失败
+            append:  数据库中存在目标表， 将数据追加到目标表中
+            replace: 数据库中存在目标表， 将目标表中的数据替换为当前数据
+
+        利用copy的方式将数据写入目标表
+    &quot;&quot;&quot;
+
+    # 配置文件信息读取
+    user, password = get_user_pwd()
+    host, port, db = get_conn_info()
+
+    # 连接数据库
+    db_engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
+    string_data_io = io.StringIO()
+    df.to_csv(string_data_io, sep=',', index=False, header=True)
+    pd_sql_engine = pd.io.sql.pandasSQL_builder(db_engine)
+    table = pd.io.sql.SQLTable(table_name, pd_sql_engine, frame=df, index=False, if_exists=if_exists, schema=schema)
+    table.create()
+    string_data_io.seek(0)
+    with db_engine.connect() as conn:
+        with conn.connection.cursor() as cursor:
+            copy_cmd = f&quot;COPY {schema}.{table_name} FROM STDIN WITH HEADER DELIMITER ',' CSV&quot;
+            cursor.copy_expert(copy_cmd, string_data_io)
+        conn.connection.commit()
+
+
+def insert_df_to_table(df, schema, table_name, write_flag=&quot;append&quot;):
+    # 获取当前表的所有字段
+    sql = f&quot;&quot;&quot;select column_name, column_default from information_schema.columns where table_schema = '{schema}' and 
+    table_name = '{table_name}' order by ordinal_position &quot;&quot;&quot;
+    field_df = read_dataset(sql)
+    field_df['column_default'] = field_df['column_default'].apply(lambda x: replace_value(x))
+    field_dict = dict(zip(field_df['column_name'], field_df['column_default']))
+    field_list = field_df['column_name'].tolist()
+
+    # 获取当前df的所有字段
+    columns_list = list(df.columns)
+
+    # 获取当前df缺少的字段
+    other_list = list(set(field_list) - set(columns_list))
+
+    # 为缺少字段填充空值
+    for x in other_list:
+        value = field_dict[x]
+        df[x] = value
+
+    # 修正列的顺序
+    df = df[field_list]
+
+    # 数据写入
+    write_dataset(df, schema, table_name, write_flag)
+    
+    
+if __name__ == '__main__':
+    user,passwd = get_user_pwd(env = 'dev')
+    print(passwd)
+</code></pre>
+
+<pre><code class="language-python">def init_table():
+    sql = f&quot;&quot;&quot;truncate arp_dw1.tb3_bom_safety_df;&quot;&quot;&quot;
+
+    connect = psycopg2.connect(dbname=db, user=user, password=password, host=host, port=port)
+    cur = connect.cursor()
+    try:
+        cur.execute(sql)
+        connect.commit()
+    except BaseException as e:
+        print(repr(e))
+        connect.rollback()
+    connect.close()
+
+def sku_meta_data_insert(result_list):
+    # insert meta data
+    # 创建数据库连接对象
+    connect = psycopg2.connect(database=db, user=user, password=password, host=host, port=port)
+    cur = connect.cursor()
+
+    sql = &quot;&quot;&quot;insert into arp_app.alg_sku_grouping(sku_grouping_name, sku_grouping_id, status, create_by) values(%s, 
+        %s, %s, %s) &quot;&quot;&quot;
+    try:
+        cur.executemany(sql, result_list)
+        connect.commit()
+    except BaseException as e:
+        print(repr(e))
+        connect.rollback()
+    connect.close()
+
+
+def update_table(df, schema, table):
+    write_dataset(df, 'arp_dw1', 'temp_sku_group_inc', 'fail')
+
+    # 创建数据库连接对象
+    connect = psycopg2.connect(database=db, user=user, password=password, host=host, port=port)
+    cur = connect.cursor()
+
+    sql = f&quot;&quot;&quot;insert into {schema}.{table}(unit, primary_category, secondary_category, material_code, 
+    sku_grouping_id, status, create_by) select * from arp_dw1.temp_sku_group_inc&quot;&quot;&quot;
+
+    try:
+        cur.execute(sql)
+        connect.commit()
+    except BaseException as e:
+        print(repr(e))
+        connect.rollback()
+
+    drop_sql = &quot;&quot;&quot;drop table arp_dw1.temp_sku_group_inc&quot;&quot;&quot;
+
+    try:
+        cur.execute(drop_sql)
+        connect.commit()
+    except BaseException as e:
+        print(repr(e))
+        connect.rollback()
+    connect.close()
+
+</code></pre>
+
+<h1 id="4-测试代码-predict-pred-py">4 测试代码 predict_pred.py</h1>
 
 <pre><code class="language-python">from pyspark.sql import SparkSession
 from pyspark.sql import functions as fn
@@ -701,7 +951,7 @@ ${spark_interpreter} --master yarn \
                     --jars mysql-connector-java-8.0.21.jar ${base_dir}/hn_arp_desc_for_store_wh.py &quot;${select_dt}&quot;
 </code></pre>
 
-<h1 id="4-执行代码-func-forecast-sh">4 执行代码 func_forecast.sh</h1>
+<h1 id="5-执行代码-func-forecast-sh">5 执行代码 func_forecast.sh</h1>
 
 <pre><code class="language-shell"># !/bin/bash
 
@@ -746,7 +996,7 @@ func_forecast
 
 <hr />
 
-<h1 id="5-shell中配置文件的读取">5 Shell中配置文件的读取</h1>
+<h1 id="6-shell中配置文件的读取">6 Shell中配置文件的读取</h1>
 
 <p>编写统一的读取文件<code>ini_pro.sh</code></p>
 
