@@ -51,7 +51,7 @@
     },
     "datePublished": "2020-11-26",
     "description": "",
-    "wordCount":  5584 
+    "wordCount":  6404 
   }
 </script>
 
@@ -161,8 +161,8 @@
 
 
   
-  &middot; Read in about 27 min
-  &middot; (5584 Words)
+  &middot; Read in about 31 min
+  &middot; (6404 Words)
   <br>
   
 
@@ -1316,6 +1316,517 @@ if __name__ == '__main__':
 
 <h1 id="6-stacking模型融合">6 stacking模型融合</h1>
 
+<h2 id="1-xgb参数调优">1 XGB参数调优</h2>
+
+<p><strong>XGBoost的参数分为三种：</strong></p>
+
+<ul>
+<li><p>通用参数：（两种类型的booster，因为tree的性能比线性回归好得多，因此我们很少用线性回归。）</p>
+
+<ul>
+<li>booster:使用哪个弱学习器训练，默认<strong>gbtree</strong>，可选gbtree，gblinear 或dart</li>
+<li><strong>nthread</strong>：用于运行XGBoost的并行线程数，<strong>默认为最大可用线程数</strong></li>
+
+<li><p>verbosity：打印消息的详细程度。有效值为0（静默），1（警告），2（信息），3（调试）。</p></li>
+
+<li><p><strong>Tree Booster的参数：</strong></p>
+
+<ul>
+<li>eta（<strong>learning_rate</strong>）：learning_rate，在更新中使用步长收缩以防止过度拟合，默认= 0.3，范围：[0,1]；典型值一般设置为：0.01-0.2</li>
+<li><strong>gamma</strong>（<strong>min_split_loss）：默认= 0，分裂节点时，损失函数减小值只有大于等于gamma节点才分裂，gamma值越大，算法越保守，越不容易过拟合，但性能就不一定能保证</strong>，需要平衡。范围：[0，∞]</li>
+<li><strong>max_depth：默认= 6</strong>，一棵树的最大深度。增加此值将使模型更复杂，并且更可能过度拟合。范围：[0，∞]</li>
+<li>min_child_weight：默认值= 1，如果新分裂的节点的样本权重和小于min_child_weight则停止分裂 。这个可以用来<strong>减少过拟合，但是也不能太高，会导致欠拟合。范围：[0，∞]</strong></li>
+<li><strong>max_delta_step：默认= 0，允许每个叶子输出的最大增量步长。</strong>如果将该值设置为0，则表示没有约束。<strong>如果将其设置为正值，则可以帮助使更新步骤更加保守。</strong>通常不需要此参数，但是<strong>当类极度不平衡时，它可能有助于逻辑回归。将其设置为1-10的值可能有助于控制更新。范围：[0，∞]</strong></li>
+<li><strong>subsample：默认值= 1，构建每棵树对样本的采样率，如果设置成0.5，XGBoost会随机选择一半的样本作为训练集。范围：（0,1]</strong></li>
+<li>**sampling_method：默认= uniform，用于对训练实例进行采样的方法。 **
+
+<ul>
+<li>uniform：每个训练实例的选择概率均等。通常将<strong>subsample&gt; = 0.5 设置 为良好的效果。</strong></li>
+<li>gradient_based：每个训练实例的选择概率与规则化的梯度绝对值成正比，具体来说就是$$\sqrt{g^2+\lambda h^2}$$，<strong>subsample可以设置为低至0.1，而不会损失模型精度。</strong></li>
+</ul></li>
+</ul></li>
+
+<li><p><strong>colsample_bytree：默认= 1，列采样率，也就是特征采样率。范围为（0，1]</strong></p></li>
+
+<li><p><strong>lambda（reg_lambda）：默认=1，L2正则化权重项。增加此值将使模型更加保守。</strong></p></li>
+
+<li><p><strong>alpha（reg_alpha）：默认= 0，权重的L1正则化项。增加此值将使模型更加保守。</strong></p></li>
+
+<li><p>tree_method：默认=auto，XGBoost中使用的树构建算法。</p>
+
+<ul>
+<li>auto：使用启发式选择最快的方法。</li>
+<li>对于小型数据集，exact将使用精确贪婪（）。</li>
+<li>对于较大的数据集，approx将选择近似算法（）。它建议尝试hist，gpu_hist，用大量的数据可能更高的性能。（gpu_hist）支持。external memory外部存储器。</li>
+<li>exact：精确的贪婪算法。枚举所有拆分的候选点。</li>
+<li>approx：使用分位数和梯度直方图的近似贪婪算法。</li>
+<li><strong>hist：更快的直方图优化的近似贪婪算法。（LightGBM也是使用直方图算法）</strong></li>
+<li>gpu_hist：GPU hist算法的实现。</li>
+</ul></li>
+
+<li><p>scale_pos_weight:控制正负权重的平衡，这对于不平衡的类别很有用。Kaggle竞赛一般设置sum(negative instances) / sum(positive instances)，在类别高度不平衡的情况下，将参数设置大于0，可以加快收敛。</p></li>
+
+<li><p>num_parallel_tree：默认=1，每次迭代期间构造的并行树的数量。此选项用于支持增强型随机森林。</p></li>
+
+<li><p>monotone_constraints：可变单调性的约束，在某些情况下，如果有非常强烈的先验信念认为真实的关系具有一定的质量，则可以使用约束条件来提高模型的预测性能。（例如params_constrained[&lsquo;monotone_constraints&rsquo;] = &ldquo;(1,-1)&ldquo;，(1,-1)我们告诉XGBoost对第一个预测变量施加增加的约束，对第二个预测变量施加减小的约束。）</p></li>
+</ul></li>
+
+<li><p>任务参数（这个参数用来<strong>控制理想的优化目标和每一步结果的度量方法</strong>。）</p>
+
+<ul>
+<li><p><strong>objective</strong>：默认=reg:squarederror，表示最小平方误差。</p>
+
+<ul>
+<li><strong>reg:squarederror,最小平方误差。</strong></li>
+<li><strong>reg:squaredlogerror,对数平方损失。</strong></li>
+<li><strong>reg:logistic,逻辑回归</strong></li>
+<li>reg:pseudohubererror,使用伪Huber损失进行回归，这是绝对损失的两倍可微选择。</li>
+<li><strong>binary:logistic,二元分类的逻辑回归，输出概率。</strong></li>
+<li>binary:logitraw：用于二进制分类的逻辑回归，逻辑转换之前的输出得分。</li>
+<li><strong>binary:hinge：二进制分类的铰链损失。这使预测为0或1，而不是产生概率。（SVM就是铰链损失函数）</strong></li>
+<li>count:poisson –计数数据的泊松回归，泊松分布的输出平均值。</li>
+<li>survival:cox：针对正确的生存时间数据进行Cox回归（负值被视为正确的生存时间）。</li>
+<li>survival:aft：用于检查生存时间数据的加速故障时间模型。</li>
+<li>aft_loss_distribution：survival:aft和aft-nloglik度量标准使用的概率密度函数。</li>
+<li><strong>multi:softmax：设置XGBoost以使用softmax目标进行多类分类，还需要设置num_class（类数）</strong></li>
+<li><strong>multi:softprob：与softmax相同，但输出向量，可以进一步重整为矩阵。结果包含属于每个类别的每个数据点的预测概率。</strong></li>
+<li>rank:pairwise：使用LambdaMART进行成对排名，从而使成对损失最小化。</li>
+<li>rank:ndcg：使用LambdaMART进行列表式排名，使标准化折让累积收益（NDCG）最大化。</li>
+<li>rank:map：使用LambdaMART进行列表平均排名，使平均平均精度（MAP）最大化。</li>
+<li>reg:gamma：使用对数链接进行伽马回归。输出是伽马分布的平均值。</li>
+<li>reg:tweedie：使用对数链接进行Tweedie回归。</li>
+<li>自定义损失函数和评价指标：<a href="https://xgboost.readthedocs.io/en/latest/tutorials/custom_metric_obj.html">https://xgboost.readthedocs.io/en/latest/tutorials/custom_metric_obj.html</a></li>
+</ul></li>
+
+<li><p><strong>eval_metric</strong>：验证数据的评估指标，将根据目标分配默认指标（回归均方根，分类误差，排名的平均平均精度），用户可以添加多个评估指标</p>
+
+<ul>
+<li><strong>rmse，均方根误差；</strong><br /></li>
+<li><strong>rmsle：均方根对数误差；</strong><br /></li>
+
+<li><p>mae：平均绝对误差；</p></li>
+
+<li><p>mphe：平均伪Huber错误；</p></li>
+
+<li><p><strong>logloss：负对数似然；</strong></p></li>
+
+<li><p><strong>error：二进制分类错误率；</strong></p></li>
+
+<li><p><strong>merror：多类分类错误率；</strong></p></li>
+
+<li><p><strong>mlogloss：多类logloss；</strong></p></li>
+
+<li><p><strong>auc：曲线下面积；</strong></p></li>
+
+<li><p>aucpr：PR曲线下的面积；</p></li>
+
+<li><p>ndcg：归一化累计折扣；</p></li>
+
+<li><p>map：平均精度；</p></li>
+
+<li><p>mape: Mean Absolute Percentage Error平均绝对百分比误差</p></li>
+</ul></li>
+</ul></li>
+</ul>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2021/png/200056/1620480293049-b92608d4-3afa-4438-b1a0-28e492abe4e6.png#clientId=u6ceffd51-66b5-4&amp;from=paste&amp;height=65&amp;id=u1747b7d9&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=129&amp;originWidth=516&amp;originalType=binary&amp;size=6280&amp;status=done&amp;style=none&amp;taskId=u62851b65-7ed6-4475-8583-0c140ae5549&amp;width=258" alt="image.png" /></p>
+
+<ul>
+<li>seed ：随机数种子，[默认= 0]。</li>
+</ul>
+
+<p>XGB参数调优的一般步骤
+1. 确定学习速率和提升参数调优的初始值
+2. max_depth 和 min_child_weight 参数调优
+3. gamma参数调优
+4. subsample 和 colsample_bytree 参数优
+5. 正则化参数alpha调优
+6. 降低学习速率和使用更多的决策树</p>
+
+<pre><code class="language-python"># 回归
+params = {
+    'booster': 'gbtree',
+    'objective': 'reg:squarederror',
+    'gamma': 0.1,
+    'max_depth': 5,
+    'lambda': 3,
+    'subsample': 0.7,
+    'colsample_bytree': 0.7,
+    'min_child_weight': 3,
+    'silent': 1,
+    'eta': 0.1,
+    'seed': 1000,
+    'nthread': 4,
+}
+
+model = xgb.XGBRegressor(**params)
+
+# 分类
+params = {
+    'booster': 'gbtree',
+    'objective': 'multi:softmax',
+    'num_class': 3,
+    'gamma': 0.1,
+    'max_depth': 6,
+    'lambda': 2,
+    'subsample': 0.7,
+    'colsample_bytree': 0.75,
+    'min_child_weight': 3,
+    'silent': 0,
+    'eta': 0.1,
+    'seed': 1,
+    'nthread': 4,
+}
+model = xgb.XGBClassifier(**params)
+</code></pre>
+
+<h2 id="2-lgb参数调优">2 LGB参数调优</h2>
+
+<p>LightGBM也是像XGBoost一样，是一类集成算法，他跟XGBoost总体来说是一样的，算法本质上与Xgboost没有出入，只是在XGBoost的基础上进行了优化，因此就不对原理进行重复介绍，在这里我们来看看几种算法的差别：</p>
+
+<ul>
+<li><p>优化速度和内存使用</p>
+
+<ul>
+<li>降低了计算每个分割增益的成本。</li>
+<li>使用直方图减法进一步提高速度。</li>
+<li>减少内存使用。</li>
+<li>减少并行学习的计算成本。</li>
+</ul></li>
+
+<li><p>稀疏优化</p>
+
+<ul>
+<li>用离散的bin替换连续的值。如果#bins较小，则可以使用较小的数据类型（例如uint8_t）来存储训练数据</li>
+<li>无需存储其他信息即可对特征数值进行预排序  。</li>
+</ul></li>
+
+<li><p>精度优化</p>
+
+<ul>
+<li>使用叶子数为导向的决策树建立算法而不是树的深度导向。</li>
+<li>分类特征的编码方式的优化</li>
+<li>通信网络的优化</li>
+<li>并行学习的优化</li>
+<li>GPU支持</li>
+</ul></li>
+</ul>
+
+<p><strong>1.核心参数：</strong>（括号内名称是别名）</p>
+
+<ul>
+<li><p>objective（objective，app ，application）：默认<strong>regression</strong>，用于设置损失函数</p>
+
+<ul>
+<li><p>回归问题：</p>
+
+<ul>
+<li>L2损失：regression（regression_l2，l2，mean_squared_error，mse，l2_root，root_mean_squared_error，rmse）</li>
+<li>L1损失：regression_l1（l1, mean_absolute_error, mae）</li>
+<li>其他损失：huber，fair，poisson，quantile，mape，gamma，tweedie</li>
+</ul></li>
+
+<li><p>二分类问题：二进制对数损失分类（或逻辑回归）：binary</p></li>
+
+<li><p>多类别分类：</p>
+
+<ul>
+<li>softmax目标函数： multiclass（softmax）</li>
+<li>One-vs-All 目标函数：multiclassova（multiclass_ova，ova，ovr）</li>
+</ul></li>
+
+<li><p>交叉熵：</p>
+
+<ul>
+<li>用于交叉熵的目标函数（具有可选的线性权重）：cross_entropy（xentropy）</li>
+<li>交叉熵的替代参数化：cross_entropy_lambda（xentlambda）</li>
+</ul></li>
+</ul></li>
+
+<li><p>boosting ：默认<strong>gbdt</strong>，设置提升类型，选项有gbdt，rf，dart，goss，别名：boosting_type，boost</p>
+
+<ul>
+<li>gbdt（gbrt）:传统的梯度提升决策树</li>
+<li>rf（random_forest）：随机森林</li>
+<li>dart：多个加性回归树的DROPOUT方法 Dropouts meet Multiple Additive Regression Trees，参见：<a href="https://arxiv.org/abs/1505.01866">https://arxiv.org/abs/1505.01866</a></li>
+<li>goss：基于梯度的单边采样 Gradient-based One-Side Sampling</li>
+</ul></li>
+
+<li><p>data（train，train_data，train_data_file，data_filename）：用于训练的数据或数据file</p></li>
+
+<li><p>valid （test，valid_data，valid_data_file，test_data，test_data_file，valid_filenames）：验证/测试数据的路径，LightGBM将输出这些数据的指标</p></li>
+
+<li><p><strong>num_iterations：默认=100，类型= INT</strong></p></li>
+
+<li><p>n_estimators：提升迭代次数，**LightGBM构造用于多类分类问题的树num_class _ num<em>iterations</em></p></li>
+
+<li><p>learning_rate（shrinkage_rate，eta） ：收缩率，默认=0.1</p></li>
+
+<li><p>num_leaves（num_leaf，max_leaves，max_leaf） ：默认=31，一棵树上的最大叶子数</p></li>
+
+<li><p>tree_learner （tree，tree_type，tree_learner_type）：默认=serial，可选：serial，feature，data，voting</p>
+
+<ul>
+<li>serial：单台机器的 tree learner</li>
+<li>feature：特征并行的 tree learner</li>
+<li>data：数据并行的 tree learner</li>
+<li>voting：投票并行的 tree learner</li>
+</ul></li>
+
+<li><p>num_threads（num_thread, nthread）：LightGBM 的线程数，为了更快的速度, 将此设置为真正的 CPU 内核数, 而不是线程的数量 (大多数 CPU 使用超线程来使每个 CPU 内核生成 2 个线程)，当你的数据集小的时候不要将它设置的过大 (比如, 当数据集有 10,000 行时不要使用 64 线程)，对于并行学习, 不应该使用全部的 CPU 内核, 因为这会导致网络性能不佳。</p></li>
+
+<li><p>device（device_type）：默认cpu，为树学习选择设备, 你可以使用 GPU 来获得更快的学习速度，可选cpu, gpu。</p></li>
+
+<li><p>seed （random_seed，random_state）：与其他种子相比，该种子具有较低的优先级，这意味着如果您明确设置其他种子，它将被覆盖。</p></li>
+</ul>
+
+<p><strong>2.用于控制模型学习过程的参数：</strong></p>
+
+<ul>
+<li>max_depth：限制树模型的最大深度. 这可以在 #data 小的情况下防止过拟合. 树仍然可以通过 leaf-wise 生长。</li>
+<li><strong>min_data_in_leaf： 默认=20，一个叶子上数据的最小数量. 可以用来处理过拟合。</strong></li>
+<li>min_sum_hessian_in_leaf（min_sum_hessian_per_leaf, min_sum_hessian, min_hessian）：默认=1e-3，一个叶子上的最小 hessian 和. 类似于 min_data_in_leaf, 可以用来处理过拟合.</li>
+<li><strong>feature_fraction：default=1.0，如果 feature_fraction 小于 1.0, LightGBM 将会在每次迭代中随机选择部分特征. 例如, 如果设置为 0.8, 将会在每棵树训练之前选择 80% 的特征，可以用来加速训练，可以用来处理过拟合。</strong></li>
+<li>feature_fraction_seed：默认=2，feature_fraction 的随机数种子。</li>
+<li><strong>bagging_fraction（sub_row, subsample）：默认=1，不进行重采样的情况下随机选择部分数据</strong></li>
+<li><strong>bagging_freq（subsample_freq）：bagging 的频率, 0 意味着禁用 bagging. k 意味着每 k 次迭代执行bagging</strong></li>
+<li>bagging_seed（bagging_fraction_seed） ：默认=3，bagging 随机数种子。</li>
+<li><strong>early_stopping_round（early_stopping_rounds, early_stopping）：默认=0，如果一个验证集的度量在 early_stopping_round 循环中没有提升, 将停止训练</strong></li>
+<li>lambda_l1（reg_alpha）：L1正则化系数</li>
+<li>lambda_l2（reg_lambda）：L2正则化系数</li>
+<li>min_split_gain（min_gain_to_split）：执行切分的最小增益，默认=0.</li>
+<li>cat_smooth：默认=10，用于分类特征，可以降低噪声在分类特征中的影响, 尤其是对数据很少的类别</li>
+</ul>
+
+<p><strong>3.度量参数：</strong></p>
+
+<ul>
+<li><p>metric：default={l2 for regression}, {binary_logloss for binary classification}, {ndcg for lambdarank}, type=multi-enum, options=l1, l2, ndcg, auc, binary_logloss, binary_error …</p>
+
+<ul>
+<li>l1, absolute loss, alias=mean_absolute_error, mae</li>
+<li>l2, square loss, alias=mean_squared_error, mse</li>
+<li>l2_root, root square loss, alias=root_mean_squared_error, rmse</li>
+<li>quantile, Quantile regression</li>
+<li>huber, Huber loss</li>
+<li>fair, Fair loss</li>
+<li>poisson, Poisson regression</li>
+<li>ndcg, NDCG</li>
+<li>map, MAP</li>
+<li>auc, AUC</li>
+<li>binary_logloss, log loss</li>
+<li>binary_error, 样本: 0 的正确分类, 1 错误分类</li>
+<li>multi_logloss, mulit-class 损失日志分类</li>
+<li>multi_error, error rate for mulit-class 出错率分类</li>
+<li>xentropy, cross-entropy (与可选的线性权重), alias=cross_entropy</li>
+<li>xentlambda, “intensity-weighted” 交叉熵, alias=cross_entropy_lambda</li>
+<li>kldiv, Kullback-Leibler divergence, alias=kullback_leibler</li>
+<li>支持多指标, 使用 , 分隔</li>
+</ul></li>
+
+<li><p>train_metric（training_metric, is_training_metric）：默认=False，如果你需要输出训练的度量结果则设置 true</p></li>
+</ul>
+
+<p><strong>4.GPU 参数：</strong></p>
+
+<ul>
+<li>gpu_device_id：default为-1, 这个default意味着选定平台上的设备。</li>
+</ul>
+
+<h2 id="3-集成学习">3 集成学习</h2>
+
+<p>集成学习方法主要分成三种：bagging，boosting 和 Stacking。这里主要介绍Stacking。</p>
+
+<p>Stacking严格来说并不是一种算法，而是精美而又复杂的，对模型集成的一种策略。</p>
+
+<p>Stacking集成算法可以<strong>理解为一个两层的集成，第一层含有多个基础分类器，把预测的结果(元特征)提供给第二层， 而第二层的分类器通常是逻辑回归，他把一层分类器的结果当做特征做拟合输出预测结果。</strong>在介绍Stacking之前，我们先来对简化版的Stacking进行讨论，也叫做Blending，接着我们对Stacking进行更深入的讨论。</p>
+
+<h3 id="blending集成学习算法">Blending集成学习算法</h3>
+
+<p>不知道大家小时候有没有过这种经历：老师上课提问到你，那时候你因为开小差而无法立刻得知问题的答案。就在你彷徨的时候，由于你平时人缘比较好，因此周围的同学向你伸出援手告诉了你他们脑中的正确答案，因此你对他们的答案加以总结和分析最终的得出正确答案。相信大家都有过这样的经历，说这个故事的目的是为了引出集成学习家族中的Blending方式，这种集成方式跟我们的故事是十分相像的。</p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2021/png/200056/1620481702983-63869584-77ee-49ee-8174-aecb56a20743.png#clientId=u6ceffd51-66b5-4&amp;from=paste&amp;height=587&amp;id=uef1a0805&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=1174&amp;originWidth=856&amp;originalType=binary&amp;size=412372&amp;status=done&amp;style=none&amp;taskId=u37a235e8-1d86-4124-8350-c2647dedafd&amp;width=428" alt="image.png" /></p>
+
+<p>下面我们来详细讨论下这个Blending集成学习方式：</p>
+
+<ul>
+<li>(1) 将数据划分为<strong>训练集和测试集(test_set)</strong>，其中<strong>训练集</strong>需要再次划分为<strong>训练集(train_set)和验证集(val_set)；</strong></li>
+<li>(2) 创建第一层的多个模型，这些模型可以使同质的也可以是异质的；</li>
+<li>(3) 使用train_set训练步骤2中的多个模型，然后用训练好的模型预测val_set和test_set得到val_predict, test_predict1；</li>
+<li>(4) 创建第二层的模型,使用val_predict作为训练集训练第二层的模型；</li>
+<li><strong>(5) 使用第二层训练好的模型对第二层测试集test_predict1进行预测，该结果为整个测试集的结果。</strong></li>
+</ul>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2021/png/200056/1620481815604-a123fc34-5fbb-4d18-a8bf-91ab6193a38d.png#clientId=u6ceffd51-66b5-4&amp;from=paste&amp;height=270&amp;id=ue7380490&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=540&amp;originWidth=1536&amp;originalType=binary&amp;size=135429&amp;status=done&amp;style=none&amp;taskId=u4744c868-6eb6-4f7d-aece-cda90a4e06b&amp;width=768" alt="image.png" /></p>
+
+<p>以上是Blending集成方式的过程，接下来我们来分析这个集成方式的优劣：</p>
+
+<ul>
+<li>其中一个最重要的优点就是实现简单粗暴，没有太多的理论的分析。</li>
+<li>但是这个方法的缺点也是显然的<strong>：blending只使用了一部分数据集作为留出集进行验证，也就是只能用上数据中的一部分，实际上这对数据来说是很奢侈浪费的</strong>。</li>
+</ul>
+
+<h3 id="stacking集成学习算法">Stacking集成学习算法</h3>
+
+<p>基于前面对Blending集成学习算法的讨论，我们知道：<strong>Blending在集成的过程中只会用到验证集的数据，对数据实际上是一个很大的浪费。</strong>为了解决这个问题，我们详细分析下Blending到底哪里出现问题并如何改进。在Blending中，<strong>我们产生验证集的方式是使用分割的方式，产生一组训练集和一组验证集，这让我们联想到交叉验证的方式。顺着这个思路，我们对Stacking进行建模(如下图)：</strong></p>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2021/png/200056/1620482312003-950497bd-77b3-4d10-b315-e60b5c7e8e61.png#clientId=u6ceffd51-66b5-4&amp;from=paste&amp;height=281&amp;id=u41770244&amp;margin=%5Bobject%20Object%5D&amp;name=image.png&amp;originHeight=562&amp;originWidth=2078&amp;originalType=binary&amp;size=873199&amp;status=done&amp;style=none&amp;taskId=uedb18e2c-d989-4ce8-8ee7-0ea2ed5826e&amp;width=1039" alt="image.png" /></p>
+
+<ul>
+<li>首先将所有数据集生成测试集和训练集（假如训练集为10000,测试集为2500行），那么上层会进行5折交叉检验，<strong>使用训练集中的8000条作为训练集，剩余2000行作为验证集（橙色</strong>）。</li>
+<li>每次验证相当于使用了蓝色的8000条数据训练出一个模型，使用模型对验证集进行验证得到2000条数据，并对测试集进行预测，得到2500条数据，这样经过5次交叉检验，可以得到<strong>中间的橙色的5</strong><em>** 2000条验证集的结果(相当于每条数据的预测结果)，5**</em>** 2500条测试集的预测结果。**</li>
+<li>接下来会<strong>将验证集的5</strong><em>** 2000条预测结果拼接成10000行长的矩阵（new train set for 第二层输出）**。标记为，而对于5</em> <strong>2500行的测试集的预测结果进行加权平均，得到一个2500一列的矩阵</strong>，标记为$$B_1$$。</li>
+<li>上面得到一个基模型在数据集上的预测结果$$A_1$$、$$B_1$$,这样当我们对3个基模型进行集成的话，相于得到了$$A_1$$、$$A_2$$、$$A_3$$、$$B_1$$、$$B_2$$、$$B_3$$六个矩阵。</li>
+<li>之后我们会将$$A_1$$、$$A_2$$、$$A_3$$并列在一起成<strong>10000行3列的矩阵作为training data</strong>,$$B_1$$、$$B_2$$、$$B_3$$合并在一起成<strong>2500行3列的矩阵作为testing  data</strong>，让下层学习器基于这样的数据进行再训练。</li>
+<li>再训练是基于每个基础模型的预测结果作为特征（三个特征），次学习器会学习训练如果往这样的基学习的预测结果上赋予权重w，来使得最后的预测最为准确。</li>
+</ul>
+
+<p>下面，我们来实际应用下Stacking是如何集成算法的
+<img src="https://cdn.nlark.com/yuque/0/2021/png/200056/1620470536393-72a43d8f-b302-45d7-ab80-41da697051df.png#clientId=u75ea808c-a0e3-4&amp;from=paste&amp;height=596&amp;id=u3a9d85ae&amp;margin=%5Bobject%20Object%5D&amp;originHeight=596&amp;originWidth=1844&amp;originalType=url&amp;status=done&amp;style=none&amp;taskId=uda4524b3-9ffd-4fb1-a416-0a6eaca8061&amp;width=1844" alt="" /></p>
+
+<p>1、首先我们会得到两组数据：训练集和测试集。将训练集分成5份：train1,train2,train3,train4,train5。
+2、选定基模型。这里假定我们选择了xgboost, lightgbm 和 randomforest 这三种作为基模型。比如xgboost模型部分：依次用train1,train2,train3,train4,train5作为验证集，其余4份作为训练集，进行5折交叉验证进行模型训练；再在测试集上进行预测。这样会得到在<strong>训练集上由xgboost模型训练出来的5份predictions，和在测试集上的1份预测值B1。</strong>将这<strong>五份纵向重叠合并起来得到A1</strong>。lightgbm和randomforest模型部分同理。
+3、三个基模型训练完毕后，<strong>将三个模型在训练集上的预测值作为分别作为3个&rdquo;特征&rdquo;A1,A2,A3，使用LR模型进行训练，建立LR模型。</strong>
+4、使用训练好的LR模型，在三个基模型之前在<strong>测试集上的预测值所构建的三个&rdquo;特征&rdquo;的值(B1,B2,B3)上</strong>，进行预<strong>测，得出最终的预测类别或概率。</strong></p>
+
+<p>由于sklearn并没有直接对Stacking的方法，因此我们需要下载mlxtend工具包(pip install mlxtend)</p>
+
+<p><strong>stacking主要有几种使用方法：</strong>
+1、最基本的使用方法，即使用基分类器所产生的预测类别作为meta-classifier“特征”的输入数据</p>
+
+<pre><code class="language-python">from sklearn import datasets
+
+iris = datasets.load_iris()
+X, y = iris.data[:, 1:3], iris.target
+
+from sklearn import model_selection
+from sklearn.linear_model import LogisticRegression
+from xgboost.sklearn import XGBClassifier
+import lightgbm as lgb
+from sklearn.ensemble import RandomForestClassifier
+from mlxtend.classifier import StackingClassifier
+import numpy as np
+
+basemodel1 = XGBClassifier()
+basemodel2 = lgb.LGBMClassifier()
+basemodel3 = RandomForestClassifier(random_state=1)
+
+lr = LogisticRegression()
+sclf = StackingClassifier(classifiers=[basemodel1, basemodel2, basemodel3],
+                          meta_classifier=lr)
+
+print('5-fold cross validation:\n')
+
+for basemodel, label in zip([basemodel1, basemodel2, basemodel3, sclf],
+                      ['xgboost',
+                       'lightgbm',
+                       'Random Forest',
+                       'StackingClassifier']):
+
+    scores = model_selection.cross_val_score(basemodel,X, y,
+                                              cv=5, scoring='accuracy')
+    print(&quot;Accuracy: %0.2f (+/- %0.2f) [%s]&quot;
+          % (scores.mean(), scores.std(), label))
+</code></pre>
+
+<p>2、这一种是使用第一层所有基分类器所产生的类别概率值作为meta-classfier的输入。需要在StackingClassifier 中增加一个参数设置：use_probas = True。</p>
+
+<p>另外，还有一个参数设置average_probas = True,那么这些基分类器所产出的概率值将按照列被平均，否则会拼接。</p>
+
+<p>例如：
+基分类器1：predictions=[0.2,0.2,0.7]
+基分类器2：predictions=[0.4,0.3,0.8]
+基分类器3：predictions=[0.1,0.4,0.6]</p>
+
+<p>1）若use_probas = True，average_probas = True，
+则产生的meta-feature 为：[0.233, 0.3, 0.7]</p>
+
+<p>2）若use_probas = True，average_probas = False，
+则产生的meta-feature 为：[0.2,0.2,0.7,0.4,0.3,0.8,0.1,0.4,0.6]</p>
+
+<pre><code class="language-python">from sklearn import datasets
+
+iris = datasets.load_iris()
+X, y = iris.data[:, 1:3], iris.target
+
+from sklearn import model_selection
+from sklearn.linear_model import LogisticRegression
+from xgboost.sklearn import XGBClassifier
+import lightgbm as lgb
+from sklearn.ensemble import RandomForestClassifier
+from mlxtend.classifier import StackingClassifier
+import numpy as np
+
+basemodel1 = XGBClassifier()
+basemodel2 = lgb.LGBMClassifier()
+basemodel3 = RandomForestClassifier(random_state=1)
+lr = LogisticRegression()
+sclf = StackingClassifier(classifiers=[basemodel1, basemodel2, basemodel3],
+                          use_probas=True,
+                          average_probas=False,
+                          meta_classifier=lr)
+
+print('5-fold cross validation:\n')
+
+for basemodel, label in zip([basemodel1, basemodel2, basemodel3, sclf],
+                      ['xgboost',
+                       'lightgbm',
+                       'Random Forest',
+                       'StackingClassifier']):
+
+    scores = model_selection.cross_val_score(basemodel,X, y,
+                                              cv=5, scoring='accuracy')
+    print(&quot;Accuracy: %0.2f (+/- %0.2f) [%s]&quot;
+          % (scores.mean(), scores.std(), label))
+</code></pre>
+
+<p>3、这一种方法是对基分类器训练的特征维度进行操作的，并不是给每一个基分类器全部的特征，而是赋予不同的基分类器不同的特征。比如：基分类器1训练前半部分的特征，基分类器2训练后半部分的特征。这部分的操作是通过sklearn中的pipelines实现。最终通过StackingClassifier组合起来。</p>
+
+<pre><code class="language-python">from sklearn.datasets import load_iris
+from mlxtend.classifier import StackingClassifier
+from mlxtend.feature_selection import ColumnSelector
+from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import LogisticRegression
+from xgboost.sklearn import XGBClassifier
+from sklearn.ensemble import RandomForestClassifier
+
+iris = load_iris()
+X = iris.data
+y = iris.target
+#基分类器1：xgboost
+pipe1 = make_pipeline(ColumnSelector(cols=(0, 2)),
+                      XGBClassifier())
+#基分类器2：RandomForest
+pipe2 = make_pipeline(ColumnSelector(cols=(1, 2, 3)),
+                      RandomForestClassifier())
+
+sclf = StackingClassifier(classifiers=[pipe1, pipe2],
+                          meta_classifier=LogisticRegression())
+
+sclf.fit(X, y)
+</code></pre>
+
+<p><strong>StackingClassifier使用API和参数说明：</strong></p>
+
+<pre><code class="language-python">StackingClassifier(classifiers, meta_classifier, use_probas=False, average_probas=False, verbose=0, use_features_in_secondary=False)
+</code></pre>
+
+<p>参数：
+classifiers: 基分类器，数组形式，[cl1, cl2, cl3]. 每个基分类器的属性被存储在类属性 self.clfs_.</p>
+
+<p>meta_classifier: 目标分类器，即将前面分类器合起来的分类器</p>
+
+<p>use_probas: bool (default: False) ，如果设置为True， 那么目标分类器的输入就是前面分类输出的类别概率值而不是类别标签</p>
+
+<p>average_probas: bool (default: False)，当上一个参数use_probas = True时需设置，average_probas=True表示所有基分类器输出的概率值需被平均，否则拼接。verbose: int, optional (default=0)。用来控制使用过程中的日志输出，当 verbose = 0时，什么也不输出， verbose = 1，输出回归器的序号和名字。verbose = 2，输出详细的参数信息。verbose &gt; 2, 自动将verbose设置为小于2的，verbose -2.use_features_in_secondary: bool (default: False). 如果设置为True，那么最终的目标分类器就被基分类器产生的数据和最初的数据集同时训练。如果设置为False，最终的分类器只会使用基分类器产生的数据训练。</p>
+
+<p>备注：Stacking一般多是两层就够了，多层也是可以的。</p>
+
+<p>例如下图：
+<img src="https://cdn.nlark.com/yuque/0/2021/png/200056/1620470628042-728d678b-5168-44cb-804b-d82e24d7b080.png#clientId=u75ea808c-a0e3-4&amp;from=paste&amp;height=367&amp;id=u8c663175&amp;margin=%5Bobject%20Object%5D&amp;originHeight=367&amp;originWidth=720&amp;originalType=url&amp;status=done&amp;style=none&amp;taskId=u8868a67a-3ea7-4789-bfab-f90f0da4131&amp;width=720" alt="" /></p>
+
+<h2 id="案例">案例</h2>
+
 <pre><code class="language-python">'''
 Author: ydzhao
 Description: stacking模型融合
@@ -1770,8 +2281,9 @@ if __name__ == '__main__':
 </code></pre>
 
 <p>BayesOpt包主要使用BayesianOptimization函数来创建一个优化对象，该函数接受一个模型评估函数function，
-这个function的输入应该是xgboost(或者其他ML模型)的超参数，输出是模型在测试集上的效果(可以是Accuracy，也可以是RMSE，取决于具体的任务，一般返回K-Fold的均值)。
-基于5-Fold的LightGBM贝叶斯优化的</p>
+这个function的输入应该是xgboost(或者其他ML模型)的超参数，输出是模型在测试集上的效果(可以是Accuracy，也可以是RMSE，取决于具体的任务，一般返回K-Fold的均值)。</p>
+
+<p>基于5-Fold的LightGBM贝叶斯优化的</p>
 
 <pre><code class="language-python"># -*- coding: utf-8 -*-#
 

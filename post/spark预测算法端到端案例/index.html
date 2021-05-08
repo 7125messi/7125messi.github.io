@@ -51,7 +51,7 @@
     },
     "datePublished": "2021-03-27",
     "description": "",
-    "wordCount":  3304 
+    "wordCount":  3462 
   }
 </script>
 
@@ -161,8 +161,8 @@
 
 
   
-  &middot; Read in about 16 min
-  &middot; (3304 Words)
+  &middot; Read in about 17 min
+  &middot; (3462 Words)
   <br>
   
 
@@ -560,6 +560,8 @@ from scipy.stats import hmean
 # from pykalman import KalmanFilter
 from tqdm import tqdm
 
+
+# 减少内存--类型
 class Data_Preprocess:
     def __init__(self):
         self.int8_max = np.iinfo(np.int8).max
@@ -640,6 +642,50 @@ class Data_Preprocess:
         afterprocess_memory = df.memory_usage().sum() / 1024 ** 2 / 1024
         print('After processing, the data occupies {} GB memory.'.format(afterprocess_memory))
         return df
+</code></pre>
+
+<pre><code class="language-python"># 减少内存--函数型
+def reduce_mem(df):
+    starttime = time.time()
+    numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
+    start_mem = df.memory_usage().sum() / 1024**2
+    for col in df.columns:
+        col_type = df[col].dtypes
+        if col_type in numerics:
+            c_min = df[col].min()
+            c_max = df[col].max()
+            if pd.isnull(c_min) or pd.isnull(c_max):
+                continue
+            if str(col_type)[:3] == 'int':
+                if c_min &gt; np.iinfo(np.int8).min and c_max &lt; np.iinfo(np.int8).max:
+                    df[col] = df[col].astype(np.int8)
+                elif c_min &gt; np.iinfo(np.int16).min and c_max &lt; np.iinfo(np.int16).max:
+                    df[col] = df[col].astype(np.int16)
+                elif c_min &gt; np.iinfo(np.int32).min and c_max &lt; np.iinfo(np.int32).max:
+                    df[col] = df[col].astype(np.int32)
+                elif c_min &gt; np.iinfo(np.int64).min and c_max &lt; np.iinfo(np.int64).max:
+                    df[col] = df[col].astype(np.int64)
+            else:
+                if c_min &gt; np.finfo(np.float16).min and c_max &lt; np.finfo(np.float16).max:
+                    df[col] = df[col].astype(np.float16)
+                elif c_min &gt; np.finfo(np.float32).min and c_max &lt; np.finfo(np.float32).max:
+                    df[col] = df[col].astype(np.float32)
+                else:
+                    df[col] = df[col].astype(np.float64)
+    end_mem = df.memory_usage().sum() / 1024**2
+    print('-- Mem. usage decreased to {:5.2f} Mb ({:.1f}% reduction),time spend:{:2.2f} min'.format(end_mem,100*(start_mem-end_mem)/start_mem,(time.time()-starttime)/60))
+    return df
+</code></pre>
+
+<pre><code class="language-python"># 删除不需要的变量，释放内存
+import gc
+# Python中，为了解决内存泄露问题，采用了对象引用计数，并基于引用计数实现自动垃圾回收
+# 没有__del__()函数的对象间的循环引用是可以被垃圾回收器回收掉的
+
+# 但是对于  有 __del__() 函数的对象间的循环引用会导致内存泄漏
+# gc.collect() 可以返回处理这些循环引用一共释放掉的对象个数
+del train_data, test_data, user_info
+gc.collect()
 </code></pre>
 
 <h4 id="2-阴阳历转换">（2）阴阳历转换</h4>
