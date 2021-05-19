@@ -7,10 +7,27 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>(c) 2018 7125messi.</copyright>
-    <lastBuildDate>Mon, 26 Apr 2021 22:19:13 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 19 May 2021 22:36:40 +0800</lastBuildDate>
     
 	<atom:link href="https://7125messi.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>mmlspark订单量预测案例</title>
+      <link>https://7125messi.github.io/post/mmlspark%E8%AE%A2%E5%8D%95%E9%87%8F%E9%A2%84%E6%B5%8B%E6%A1%88%E4%BE%8B/</link>
+      <pubDate>Wed, 19 May 2021 22:36:40 +0800</pubDate>
+      
+      <guid>https://7125messi.github.io/post/mmlspark%E8%AE%A2%E5%8D%95%E9%87%8F%E9%A2%84%E6%B5%8B%E6%A1%88%E4%BE%8B/</guid>
+      <description>本文是前文 Spark预测算法端到端案例的姊妹篇，那一篇用的是普通的lightgbm做的订单量预测，后面随着门店的增加，运行效率不高。
+本文主要采用了微软开源的 Microsoft Machine Learning for Apache Spark
+https://github.com/Azure/mmlspark
+具体用法在上文 Lightgbm在spark实战介绍过，可参考学习。。。
+1 门店分类 由于门店数据量巨大，所有门店数据在一起做模型训练，即使在Spark环境下也非常吃性能，所以这里先将门店进行聚类分类，然后在针对同一类型的门店一起训练。
+根据 wfm_dw1.wfm_order_channel_half_hour 渠道半小时订单量数据 生成 7天每半小时特征数据 24*2*7
+训练 数据:20201130--20210131 预测未来28天数据：20210201--20210228
+tstart=&amp;ldquo;20201130&amp;rdquo; tend=&amp;ldquo;20210131&amp;rdquo;
+原数据pdf +-------------------+--------+---------+---------+ |global_store_number|sale_day|half_hour|order_qty| +-------------------+--------+---------+---------+ | 28710|20201210| 20| 17.0| | 28710|20201230| 19| 15.0| | 28710|20201211| 13| 19.0| | 28710|20201203| 31| 1.0| | 28710|20201205| 11| 3.0| | 28710|20210111| 19| 14.0| | 28710|20210119| 16| 22.0| | 28710|20210130| 23| 5.0| | 28710|20210107| 16| 30.0| | 28710|20210117| 23| 8.</description>
+    </item>
     
     <item>
       <title>Lightgbm在spark实战</title>
