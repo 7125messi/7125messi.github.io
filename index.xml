@@ -14,10 +14,10 @@
     
     <item>
       <title>Python并行计算</title>
-      <link>https://7125messi.github.io/python%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/</link>
+      <link>https://7125messi.github.io/post/python%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/</link>
       <pubDate>Sat, 16 Oct 2021 14:34:09 +0800</pubDate>
       
-      <guid>https://7125messi.github.io/python%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/</guid>
+      <guid>https://7125messi.github.io/post/python%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/</guid>
       <description>[参考文献] * 《Effective Python：编写高质量Python代码的90个有效方法（原书第2版）》
 并发（concurrency）指计算机似乎能在同一时刻做许多件不同的事情。例如，在只配有一个CPU核心的计算机上面，操作系统可以迅速切换这个处理器所运行的程序，因此尽管同一时刻最多只有一个程序在运行，但这些程序能够交替地使用这个核心，从而造成一种假象，让人觉得它们好像真的在同时运行。
 并行（parallelism）与并发的区别在于，它强调计算机确实能够在同一时刻做许多件不同的事情。例如，若计算机配有多个CPU核心，那么它就真的可以同时执行多个程序。每个CPU核心执行的都是自己的那个程序之中的指令，这些程序能够同时向前推进。
