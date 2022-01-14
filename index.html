@@ -128,11 +128,93 @@
     <h1>7125messi的博客
 </h1>
 
-    <span>last update: <time datetime="2021-10-16T14:34:09&#43;08:00">16 October at 2:34pm</time>
+    <span>last update: <time datetime="2022-01-14T10:51:14&#43;08:00">14 January at 10:51am</time>
 </span>
 
   </header>
   
+  
+    <article class="container content summary">
+  <div class="container hat">
+  <h2><a href="https://7125messi.github.io/post/spark%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98/">Spark性能调优
+</a>
+</h2>
+
+  <time datetime="2022-01-14">14 Jan, 2022</time>
+
+</div>
+
+  <p class="container content">
+  
+  
+    1 Spark任务计算时间评估 可以用下面三个公式来近似估计spark任务的执行时间。
+$$ 任务执行时间 ≈ \frac{任务计算总时间 + shuffle总时间 + GC垃圾回收总时间} {任务有效并行度}$$
+$$ 任务有效并行度 ≈ \frac{min(任务并行度， partition分区数量)} {数据倾斜度\times 计算倾斜度} $$
+$$ 任务并行度 ≈ executor数量 \times 每个executor的core数量 $$
+可以用下面两个公式来说明spark在executor上的内存分配。
+$$ executor申请的内存 ≈ 堆内内存(堆内内存由多个core共享) + 堆外内存 $$
+$$ 堆内内存 ≈ storage内存+execution内存+other内存 $$
+以下是对上述公式中涉及到的一些概念的初步解读。
+ 任务计算总时间：假设由一台无限内存的同等CPU配置的单核机器执行该任务，所需要的运行时间。通过缓存避免重复计算，通过mapPartitions代替map以减少诸如连接数据库，预处理广播变量等重复过程，都是减少任务计算总时间的例子。
+ shuffle总时间：任务因为reduceByKey，join，sortBy等shuffle类算子会触发shuffle操作产生的磁盘读写和网络传输的总时间。shuffle操作的目的是将分布在集群中多个节点上的同一个key的数据，拉取到同一个节点上，以便让一个节点对同一个key的所有数据进行统一处理。 shuffle过程首先是前一个stage的一个shuffle write即写磁盘过程，中间是一个网络传输过程，然后是后一个stage的一个shuffle read即读磁盘过程。shuffle过程既包括磁盘读写，又包括网络传输，非常耗时。因此如有可能，应当避免使用shuffle类算子。例如用map+broadcast的方式代替join过程。退而求其次，也可以在shuffle之前对相同key的数据进行归并，减少shuffle读写和传输的数据量。此外，还可以应用一些较为高效的shuffle算子来代替低效的shuffle算子。例如用reduceByKey/aggregateByKey来代替groupByKey。最后，shuffle在进行网络传输的过程中会通过netty使用JVM堆外内存，spark任务中大规模数据的shuffle可能会导致堆外内存不足，导致任务挂掉，这时候需要在配置文件中调大堆外内存。
+ GC垃圾回收总时间：当JVM中execution内存不足时，会启动GC垃圾回收过程。执行GC过程时候，用户线程会终止等待。因此如果execution内存不够充分，会触发较多的GC过程，消耗较多的时间。在spark2.0之后excution内存和storage内存是统一分配的，不必调整excution内存占比，可以提高executor-memory来降低这种可能。或者减少executor-cores来降低这种可能(这会导致任务并行度的降低)。
+ 任务有效并行度：任务实际上平均被多少个core执行。它首先取决于可用的core数量。当partition分区数量少于可用的core数量时，只会有partition分区数量的core执行任务，因此一般设置分区数是可用core数量的2倍以上20倍以下。此外任务有效并行度严重受到数据倾斜和计算倾斜的影响。有时候我们会看到99%的partition上的数据几分钟就执行完成了，但是有1%的partition上的数据却要执行几个小时。这时候一般是发生了数据倾斜或者计算倾斜。这个时候，我们说，任务实际上有效的并行度会很低，因为在后面的这几个小时的绝大部分时间，只有很少的几个core在执行任务。
+ 任务并行度：任务可用core的数量。它等于申请到的executor数量和每个executor的core数量的乘积。可以在spark-submit时候用num-executor和executor-cores来控制并行度。此外，也可以开启spark.dynamicAllocation.enabled根据任务耗时动态增减executor数量。虽然提高executor-cores也能够提高并行度，但是当计算需要占用较大的存储时，不宜设置较高的executor-cores数量，否则可能会导致executor内存不足发生内存溢出OOM。
+ partition分区数量：分区数量越大，单个分区的数据量越小，任务在不同的core上的数量分配会越均匀，有助于提升任务有效并行度。但partition数量过大，会导致更多的数据加载时间，一般设置分区数是可用core数量的2倍以上20倍以下。可以在spark-submit中用spark.default.parallelism来控制RDD的默认分区数量，可以用spark.sql.shuffle.partitions来控制SparkSQL中给shuffle过程的分区数量。
+ 数据倾斜度：数据倾斜指的是数据量在不同的partition上分配不均匀。一般来说，shuffle算子容易产生数据倾斜现象，某个key上聚合的数据量可能会百万千万之多，而大部分key聚合的数据量却只有几十几百个。一个partition上过大的数据量不仅需要耗费大量的计算时间，而且容易出现OOM。对于数据倾斜，一种简单的缓解方案是增大partition分区数量，但不能从根本上解决问题。一种较好的解决方案是利用随机数构造数量为原始key数量1000倍的中间key。大概步骤如下，利用1到1000的随机数和当前key组合成中间key，中间key的数据倾斜程度只有原来的1/1000, 先对中间key执行一次shuffle操作，得到一个数据量少得多的中间结果，然后再对我们关心的原始key进行shuffle，得到一个最终结果。
+ 计算倾斜度：计算倾斜指的是不同partition上的数据量相差不大，但是计算耗时相差巨大。考虑这样一个例子，我们的RDD的每一行是一个列表，我们要计算每一行中这个列表中的数两两乘积之和，这个计算的复杂度是和列表长度的平方成正比的，因此如果有一个列表的长度是其它列表平均长度的10倍，那么计算这一行的时间将会是其它列表的100倍，从而产生计算倾斜。计算倾斜和数据倾斜的表现非常相似，我们会看到99%的partition上的数据几分钟就执行完成了，但是有1%的partition上的数据却要执行几个小时。计算倾斜和shuffle无关，在map端就可以发生。计算倾斜出现后，一般可以通过舍去极端数据或者改变计算方法优化性能。
+ 堆内内存：on-heap memory, 即Java虚拟机直接管理的存储，由JVM负责垃圾回收GC。由多个core共享，core越多，每个core实际能使用的内存越少。core设置得过大容易导致OOM，并使得GC时间增加。
+ 堆外内存：off-heap memory, 不受JVM管理的内存, 可以精确控制申请和释放, 没有GC问题。一般shuffle过程在进行网络传输的过程中会通过netty使用到堆外内存。
+  
+
+
+</p>
+
+
+  <div class="container readlink">
+  <a href="https://7125messi.github.io/post/spark%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98/">Read more &rarr;</a>
+
+</div>
+
+
+</article>
+
+  
+    <article class="container content summary">
+  <div class="container hat">
+  <h2><a href="https://7125messi.github.io/post/spark%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">Spark分布式计算
+</a>
+</h2>
+
+  <time datetime="2022-01-14">14 Jan, 2022</time>
+
+</div>
+
+  <p class="container content">
+  
+  
+    [项目经验总结]
+从事数据相关工作，最喜欢用的工具就是基于Pandas、Jupyter Lab等工具，拿到样本数据，单机上快速迭代试验验证想法，这确实很方便，但是等到模型部署上线的时候，数据量很大，很难单机就搞定，目前主流的做法是用Spark分布式计算解决。
+但是如果利用纯 PySpark API，就需要将Pandas API重写成PySpark的API，虽然很多API很类似，但是多少有些不一样，而且有些逻辑用用Pandas生态很容易实现，而利用PySpark却很复杂，遇到PySpark没有的API，动辄就要写UDF函数了，所以实际生产部署的时候，如果采用此方式，改造成本会有点高。
+有没有简单的方法？
+我们知道通常Spark也是作为客户端，使用Hadoop的YARN作为集群的资源管理和调度器。Spark集群由Driver, Cluster Manager（Standalone,Yarn 或 Mesos），以及Worker Node组成。对于每个Spark应用程序，Worker Node上存在一个Executor进程，Executor进程中包括多个Task线程。对于PySpark,为了不破坏Spark已有的运行时架构，Spark在外围包装一层Python API。在Driver端，借助Py4j实现Python和Java的交互，进而实现通过Python编写Spark应用程序。在Executor端，则不需要借助Py4j，因为Executor端运行的Task逻辑是由Driver发过来的，那是序列化后的字节码。
+Spark运行流程
+ Application首先被Driver构建DAG图并分解成Stage。 然后Driver向Cluster Manager申请资源。 Cluster Manager向某些Work Node发送征召信号。 被征召的Work Node启动Executor进程响应征召，并向Driver申请任务。 Driver分配Task给Work Node。 Executor以Stage为单位执行Task，期间Driver进行监控。 Driver收到Executor任务完成的信号后向Cluster Manager发送注销信号。 Cluster Manager向Work Node发送释放资源信号。 Work Node对应Executor停止运行。  所以简单的做法跑PySparkr任务时利用YARN的分发机制，将可以并行计算的任务同时分发到不同Work Node计算，然后每个节点则利用由原来的Pandas API计算即可。
+import sys import calendar from typing import Tuple,List import pandas as pd import numpy as np from sklearn import linear_model from pyspark.sql.types import StringType, IntegerType, DoubleType, DateType from pyspark.sql import functions as F from pyspark.
+  
+
+
+</p>
+
+
+  <div class="container readlink">
+  <a href="https://7125messi.github.io/post/spark%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%A1%E7%AE%97/">Read more &rarr;</a>
+
+</div>
+
+
+</article>
+
   
     <article class="container content summary">
   <div class="container hat">
@@ -463,103 +545,6 @@ config.ini 配置文件 func_forecast.sh 工程执行文件 mysql-connector-java
 
   <div class="container readlink">
   <a href="https://7125messi.github.io/post/svm%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/">Read more &rarr;</a>
-
-</div>
-
-
-</article>
-
-  
-    <article class="container content summary">
-  <div class="container hat">
-  <h2><a href="https://7125messi.github.io/post/randomforest%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/">RandomForest调优详解
-</a>
-</h2>
-
-  <time datetime="2019-08-02">2 Aug, 2019</time>
-
-</div>
-
-  <p class="container content">
-  
-  
-    原文来自：http://www.analyticsvidhya.com/blog/2015/06/tuning-random-forest-model/
-
-为什么要调整机器学习算法？ 一个月以前，我在kaggle上参加了一个名为TFI的比赛。 我第一次提交的结果在50%。 我不懈努力在特征工程上花了超过2周的时间，勉强达到20%。 出乎我意料的事是，在调整机器学习算法参数之后，我能够达到前10%。
-这就是机器学习算法参数调优的重要性。 随机森林是在工业界中使用的最简单的机器学习工具之一。 在我们以前的文章中，我们已经向您介绍了随机森林和和CART模型进行了对比 。 机器学习工具包正由于这些算法的表现而被人所熟知。
-随机森林是什么？ 随机森林是一个集成工具，它使用观测数据的子集（BootStraping）和特征变量的子集（随机选择特征变量）来建立一个决策树。 它建立多个这样的决策树，然后将他们合并在一起以获得更准确和稳定的预测。 这样做最直接的事实是，在这一组独立的预测结果中，用投票方式得到一个最高投票结果，这个比单独使用最好模型预测的结果要好。
-我们通常将随机森林作为一个黑盒子，输入数据然后给出了预测结果，无需担心模型是如何计算的。这个黑盒子本身有几个我们可以摆弄的杠杆。 每个杠杆都能在一定程度上影响模型的性能或资源时间平衡。 在这篇文章中，我们将更多地讨论我们可以调整的杠杆，同时建立一个随机森林模型。
-调整随机森林的参数杠杆 随机森林的参数即可以增加模型的预测能力，又可以使训练模型更加容易。 以下我们将更详细地谈论各个参数（请注意，这些参数，我使用的是Python常规的命名法）：
-1.使模型预测更好的特征 主要有3类特征可以被调整，以改善该模型的预测能力
-
-A. max_features： 随机森林允许单个决策树使用特征的最大数量。 Python为最大特征数提供了多个可选项。 下面是其中的几个：
- Auto/None ：简单地选取所有特征，每颗树都可以利用他们。这种情况下，每颗树都没有任何的限制。
- sqrt ：此选项是每颗子树可以利用总特征数的平方根个。 例如，如果变量（特征）的总数是100，所以每颗子树只能取其中的10个。“log2”是另一种相似类型的选项。
- 0.2：此选项允许每个随机森林的子树可以利用变量（特征）数的20％。如果想考察的特征x％的作用， 我们可以使用“0.X”的格式。
-   If &ldquo;auto&rdquo;, then max_features=sqrt(n_features).
- If &ldquo;sqrt&rdquo;, then max_features=sqrt(n_features) (same as &ldquo;auto&rdquo;).
- If &ldquo;log2&rdquo;, then max_features=log2(n_features).
- If None, then max_features=n_features.
-  max_features如何影响性能和速度？
-增加max_features一般能提高模型的性能，因为在每个节点上，我们有更多的选择可以考虑。 然而，这未必完全是对的，因为它 同时也降低了单个树的多样性 ，而这正是随机森林独特的优点。 但是，可以肯定，你通过增加max_features会降低算法的速度。 因此，你需要适当的平衡和选择最佳max_features。
-  
-
-
-</p>
-
-
-  <div class="container readlink">
-  <a href="https://7125messi.github.io/post/randomforest%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/">Read more &rarr;</a>
-
-</div>
-
-
-</article>
-
-  
-    <article class="container content summary">
-  <div class="container hat">
-  <h2><a href="https://7125messi.github.io/post/gbdt%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/">GBDT调优详解
-</a>
-</h2>
-
-  <time datetime="2019-08-02">2 Aug, 2019</time>
-
-</div>
-
-  <p class="container content">
-  
-  
-    原文地址：Complete Guide to Parameter Tuning in Gradient Boosting (GBM) in Python by Aarshay Jain
-1.前言 如果一直以来你只把GBM当作黑匣子，只知调用却不明就里，是时候来打开这个黑匣子一探究竟了！
-不像bagging算法只能改善模型高方差（high variance）情况，Boosting算法对同时控制偏差（bias）和方差（variance）都有非常好的效果，而且更加高效。
-如果你需要同时处理模型中的方差和偏差，认真理解这篇文章一定会对你大有帮助，
-本文会用Python阐明GBM算法，更重要的是会介绍如何对GBM调参，而恰当的参数往往能令结果大不相同。
-
-2.目录  Boosing是怎么工作的？
- 理解GBM模型中的参数
- 学会调参（附详例）
-  
-3.Boosting是如何工作的？ Boosting可以将一系列弱学习因子（weak learners）相结合来提升总体模型的预测准确度。在任意时间t，根据t-1时刻得到的结果我们给当前结果赋予一个权重。之前正确预测的结果获得较小权重，错误分类的结果得到较大权重。回归问题的处理方法也是相似的。
-让我们用图像帮助理解：
- 图一： 第一个弱学习因子的预测结果（从左至右）
- 一开始所有的点具有相同的权重（以点的尺寸表示）。
- 分类线正确地分类了两个正极和五个负极的点。
-  图二： 第二个弱学习因子的预测结果
- 在图一中被正确预测的点有较小的权重（尺寸较小），而被预测错误的点则有较大的权重。
- 这时候模型就会更加注重具有大权重的点的预测结果，即上一轮分类错误的点，现在这些点被正确归类了，但其他点中的一些点却归类错误。
-   对图3的输出结果的理解也是类似的。这个算法一直如此持续进行直到所有的学习模型根据它们的预测结果都被赋予了一个权重，这样我们就得到了一个总体上更为准确的预测模型。
-现在你是否对Boosting更感兴趣了？不妨看看下面这些文章（主要讨论GBM）：
- Learn Gradient Boosting Algorithm for better predictions (with codes in R)
- Quick Introduction to Boosting Algorithms in Machine Learning
-  
-
-
-</p>
-
-
-  <div class="container readlink">
-  <a href="https://7125messi.github.io/post/gbdt%E8%B0%83%E4%BC%98%E8%AF%A6%E8%A7%A3/">Read more &rarr;</a>
 
 </div>
 
